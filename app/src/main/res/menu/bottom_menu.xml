@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="HOME" />
+
+        <item
+            android:id="@+id/nav_garden"
+            android:icon="@drawable/ic_garden"
+            android:title="GARDEN" />
+
+        <item
+            android:id="@+id/nav_calc"
+            android:icon="@drawable/ic_calc"
+            android:title="CALC" />
+
+        <item
+            android:id="@+id/nav_growth"
+            android:icon="@drawable/ic_growth"
+            android:title="GROWTH" />
+
+        <item
+            android:id="@+id/nav_map"
+            android:icon="@drawable/ic_map"
+            android:title="MAP" />
+</menu>
