@@ -12,4 +12,8 @@
     <string name="calc">CALC</string>
     <string name="garden">GARDEN</string>
     <string name="home">HOME</string>
+    <string name="previous_month">Previous month</string>
+    <string name="september_2025">September 2025</string>
+    <string name="next_month">Next month</string>
+    <string name="month_year">month_year</string>
 </resources>

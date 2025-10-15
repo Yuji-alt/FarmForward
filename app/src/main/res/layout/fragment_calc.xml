@@ -18,13 +18,13 @@
             android:id="@+id/btnPrevMonth"
             android:src="@drawable/ic_arrow_left"
             android:background="@null"
-            android:contentDescription="Previous month"
+            android:contentDescription="@string/previous_month"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
 
         <TextView
             android:id="@+id/tvMonthYear"
-            android:text="September 2025"
+            android:text="@string/month_year"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginHorizontal="16dp"
@@ -35,7 +35,7 @@
             android:id="@+id/btnNextMonth"
             android:src="@drawable/ic_arrow_right"
             android:background="@null"
-            android:contentDescription="Next month"
+            android:contentDescription="@string/next_month"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content" />
     </LinearLayout>
