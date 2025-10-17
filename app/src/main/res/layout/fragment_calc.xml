@@ -1,53 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- 🔹 Container ng Calendar input-->
+    <ScrollView
+        android:id="@+id/calendarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/inputContainer"
+        android:background="@color/greyishWhite"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <!-- Month and Year -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="16dp">
+
+                <ImageButton
+                    android:id="@+id/btnPrevMonth"
+                    android:src="@drawable/ic_arrow_left"
+                    android:background="@null"
+                    android:contentDescription="@string/previous_month"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvMonthYear"
+                    android:text="@string/month_year"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+
+                <ImageButton
+                    android:id="@+id/btnNextMonth"
+                    android:src="@drawable/ic_arrow_right"
+                    android:background="@null"
+                    android:contentDescription="@string/next_month"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+            </LinearLayout>
+
+            <!-- Calendar Grid -->
+            <GridLayout
+                android:id="@+id/calendarGrid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="7"
+                android:rowCount="6"
+                android:alignmentMode="alignBounds"
+                android:useDefaultMargins="true"
+                android:layout_marginBottom="24dp"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 🔹 Container ng input-->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/inputContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginBottom="16dp">
+        android:orientation="vertical"
+        android:background="@color/greyishWhite"
+        android:elevation="6dp"
+        android:padding="16dp"
+        android:layout_alignParentBottom="true">
 
-        <ImageButton
-            android:id="@+id/btnPrevMonth"
-            android:src="@drawable/ic_arrow_left"
-            android:background="@null"
-            android:contentDescription="@string/previous_month"
+        <!-- Input Fields -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="16dp">
 
-        <TextView
-            android:id="@+id/tvMonthYear"
-            android:text="@string/month_year"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginHorizontal="16dp"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            <!-- Row 1 User Input na Crop and Area-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="8dp">
 
-        <ImageButton
-            android:id="@+id/btnNextMonth"
-            android:src="@drawable/ic_arrow_right"
-            android:background="@null"
-            android:contentDescription="@string/next_month"
+                <AutoCompleteTextView
+                    android:id="@+id/inputCrop"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/crop"
+                    android:background="@drawable/input_bg"
+                    android:inputType="none"
+                    android:padding="8dp" />
+
+                <View android:layout_width="8dp" android:layout_height="0dp"/>
+
+                <EditText
+                    android:id="@+id/inputArea"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/area"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"/>
+            </LinearLayout>
+
+            <!-- Row 2 User Input na Soil and Irrigation level-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="8dp">
+
+                <EditText
+                    android:id="@+id/inputSoil"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/soil_type"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"/>
+
+                <View android:layout_width="8dp" android:layout_height="0dp"/>
+
+                <EditText
+                    android:id="@+id/inputIrrigation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/irrigation_level"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"/>
+            </LinearLayout>
+            <!-- Row 3 User Input na Density and Fertiizer-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="8dp">
+
+                <EditText
+                    android:id="@+id/inputDensity"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/planting_density"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"/>
+
+                <View android:layout_width="8dp" android:layout_height="0dp"/>
+
+                <EditText
+                    android:id="@+id/inputFertilizer"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/fertilizer_used"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"/>
+            </LinearLayout>
+
+            <!-- Row 4 User iput na weather and Region-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="8dp">
+
+                <EditText
+                    android:id="@+id/inputWeather"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/weather_condition"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"/>
+
+                <View android:layout_width="8dp" android:layout_height="0dp"/>
+
+                <EditText
+                    android:id="@+id/inputRegion"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/region"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Buttons -->
+        <Button
+            android:id="@+id/btnCalculate"
+            android:text="@string/calculate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            android:backgroundTint="@color/light_gray"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btnSave"
+                android:text="@string/save"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/iron_gray"/>
+
+            <View android:layout_width="8dp" android:layout_height="0dp"/>
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:text="@string/cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/gray"/>
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- Grid for days -->
-    <GridLayout
-        android:id="@+id/calendarGrid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:columnCount="7"
-        android:rowCount="6"
-        android:alignmentMode="alignBounds"
-        android:useDefaultMargins="true"/>
-
-</LinearLayout>
+</RelativeLayout>

@@ -16,4 +16,22 @@
     <string name="september_2025">September 2025</string>
     <string name="next_month">Next month</string>
     <string name="month_year">month_year</string>
+    <string name="area">Area</string>
+    <string name="soil_type">Soil Type</string>
+    <string name="irrigation_level">Irrigation Level</string>
+    <string name="crop">Crop</string>
+    <string name="planting_density">Planting Density</string>
+    <string name="fertilizer_used">Fertilizer Used</string>
+    <string name="weather_condition">Weather Condition</string>
+    <string name="region">Region</string>
+    <string name="calculate">Calculate</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit">Edit</string>
+    <string name="date_planted">date_planted</string>
+    <string name="date">09/18/2025</string>
+    <string name="estimated_harvest_time">Estimated Harvest Time</string>
+    <string name="description">Description:</string>
+    <string name="estimated_harvest_yield">Estimated Harvest Yield</string>
+    <string name="harvest_yield">Harvest Yield</string>
 </resources>

@@ -6,4 +6,6 @@
     <color name="gray">#D3D3D3</color>
     <color name="nav_selected">#4CAF50</color>
     <color name="nav_unselected">#000000</color>
+    <color name="light_gray">#AAAAAA</color>
+    <color name="greyishWhite">#F9F9F9</color>
 </resources>
