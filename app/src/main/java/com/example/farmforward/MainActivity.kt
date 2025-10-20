@@ -1,7 +1,5 @@
 package com.example.farmforward
 import GardenFragment
-import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -13,7 +11,6 @@ import com.example.farmforward.fragment.CalcFragment
 import com.example.farmforward.fragment.GrowthFragment
 import com.example.farmforward.fragment.HomeFragment
 import com.example.farmforward.fragment.MapFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 

@@ -8,11 +8,9 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.database.AppDatabase
 import kotlinx.coroutines.launch
-import kotlin.jvm.java
 
 class LoginActivity : AppCompatActivity() {
 

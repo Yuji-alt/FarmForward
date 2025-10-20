@@ -5,7 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.EditText
+import android.widget.GridLayout
+import android.widget.ImageButton
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.R
@@ -13,8 +20,8 @@ import com.example.farmforward.database.AppDatabase
 import com.example.farmforward.database.CropViewModel
 import java.io.BufferedReader
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.jvm.java
+import java.util.Calendar
+import java.util.Locale
 
 class CalcFragment : Fragment() {
 
