@@ -37,13 +37,11 @@ class CalcFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_calc, container, false)
-        val cropDao = AppDatabase.getDatabase(requireContext()).cropDao()
         cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
         inputCrop = view.findViewById(R.id.inputCrop)
         inputArea = view.findViewById(R.id.inputArea)
         val btnCalculate = view.findViewById<Button>(R.id.btnCalculate)
-        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        val userId = sharedPref.getInt("user_id", -1)
+
 
         calendar = Calendar.getInstance()
         tvMonthYear = view.findViewById(R.id.tvMonthYear)
