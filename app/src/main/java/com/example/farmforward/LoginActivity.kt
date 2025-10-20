@@ -1,5 +1,6 @@
 package com.example.farmforward
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -49,10 +50,16 @@ class LoginActivity : AppCompatActivity() {
                 runOnUiThread {
                     if (user != null) {
                         Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                        val sharedPref = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                        sharedPref.edit().apply {
+                            putInt("user_id", user.id)
+                            putString("username", user.username)
+                            apply()
+                        }
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
                         intent.putExtra("username", username)
                         startActivity(intent)
-                        finish() // so the user can’t go back to login
+                        finish()
                     } else {
                         Toast.makeText(this@LoginActivity, "Invalid credentials!", Toast.LENGTH_SHORT).show()
                     }

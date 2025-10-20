@@ -1,7 +1,7 @@
 package com.example.farmforward
-
 import GardenFragment
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -21,19 +21,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Load Home by default
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, HomeFragment())
             .commit()
 
-        // Find your bottom nav items
         val home = findViewById<LinearLayout>(R.id.nav_home)
         val garden = findViewById<LinearLayout>(R.id.nav_garden)
         val calc = findViewById<LinearLayout>(R.id.nav_calc)
         val growth = findViewById<LinearLayout>(R.id.nav_growth)
         val map = findViewById<LinearLayout>(R.id.nav_map)
 
-        // Switch fragments on click
         home.setOnClickListener {
             replaceFragment(HomeFragment())
             highlightSelected(home)
@@ -70,11 +67,9 @@ class MainActivity : AppCompatActivity() {
             val label = item.getChildAt(1) as TextView
 
             if (item == selected) {
-                // Selected color
                 icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_selected))
                 label.setTextColor(ContextCompat.getColor(this, R.color.nav_selected))
             } else {
-                // Default color
                 icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_unselected))
                 label.setTextColor(ContextCompat.getColor(this, R.color.nav_unselected))
             }

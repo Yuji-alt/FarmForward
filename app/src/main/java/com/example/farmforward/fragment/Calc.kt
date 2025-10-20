@@ -1,5 +1,6 @@
 package com.example.farmforward.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,10 +9,12 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.R
+import com.example.farmforward.database.AppDatabase
 import com.example.farmforward.database.CropViewModel
 import java.io.BufferedReader
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.jvm.java
 
 class CalcFragment : Fragment() {
 
@@ -27,14 +30,14 @@ class CalcFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_calc, container, false)
-
-        // ✅ Setup
+        val cropDao = AppDatabase.getDatabase(requireContext()).cropDao()
         cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
         inputCrop = view.findViewById(R.id.inputCrop)
         inputArea = view.findViewById(R.id.inputArea)
         val btnCalculate = view.findViewById<Button>(R.id.btnCalculate)
+        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
 
-        // ✅ Calendar setup
         calendar = Calendar.getInstance()
         tvMonthYear = view.findViewById(R.id.tvMonthYear)
         calendarGrid = view.findViewById(R.id.calendarGrid)
@@ -55,13 +58,12 @@ class CalcFragment : Fragment() {
             inputCrop.showDropDown()
         }
 
-        // ✅ Load crops into dropdown
+
         val cropList = loadCropNamesFromCSV()
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cropList)
         inputCrop.setAdapter(adapter)
         inputCrop.threshold = 1
 
-        // ✅ Calculate yield
         btnCalculate.setOnClickListener {
             val cropName = inputCrop.text.toString().trim()
             val area = inputArea.text.toString().toDoubleOrNull() ?: 0.0
@@ -70,8 +72,14 @@ class CalcFragment : Fragment() {
                 val yieldPerM2 = getYieldFromCSV(cropName)
                 if (yieldPerM2 != null) {
                     val expectedYield = yieldPerM2 * area
-                    cropViewModel.setCropData(cropName, area, expectedYield)
-                    Toast.makeText(requireContext(), "✅ Crop selected: $cropName", Toast.LENGTH_SHORT).show()
+
+                    val currentUserId = getCurrentUserId()
+                    if (currentUserId != null) {
+                        cropViewModel.setCropData(currentUserId, cropName, area, expectedYield)
+                        Toast.makeText(requireContext(), "✅ Crop saved for user $currentUserId", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "❌ Crop not found in CSV", Toast.LENGTH_SHORT).show()
                 }
@@ -80,10 +88,10 @@ class CalcFragment : Fragment() {
             }
         }
 
+
         return view
     }
 
-    // ✅ Calendar updater
     private fun updateCalendar() {
         calendarGrid.removeAllViews()
         val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
@@ -113,8 +121,8 @@ class CalcFragment : Fragment() {
     private fun loadCropNamesFromCSV(): List<String> {
         val cropNames = mutableListOf<String>()
         try {
-            val inputStream = resources.openRawResource(R.raw.crop)
-            val reader = BufferedReader(inputStream.reader())
+            val inputStream = context?.assets?.open("crop.csv")
+            val reader = BufferedReader(inputStream?.reader())
             reader.readLine() // skip header
             reader.forEachLine { line ->
                 val parts = line.split(",")
@@ -129,10 +137,10 @@ class CalcFragment : Fragment() {
     }
 
     private fun getYieldFromCSV(cropName: String): Double? {
-        val inputStream = resources.openRawResource(R.raw.crop)
-        val reader = inputStream.bufferedReader()
-        reader.readLine()
-        for (line in reader.lineSequence()) {
+        val inputStream = context?.assets?.open("crop.csv")
+        val reader = inputStream?.bufferedReader()
+        reader?.readLine()
+        for (line in reader?.lineSequence()!!) {
             val parts = line.split(",")
             if (parts.isNotEmpty() && parts[0].equals(cropName, ignoreCase = true)) {
                 val yieldKgHa = parts.getOrNull(1)?.toDoubleOrNull()
@@ -143,4 +151,10 @@ class CalcFragment : Fragment() {
         }
         return null
     }
+    private fun getCurrentUserId(): Int? {
+        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+        return if (userId != -1) userId else null
+    }
+
 }

@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- 🔹 Top Header (Crop Name + Back Button) -->
+        <!-- Header(Crop Name) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,8 +35,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp" />
         </LinearLayout>
-
-        <!-- 🔹 Description Box -->
+        <!--Crop Picture-->
         <ImageView
             android:id="@+id/etDescription"
             android:layout_width="match_parent"
@@ -45,8 +44,7 @@
             android:background="@drawable/rounded_box"
             android:padding="12dp"
             android:layout_marginTop="16dp" />
-
-        <!-- 🔹 Edit Description -->
+        <!--Crop Description-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -91,9 +89,8 @@
 
             </LinearLayout>
         </LinearLayout>
-
-        <!-- 🔹 Crop Information Table -->
-        <TableLayout
+        <!--Table of Crop and its information-->
+        \        <TableLayout
             android:id="@+id/tableCropInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -138,7 +135,7 @@
                 <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border_black"/>
             </TableRow>
         </TableLayout>
-
+        <!--Date Planted-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -190,14 +187,13 @@
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-
-        <!-- Harvest Time -->
+        <!--Estimated Harvest Time-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="10dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -244,12 +240,13 @@
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
+        <!--Estimated Harvest Yield-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="10dp">
 
             <LinearLayout
                 android:layout_width="0dp"

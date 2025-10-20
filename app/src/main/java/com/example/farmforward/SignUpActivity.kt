@@ -50,18 +50,17 @@ class SignUpActivity : AppCompatActivity() {
             }
 
             lifecycleScope.launch {
-                val existingUser = db.userDao().checkUserExists(username)
-                if (existingUser == null) {
-                    db.userDao().registerUser(User(username = username, password = password))
-                    runOnUiThread {
-                        Toast.makeText(this@SignUpActivity, "Sign Up successful!", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this@SignUpActivity, LoginActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    }
-                } else {
+                val exists = db.userDao().checkUserExists(username)
+                if (exists > 0) {
                     runOnUiThread {
                         Toast.makeText(this@SignUpActivity, "Username already exists!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val user = User(username = username, password = password)
+                    db.userDao().registerUser(user)
+                    runOnUiThread {
+                        Toast.makeText(this@SignUpActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
+                        finish() // Return to login screen
                     }
                 }
             }

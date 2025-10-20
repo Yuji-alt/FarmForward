@@ -98,9 +98,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownVerticalOffset="8dp"
+                    android:dropDownHorizontalOffset="0dp"
+                    android:completionThreshold="1"
                     android:hint="@string/crop"
                     android:background="@drawable/input_bg"
-                    android:inputType="none"
+                    android:inputType="text"
                     android:padding="8dp" />
 
                 <View android:layout_width="8dp" android:layout_height="0dp"/>
