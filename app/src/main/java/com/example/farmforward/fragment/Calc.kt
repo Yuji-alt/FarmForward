@@ -1,6 +1,5 @@
 package com.example.farmforward.fragment
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,10 +14,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.farmforward.CropViewModel
 import com.example.farmforward.R
-import com.example.farmforward.roomDatabase.CropViewModel
 import com.example.farmforward.fragmentController.CalcController
 import java.util.Calendar
+import kotlin.jvm.java
 
 class CalcFragment : Fragment() {
 

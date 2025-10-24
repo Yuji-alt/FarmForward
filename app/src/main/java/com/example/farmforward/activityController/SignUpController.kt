@@ -1,35 +1,50 @@
 package com.example.farmforward.activityController
 
 import android.content.Context
+import com.example.farmforward.firebaseDatabase.FirebaseUserRepository
 import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.roomDatabase.User
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class SignUpController(private val context: Context) {
 
     private val db = AppDatabase.getDatabase(context)
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     fun signUp(username: String, password: String, confirm: String, onResult: (Boolean, String) -> Unit) {
-        if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
+        val trimmedUsername = username.trim()
+        val trimmedPassword = password.trim()
+        val trimmedConfirm = confirm.trim()
+
+        if (trimmedUsername.isEmpty() || trimmedPassword.isEmpty() || trimmedConfirm.isEmpty()) {
             onResult(false, "Please fill in all fields")
             return
         }
 
-        if (password != confirm) {
+        if (trimmedPassword.length < 6) {
+            onResult(false, "Password must be at least 6 characters")
+            return
+        }
+
+
+        if (trimmedPassword != trimmedConfirm) {
             onResult(false, "Passwords do not match")
             return
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val exists = db.userDao().checkUserExists(username)
+        ioScope.launch {
+            val exists = db.userDao().checkUserExists(trimmedUsername)
             if (exists > 0) {
-                onResult(false, "Username already exists!")
+                withContext(Dispatchers.Main) {
+                    onResult(false, "Username already exists!")
+                }
             } else {
-                val user = User(username = username, password = password)
+                val user = User(username = trimmedUsername, password = trimmedPassword, lastUpdated = System.currentTimeMillis())
                 db.userDao().registerUser(user)
-                onResult(true, "Registration successful!")
+                FirebaseUserRepository().registerUser(user)
+                withContext(Dispatchers.Main) {
+                    onResult(true, "Registration successful!")
+                }
             }
         }
     }

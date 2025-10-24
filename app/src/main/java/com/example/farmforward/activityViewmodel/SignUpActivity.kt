@@ -1,5 +1,6 @@
 package com.example.farmforward.activityViewmodel
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -32,14 +33,23 @@ class SignUpActivity : AppCompatActivity() {
             val confirm = confirmPasswordInput.text.toString().trim()
 
             controller.signUp(username, password, confirm) { success, message ->
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                if (success) finish()
+            }
+            signUpButton.isEnabled = false
+            controller.signUp(username, password, confirm) { success, message ->
                 runOnUiThread {
                     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-
+                    signUpButton.isEnabled = true
                     if (success) {
+                        val intent = Intent(this, LoginActivity::class.java)
+                        startActivity(intent)
                         finish()
                     }
                 }
             }
+
         }
+
     }
 }

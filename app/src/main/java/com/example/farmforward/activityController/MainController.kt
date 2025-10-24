@@ -20,11 +20,6 @@ class MainController(
 ) {
 
     // Handles fragment replacement
-    fun replaceFragment(fragment: Fragment) {
-        fragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .commit()
-    }
 
     // Handles bottom menu highlight logic
     fun highlightSelected(selected: LinearLayout, allItems: List<LinearLayout>) {
@@ -53,4 +48,25 @@ class MainController(
             else -> HomeFragment()
         }
     }
+    private val fragmentMap = mutableMapOf<Int, Fragment>()
+
+    fun switchFragment(menuId: Int) {
+        val transaction = fragmentManager.beginTransaction()
+
+        // Hide all existing fragments
+        fragmentManager.fragments.forEach { transaction.hide(it) }
+
+        val fragment = fragmentMap.getOrPut(menuId) {
+            onMenuItemSelected(menuId)
+        }
+
+        if (!fragment.isAdded) {
+            transaction.add(R.id.fragment_container, fragment)
+        } else {
+            transaction.show(fragment)
+        }
+
+        transaction.commit()
+    }
+
 }

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
     @Database(
         entities = [User::class, CropEntity::class],
-        version = 1,
+        version = 2,
         exportSchema = false
     )
     abstract class AppDatabase : RoomDatabase() {
@@ -23,7 +23,7 @@ import androidx.room.RoomDatabase
                         context.applicationContext,
                         AppDatabase::class.java,
                         "farmforward_database"
-                    ).build()
+                    ).fallbackToDestructiveMigration().build()
                     INSTANCE = instance
                     instance
                 }

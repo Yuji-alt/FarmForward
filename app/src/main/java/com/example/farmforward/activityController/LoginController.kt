@@ -1,22 +1,22 @@
 package com.example.farmforward.activityController
 
 import android.content.Context
-import android.content.Intent
-import androidx.core.content.ContextCompat.startActivity
-import com.example.farmforward.activityViewmodel.SignUpActivity
 import com.example.farmforward.roomDatabase.AppDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.farmforward.roomDatabase.User
+import kotlinx.coroutines.*
 
 class LoginController(private val context: Context) {
 
     private val db = AppDatabase.getDatabase(context)
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    fun login(username: String, password: String, onResult: (Boolean) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun login(username: String, password: String, onResult: (User?) -> Unit) {
+        ioScope.launch {
             val user = db.userDao().loginUser(username, password)
-            onResult(user != null)
+
+            withContext(Dispatchers.Main) {
+                onResult(user)
+            }
         }
     }
 }

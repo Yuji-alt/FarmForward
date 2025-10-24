@@ -8,7 +8,7 @@ import androidx.room.Query
 @Dao
 interface UserDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE )
     suspend fun registerUser(user: User)
 
     @Query("SELECT COUNT(*) FROM user_table WHERE username = :username")

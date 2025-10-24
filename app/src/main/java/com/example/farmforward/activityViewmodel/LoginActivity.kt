@@ -1,18 +1,13 @@
 package com.example.farmforward.activityViewmodel
+
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.os.Handler
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.farmforward.R
 import com.example.farmforward.activityController.LoginController
-import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.session.SessionManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
@@ -40,31 +35,26 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            controller.login(username, password) { success ->
-                runOnUiThread {
-                    if (success) {
-                        // ✅ Save user session
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val db = AppDatabase.getDatabase(this@LoginActivity)
-                            val user = db.userDao().getUserByUsername(username)
-                            user?.let {
-                                val session = SessionManager(this@LoginActivity)
-                                session.saveSession(it.id, it.username)
-                            }
-                        }
+            controller.login(username, password) { user ->
+                if (user != null) {
+                    val session = SessionManager(this)
+                    session.saveSession(user.id, user.username)
 
-                        Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
+
+                    // Small delay prevents DeadObjectException in Toast
+                    Handler(mainLooper).postDelayed({
                         startActivity(Intent(this, MainActivity::class.java))
                         finish()
-                    } else {
-                        Toast.makeText(this, "Invalid credentials!", Toast.LENGTH_SHORT).show()
-                    }
+                    }, 400)
+                } else {
+                    Toast.makeText(this, "Invalid credentials!", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+
         findViewById<TextView>(R.id.signUp_here).setOnClickListener {
-            val intent = Intent(this, SignUpActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, SignUpActivity::class.java))
         }
     }
 }
