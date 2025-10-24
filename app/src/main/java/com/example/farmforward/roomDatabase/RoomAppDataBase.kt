@@ -1,4 +1,4 @@
-    package com.example.farmforward.database
+    package com.example.farmforward.roomDatabase
 
 import android.content.Context
 import androidx.room.Database
@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase
         exportSchema = false
     )
     abstract class AppDatabase : RoomDatabase() {
-        abstract fun cropDao(): CropDao
+        abstract fun cropDao(): RoomCropDao
         abstract fun userDao(): UserDao
         companion object {
             @Volatile

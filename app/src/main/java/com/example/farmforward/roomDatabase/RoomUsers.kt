@@ -1,4 +1,4 @@
-package com.example.farmforward.database
+package com.example.farmforward.roomDatabase
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

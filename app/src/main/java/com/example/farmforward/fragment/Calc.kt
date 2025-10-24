@@ -16,7 +16,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.R
-import com.example.farmforward.database.CropViewModel
+import com.example.farmforward.roomDatabase.CropViewModel
 import com.example.farmforward.fragmentController.CalcController
 import java.util.Calendar
 
@@ -81,8 +81,7 @@ class CalcFragment : Fragment() {
     }
 
     private fun getCurrentUserId(): Int? {
-        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        val id = sharedPref.getInt("user_id", -1)
-        return if (id != -1) id else null
+        val session = com.example.farmforward.session.SessionManager(requireContext())
+        return session.getUserId()
     }
 }

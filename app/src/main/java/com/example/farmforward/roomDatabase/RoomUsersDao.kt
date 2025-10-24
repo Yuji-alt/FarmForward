@@ -1,4 +1,4 @@
-package com.example.farmforward.database
+package com.example.farmforward.roomDatabase
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -19,4 +19,6 @@ interface UserDao {
 
     @Query("SELECT * FROM user_table WHERE username = :username LIMIT 1")
     suspend fun getUserByUsername(username: String): User?
+    @Query("SELECT * FROM user_table")
+    suspend fun getAllUsers(): List<User>
 }

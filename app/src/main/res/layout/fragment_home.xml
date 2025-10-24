@@ -6,6 +6,16 @@
     android:orientation="vertical"
     android:background="#F5F5F5">
 
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:drawableStart="@drawable/ic_logout"
+        android:padding="8dp"
+        android:layout_gravity="center"
+        android:backgroundTint="@color/iron_gray" />
+
     <TextView
         android:text="HOME SCREEN"
         android:textSize="24sp"

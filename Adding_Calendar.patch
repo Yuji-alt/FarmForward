@@ -1,0 +1,340 @@
+Subject: [PATCH] Adding Calendar
+---
+Index: .idea/studiobot.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/studiobot.xml b/.idea/studiobot.xml
+new file mode 100644
+--- /dev/null	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
++++ b/.idea/studiobot.xml	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="StudioBotProjectSettings">
++    <option name="shareContext" value="OptedOut" />
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/java/com/example/farmforward/fragment/Calc.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/farmforward/fragment/Calc.kt b/app/src/main/java/com/example/farmforward/fragment/Calc.kt
+--- a/app/src/main/java/com/example/farmforward/fragment/Calc.kt	(revision 4eac5621f1c1885944e61d4c267ee94d295b9d0d)
++++ b/app/src/main/java/com/example/farmforward/fragment/Calc.kt	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
+@@ -5,6 +5,78 @@
+ import android.view.LayoutInflater
+ import android.view.View
+ import android.view.ViewGroup
++import android.widget.Button
++import android.widget.GridLayout
++import android.widget.ImageButton
++import android.widget.TextView
+ import com.example.farmforward.R
++import java.text.SimpleDateFormat
++import java.util.Calendar
++import java.util.Locale
++
++class CalcFragment : Fragment() {
++
++    private lateinit var calendar: Calendar
++    private lateinit var tvMonthYear: TextView
++    private lateinit var calendarGrid: GridLayout
++
++    override fun onCreateView(
++        inflater: LayoutInflater, container: ViewGroup?,
++        savedInstanceState: Bundle?
++    ): View? {
++        val view = inflater.inflate(R.layout.fragment_calc, container, false)
++
++        calendar = Calendar.getInstance()
++        tvMonthYear = view.findViewById(R.id.tvMonthYear)
++        calendarGrid = view.findViewById(R.id.calendarGrid)
++
++        val btnPrev = view.findViewById<ImageButton>(R.id.btnPrevMonth)
++        val btnNext = view.findViewById<ImageButton>(R.id.btnNextMonth)
++
++        updateCalendar()
++
++        btnPrev.setOnClickListener {
++            calendar.add(Calendar.MONTH, -1)
++            updateCalendar()
++        }
++
++        btnNext.setOnClickListener {
++            calendar.add(Calendar.MONTH, 1)
++            updateCalendar()
++        }
++
++        return view
++    }
++
++    private fun updateCalendar() {
++        calendarGrid.removeAllViews()
+ 
+-class CalcFragment : Fragment(R.layout.fragment_calc)
+\ No newline at end of file
++        val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
++        tvMonthYear.text = monthFormat.format(calendar.time)
++
++        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
++
++        for (day in 1..daysInMonth) {
++            val btnDay = Button(requireContext())
++            btnDay.text = day.toString()
++            btnDay.textSize = 14f
++            btnDay.setBackgroundResource(R.drawable.day_button_selector)
++            btnDay.layoutParams = GridLayout.LayoutParams().apply {
++                width = 110
++                height = 110
++                setMargins(8, 8, 8, 8)
++            }
++
++            btnDay.setOnClickListener {
++                // Deselect all buttons
++                for (i in 0 until calendarGrid.childCount) {
++                    calendarGrid.getChildAt(i).isSelected = false
++                }
++                // Select the clicked day
++                btnDay.isSelected = true
++            }
++
++            calendarGrid.addView(btnDay)
++        }
++    }
++}
+\ No newline at end of file
+Index: app/src/main/res/drawable/day_button_selector.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/day_button_selector.xml b/app/src/main/res/drawable/day_button_selector.xml
+new file mode 100644
+--- /dev/null	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
++++ b/app/src/main/res/drawable/day_button_selector.xml	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_selected="true">
++        <shape android:shape="oval">
++            <solid android:color="#000000"/>
++        </shape>
++    </item>
++    <item>
++        <shape android:shape="oval">
++            <solid android:color="#E0E0E0"/>
++        </shape>
++    </item>
++</selector>
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_calc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_calc.xml b/app/src/main/res/layout/fragment_calc.xml
+--- a/app/src/main/res/layout/fragment_calc.xml	(revision 4eac5621f1c1885944e61d4c267ee94d295b9d0d)
++++ b/app/src/main/res/layout/fragment_calc.xml	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
+@@ -1,15 +1,53 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<LinearLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:orientation="vertical"
++    android:gravity="center"
++    android:padding="16dp"
+     android:layout_width="match_parent"
+-    android:layout_height="match_parent"
+-    android:gravity="center"
+-    android:orientation="vertical"
+-    android:background="#F5F5F5">
++    android:layout_height="match_parent">
++
++    <LinearLayout
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:orientation="horizontal"
++        android:gravity="center"
++        android:layout_marginBottom="16dp">
++
++        <ImageButton
++            android:id="@+id/btnPrevMonth"
++            android:src="@drawable/ic_arrow_left"
++            android:background="@null"
++            android:contentDescription="Previous month"
++            android:layout_height="wrap_content"
++            android:layout_width="wrap_content" />
+ 
+-    <TextView
+-        android:text="CALC"
+-        android:textSize="24sp"
+-        android:textColor="#000000"
+-        android:layout_height="wrap_content"
+-        android:layout_width="wrap_content" />
+-</LinearLayout>
+\ No newline at end of file
++        <TextView
++            android:id="@+id/tvMonthYear"
++            android:text="September 2025"
++            android:textSize="18sp"
++            android:textStyle="bold"
++            android:layout_marginHorizontal="16dp"
++            android:layout_height="wrap_content"
++            android:layout_width="wrap_content" />
++
++        <ImageButton
++            android:id="@+id/btnNextMonth"
++            android:src="@drawable/ic_arrow_right"
++            android:background="@null"
++            android:contentDescription="Next month"
++            android:layout_height="wrap_content"
++            android:layout_width="wrap_content" />
++    </LinearLayout>
++
++    <!-- Grid for days -->
++    <GridLayout
++        android:id="@+id/calendarGrid"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:columnCount="7"
++        android:rowCount="6"
++        android:alignmentMode="alignBounds"
++        android:useDefaultMargins="true"/>
++
++</LinearLayout>
+Index: app/src/main/res/raw/crop.csv
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/raw/crop.csv b/app/src/main/res/raw/crop.csv
+new file mode 100644
+--- /dev/null	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
++++ b/app/src/main/res/raw/crop.csv	(revision c031f880b1f0d4de1e2bc80ec2fbe1a9850f256a)
+@@ -0,0 +1,49 @@
++ID,Crop Name,Value
++1,Avocados,3534.1
++2,Bananas,31733.4
++3,Cabbages,16245.8
++4,Carrots,12457.6
++5,Cashew nuts,5354.4
++6,Broccoli,10161.2
++7,Cauliflowers and broccoli,10161.2
++8,Chicory roots,9054.7
++9,Chili,4628.1
++10,Cocoa beans,326.6
++11,"Coconuts, in shell",4063.3
++12,"Coffee, green",266
++13,Pepper,4628.1
++14,Cow peas,1645.8
++15,Cucumbers,7116
++16,Eggplants,10842.3
++17,Ginger,6053.2
++18,Grapes,602.8
++19,Lime,2008.9
++20,Lemons,2008.9
++21,Lettuce,4568.2
++22,Corn,3307.7
++23,Guavas,4002
++24,Mangosteens,4002
++25,Mangoes,4002
++26,Okra,7483.2
++27,Shallots,11840
++28,Onions,11840
++29,Oranges,1612.7
++30,Papayas,20102.9
++31,Pepper,624.9
++32,Pineapples,42578.6
++33,Pomelos and grapefruits,5107.9
++34,Potatoes,16080.7
++35,Pumpkins,13556.6
++36,Rice,4165.4
++37,Sorghum,6156.8
++38,Spinach,2253.2
++39,Strawberries,9588.5
++40,Sugar cane,52929.7
++41,Sweet potatoes,5767.5
++42,Mandarinas,1128.3
++43,Clementines,1128.3
++44,Tangerines,1128.3
++45,Taro,6753
++46,Tomatoes,14682.1
++47,Watermelons,14965.8
++48,Yams,5166.1
+diff --git a/app/src/main/res/drawable/drawable-ic_arrow_left-hdpi/icons8-arrow-left-50.png b/app/src/main/res/drawable/drawable-ic_arrow_left-hdpi/icons8-arrow-left-50.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..392974cf19f0f06e7991480ce10048344768e1ec
+GIT binary patch
+literal 126
+zc%17D@N?(olHy`uVBq!ia0vp^!XV7S1|*9D%+3HQS5FtmkcznE1PRt=F&Bo9^$KZj
+z(-lN33>|oWb?Z6uF-U&lkDU<m;E;oAvjanlz)A`A1*=XcG^}C^GBtB#n0C(XU;rb-
+Y(yKCSpY%^u0vgER>FVdQ&MBb@0DIgd3;+NC
+
+diff --git a/app/src/main/res/drawable/drawable-ic_arrow_left-mdpi/icons8-arrow-left-50.png b/app/src/main/res/drawable/drawable-ic_arrow_left-mdpi/icons8-arrow-left-50.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..c1fd700703e66aaf24ce4393f37bdd5fba55a68b
+GIT binary patch
+literal 96
+zc%17D@N?(olHy`uVBq!ia0vp@Ak4uAB#T}@sR2^zo-U3d6>-T45|b3fVjBd0^y@ir
+sOjz0|aEz<KOModQ`-_{ngcAcpi4gCcgB#4tfm#?mUHx3vIVCg!00<)(ivR!s
+
+diff --git a/app/src/main/res/drawable/drawable-ic_arrow_left-xhdpi/icons8-arrow-left-50.png b/app/src/main/res/drawable/drawable-ic_arrow_left-xhdpi/icons8-arrow-left-50.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..af6b280d28425d56f781c77c107bbe54dc1b3fde
+GIT binary patch
+literal 179
+zc%17D@N?(olHy`uVBq!ia0vp^k|4~%1|*NXY)uAIRh}-6Ar*0NC+y^Ebr4|ry}QTN
+zppH##nNr<$wWfs{9mh|7h{#~(cjKAU<hM<NOU$5Wd*&UZx+^Iq(RZT6qIf18IO5bT
+zCp056<735wW|nt)#~2yExrc{8WKsO%=;=3=!!Be(aO&^d^&0BSPx0GLnGmen>XIea
+c_E9j*Cf{05Zrj}NKvyt$y85}Sb4q9e06LIAVgLXD
+
+diff --git a/app/src/main/res/drawable/drawable-ic_arrow_left-xxhdpi/icons8-arrow-left-50.png b/app/src/main/res/drawable/drawable-ic_arrow_left-xxhdpi/icons8-arrow-left-50.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..d7de8d603e0994e29a93056f57e8bf868795a00d
+GIT binary patch
+literal 240
+zc%17D@N?(olHy`uVBq!ia0vp^Y9P$P1|(P5zFY^SwtKobhE&A8y|$O@kb?lrgGxPb
+z?m(TzWl`PyYkSR_T01m;>~80L9;ai|c~kdU^U7}=%scO}Dkv%ax)!!+y3ggtsT-dt
+zRZhA2a$_&kt}CHNf!aND1ikO77~AH>#}_&2lwMDkw!Pwg_9~Zh=E_#N?d!EIm8NA`
+zX`f`6X*G%Y6@Ru>c1lsS&X4b_V;+6o`v1(`XX|&^>M>1ce`8%99`y9Gs$Gya&(i(2
+o(ze^gxmt@eX7F`%bbPX9RD3eGJ1zZ>B+v^Cp00i_>zopr0N}%4y8r+H
+
+diff --git a/app/src/main/res/drawable/drawable-ic_arrow_left-xxxhdpi/icons8-arrow-left-50.png b/app/src/main/res/drawable/drawable-ic_arrow_left-xxxhdpi/icons8-arrow-left-50.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..7cdfe7bbdc32f4e23cb8adb8e8a70abe9d971583
+GIT binary patch
+literal 300
+zc%17D@N?(olHy`uVBq!ia0vp^Mj*_=1|;R|J2nET&z>%hAr*0NZ&-3O8H%txaQr`Y
+z>57VyxEmQOAN5~zlRoHlgxMxOqWNUn+OTUXXV`<ED)PKL=F-ps1S=eBPlj!p-V>aC
+zP{K2B(sS!oJ~wA^9B?Q)y1eC-UyxCI&GqJJr&?p@;uGb$Ct1rncc&!r{anYo{fM)X
+zDNu6CoQKn9%yizDt+4yZ9hpzDvNu)5o=te4HA$FBKX9r{;&croZI#*HdZH&8-?fX+
+zH7)8|*751Rdv<5a>HnP?ab>z)Z^OGEu?KcP>R9Ajm~my1#j))BdSS2r$<0}_`rWZv
+w93H>Uw<mOK#Hz4fDO@x;N?8dAe(e`8KK1I8?KhPtK<_hny85}Sb4q9e0KYSV)Bpeg
+
+diff --git a/app/src/main/res/drawable/ic_arrow_left.png b/app/src/main/res/drawable/ic_arrow_left.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..eda9b5b9481cd7e35b1be7754863049950e3cdaf
+GIT binary patch
+literal 286
+zc%17D@N?(olHy`uVBq!ia0vp^Mj*_=1|;R|J2nC-&H|6fVg?3oVGw3ym^DWND0sos
+z#WAE}&f6P1xehsqxIJv%H+AWX9VK};GFCov&R*P`p!kSMZ(^gSib{mW#p<8-Gwj+`
+zCR;NK0>MP4uZ_AJ*pEq=GUYi4g?DHspJCXs&!uH6vzNrB(;Xb;X&s8W4<>c(U>4@d
+zOm(qo&}=hlEOtA><1A$<Sj@BXxr>g$61F*O+(R0ZwHBS&+BN&MyVik+?Sh^$*{y#r
+zF5cP`{V#k+#m(5<{p;*H*13s<J1<^s`0wsPtvUBU7F@ae;K}pDY=?IlD)b1?jgRl?
+d00NFo|Kd}xK0S+lun6ck22WQ%mvv4FO#m=1Z*c$s
+
+diff --git a/app/src/main/res/drawable/ic_arrow_right.png b/app/src/main/res/drawable/ic_arrow_right.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..cbe54fd32787e0ddcf854d3f378e06d01461da02
+GIT binary patch
+literal 257
+zc%17D@N?(olHy`uVBq!ia0vp^Mj*_=1|;R|J2nC-&H|6fVg?3oVGw3ym^DWND7e|v
+z#WAE}&f6QdT!$P)TptF%tkYSmtJA|B5G1iVRD0uwLdLMBt@W*LOu-!)ij6aV?~vbP
+zB_p9`%$x=SvL-BMnQk1n8AE4DPf*PIFQg=E%=}J1NsS|_rgNs!3BxQy$tIc4-7*&Y
+zY8RZ{$&f7dit)L<TS(?Q-~Yz74@4A~n6dM{@?P!h+OpVNF!6V+)gt9n9M9JnIl1uJ
+wTq$235PmnerQ;Su1Y`Es=L*I^;Cx#6!IoF$$KpO41D(&{>FVdQ&MBb@0O;RW761SM
+
