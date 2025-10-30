@@ -75,6 +75,9 @@ class CalcFragment : Fragment() {
             if (userId != null) {
                 controller.saveCropData(userId, cropName, area)
 
+                // Notify GardenFragment
+                parentFragmentManager.setFragmentResult("newCropAdded", Bundle())
+
                 val (minDays, maxDays) = controller.getHarvestDays(cropName)
                 val selectedDate = selectedDateMillis
                 val cal = Calendar.getInstance().apply { timeInMillis = selectedDate }
@@ -92,15 +95,12 @@ class CalcFragment : Fragment() {
                         putLong("maxHarvestDate", maxHarvest ?: 0L)
                     }
                 }
-                (requireActivity() as MainActivity).shouldRefreshHome = true
                 parentFragmentManager.beginTransaction()
                     .hide(this@CalcFragment)
                     .add(R.id.fragment_container, growthFragment)
                     .addToBackStack(null)
                     .commit()
                 (requireActivity() as? MainActivity)?.controller?.setActiveMenu(R.id.nav_growth)
-            } else {
-                Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
             }
         }
 

@@ -1,5 +1,6 @@
 package com.example.farmforward.activityController
 
+import GardenFragment
 import android.content.Context
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -9,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.farmforward.R
-import com.example.farmforward.fragment.GardenFragment
 import com.example.farmforward.fragment.HomeFragment
 import com.example.farmforward.fragment.MapFragment
 

@@ -1,9 +1,14 @@
 package com.example.farmforward.activityViewmodel
 
+import GardenFragment
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
 import com.example.farmforward.activityController.MainController
@@ -21,6 +26,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var home: LinearLayout
     private lateinit var garden: LinearLayout
     private lateinit var map: LinearLayout
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var btnSignOut: TextView
     var shouldRefreshHome = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,9 +46,11 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+
         home = findViewById(R.id.nav_home)
         garden = findViewById(R.id.nav_garden)
         map = findViewById(R.id.nav_map)
+        btnSignOut = findViewById(R.id.signOut)
 
         controller = MainController(this, supportFragmentManager)
 
@@ -49,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         controller.switchFragment(R.id.nav_home)
         controller.highlightSelected(home, menuItems)
-
+        drawerLayout = findViewById(R.id.drawer_layout)
         home.setOnClickListener {
             controller.switchFragment(R.id.nav_home)
             controller.setActiveMenu(R.id.nav_home)
@@ -63,9 +72,12 @@ class MainActivity : AppCompatActivity() {
             }, 100)
         }
 
+
         garden.setOnClickListener {
             controller.switchFragment(R.id.nav_garden)
             controller.setActiveMenu(R.id.nav_garden)
+            val gardenFragment = controller.getFragment(R.id.nav_garden) as? GardenFragment
+            gardenFragment?.refreshData()
         }
 
         map.setOnClickListener {
@@ -80,6 +92,25 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
+        btnSignOut.setOnClickListener {
+            val session = SessionManager(this)
+            session.clearSession()
+
+            drawerLayout.closeDrawer(GravityCompat.END)
+
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
+
+    }
+    fun openDrawer() {
+        drawerLayout.openDrawer(GravityCompat.END)
+    }
+
+    fun closeDrawer() {
+        drawerLayout.closeDrawer(GravityCompat.END)
     }
 
     override fun onResume() {

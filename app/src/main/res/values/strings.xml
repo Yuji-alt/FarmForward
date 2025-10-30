@@ -6,7 +6,6 @@
     <string name="signUp">Sign Up</string>
     <string name="userName">Username</string>
     <string name="confirmPassword">Confirm Password</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="growth">GROWTH</string>
     <string name="calc">CALC</string>
@@ -38,4 +37,7 @@
     <string name="area_0_0_sqr_meter">Area: 0.0 sqr. meter</string>
     <string name="expected_yield_0_0_kg">Expected Yield: 0.0 kg</string>
     <string name="crop_name">Crop Name</string>
+    <string name="menu">Menu</string>
+    <string name="log_out">Log Out</string>
+    <string name="settings">Settings</string>
 </resources>

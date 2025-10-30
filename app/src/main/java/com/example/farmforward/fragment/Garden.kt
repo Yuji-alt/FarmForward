@@ -1,6 +1,3 @@
-package com.example.farmforward.fragment
-
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
 import com.example.farmforward.activityViewmodel.MainActivity
+import com.example.farmforward.fragment.CalcFragment
+import com.example.farmforward.fragment.GrowthFragment
 import com.example.farmforward.fragmentController.GardenController
 import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.session.SessionManager
@@ -25,7 +24,6 @@ class GardenFragment : Fragment() {
     private lateinit var btnAdd: ImageButton
     private var userId: Int? = null
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,11 +32,14 @@ class GardenFragment : Fragment() {
 
         cropContainer = view.findViewById(R.id.cropListContainer)
         btnAdd = view.findViewById(R.id.btnBack)
-
         controller = GardenController(requireContext(), cropContainer)
 
         val session = SessionManager(requireContext())
         userId = session.getUserId()
+
+        parentFragmentManager.setFragmentResultListener("newCropAdded", viewLifecycleOwner) { _, _ ->
+            refreshData()
+        }
 
         btnAdd.setOnClickListener {
             val calcFragment = CalcFragment()
@@ -50,19 +51,22 @@ class GardenFragment : Fragment() {
             (requireActivity() as? MainActivity)?.controller?.setActiveMenu(R.id.nav_calc)
         }
 
-        loadCrops()
+        refreshData()
         return view
     }
 
+
     override fun onResume() {
         super.onResume()
-        loadCrops()
+        refreshData()
     }
 
-    private fun loadCrops() {
+    fun refreshData() {
+        val id = userId ?: return
         val db = AppDatabase.getDatabase(requireContext())
+
         lifecycleScope.launch(Dispatchers.IO) {
-            val crops = userId?.let { db.cropDao().getCropsForUserList(it) } ?: emptyList()
+            val crops = db.cropDao().getCropsForUserList(id)
             withContext(Dispatchers.Main) {
                 controller.displayCrops(crops) { crop ->
                     val bundle = Bundle().apply {
