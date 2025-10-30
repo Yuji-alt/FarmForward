@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <!-- 🔹 Container ng Calendar input-->
-    <ScrollView
+    <LinearLayout
         android:id="@+id/calendarContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -64,7 +64,7 @@
                 android:useDefaultMargins="true"
                 android:layout_marginBottom="24dp"/>
         </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
 
     <!-- 🔹 Container ng input-->
     <LinearLayout

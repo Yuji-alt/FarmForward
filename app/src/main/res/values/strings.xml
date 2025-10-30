@@ -34,4 +34,8 @@
     <string name="description">Description:</string>
     <string name="estimated_harvest_yield">Estimated Harvest Yield</string>
     <string name="harvest_yield">Harvest Yield</string>
+    <string name="search_crops_gardens">Search crops, gardens...</string>
+    <string name="area_0_0_sqr_meter">Area: 0.0 sqr. meter</string>
+    <string name="expected_yield_0_0_kg">Expected Yield: 0.0 kg</string>
+    <string name="crop_name">Crop Name</string>
 </resources>

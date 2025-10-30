@@ -16,7 +16,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.CropViewModel
 import com.example.farmforward.R
+import com.example.farmforward.activityViewmodel.MainActivity
 import com.example.farmforward.fragmentController.CalcController
+import com.example.farmforward.fragmentController.selectedDateMillis
 import java.util.Calendar
 import kotlin.jvm.java
 
@@ -72,6 +74,31 @@ class CalcFragment : Fragment() {
 
             if (userId != null) {
                 controller.saveCropData(userId, cropName, area)
+
+                val (minDays, maxDays) = controller.getHarvestDays(cropName)
+                val selectedDate = selectedDateMillis
+                val cal = Calendar.getInstance().apply { timeInMillis = selectedDate }
+
+                val minHarvest = minDays?.let { cal.clone() as Calendar }.apply { this?.add(Calendar.DAY_OF_YEAR, minDays ?: 0) }?.timeInMillis
+                val maxHarvest = maxDays?.let { cal.clone() as Calendar }.apply { this?.add(Calendar.DAY_OF_YEAR, maxDays ?: 0) }?.timeInMillis
+
+                val growthFragment = GrowthFragment().apply {
+                    arguments = Bundle().apply {
+                        putString("cropName", cropName)
+                        putDouble("area", area)
+                        putDouble("expectedYield", controller.getYield(cropName)!! * area)
+                        putLong("datePlanted", selectedDate)
+                        putLong("minHarvestDate", minHarvest ?: 0L)
+                        putLong("maxHarvestDate", maxHarvest ?: 0L)
+                    }
+                }
+                (requireActivity() as MainActivity).shouldRefreshHome = true
+                parentFragmentManager.beginTransaction()
+                    .hide(this@CalcFragment)
+                    .add(R.id.fragment_container, growthFragment)
+                    .addToBackStack(null)
+                    .commit()
+                (requireActivity() as? MainActivity)?.controller?.setActiveMenu(R.id.nav_growth)
             } else {
                 Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
             }

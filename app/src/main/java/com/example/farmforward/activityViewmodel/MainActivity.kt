@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
 import com.example.farmforward.activityController.MainController
 import com.example.farmforward.firebase.FirebaseSyncManager
+import com.example.farmforward.fragment.HomeFragment
 import com.example.farmforward.session.SessionManager
 import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.Dispatchers
@@ -15,10 +16,16 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var controller: MainController
+    lateinit var controller: MainController
+    private lateinit var menuItems: List<LinearLayout>
+    private lateinit var home: LinearLayout
+    private lateinit var garden: LinearLayout
+    private lateinit var map: LinearLayout
+    var shouldRefreshHome = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         if (FirebaseApp.getApps(this).isEmpty()) {
             FirebaseApp.initializeApp(this)
@@ -31,28 +38,41 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        setContentView(R.layout.activity_main)
+
+        home = findViewById(R.id.nav_home)
+        garden = findViewById(R.id.nav_garden)
+        map = findViewById(R.id.nav_map)
 
         controller = MainController(this, supportFragmentManager)
 
-        val home = findViewById<LinearLayout>(R.id.nav_home)
-        val garden = findViewById<LinearLayout>(R.id.nav_garden)
-        val calc = findViewById<LinearLayout>(R.id.nav_calc)
-        val growth = findViewById<LinearLayout>(R.id.nav_growth)
-        val map = findViewById<LinearLayout>(R.id.nav_map)
-        val menuItems = listOf(home, garden, calc, growth, map)
+        menuItems = listOf(home, garden, map)
 
         controller.switchFragment(R.id.nav_home)
         controller.highlightSelected(home, menuItems)
 
-        for (item in menuItems) {
-            item.setOnClickListener {
-                controller.switchFragment(item.id)
-                controller.highlightSelected(item, menuItems)
-            }
+        home.setOnClickListener {
+            controller.switchFragment(R.id.nav_home)
+            controller.setActiveMenu(R.id.nav_home)
+
+            home.postDelayed({
+                if (shouldRefreshHome) {
+                    val homeFragment = controller.getFragment(R.id.nav_home) as? HomeFragment
+                    homeFragment?.refreshData()
+                    shouldRefreshHome = false
+                }
+            }, 100)
         }
 
-        // ✅ Safe Firebase sync
+        garden.setOnClickListener {
+            controller.switchFragment(R.id.nav_garden)
+            controller.setActiveMenu(R.id.nav_garden)
+        }
+
+        map.setOnClickListener {
+            controller.switchFragment(R.id.nav_map)
+            controller.setActiveMenu(R.id.nav_map)
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 FirebaseSyncManager(this@MainActivity).pushLocalToFirebase()
@@ -64,12 +84,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
         val session = SessionManager(this)
         if (!session.isLoggedIn()) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+            return
         }
+
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val sync = FirebaseSyncManager(this@MainActivity)

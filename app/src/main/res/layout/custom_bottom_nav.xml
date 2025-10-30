@@ -22,7 +22,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_circle_light"
+            android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_home"
             app:tint="#000000" />
@@ -47,7 +47,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_circle_light"
+            android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_garden"
             app:tint="#000000" />
@@ -72,7 +72,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_circle_light"
+            android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_calc"
             app:tint="#000000" />
@@ -96,7 +96,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_circle_light"
+            android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_growth"
             app:tint="#000000" />
@@ -120,7 +120,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_circle_light"
+            android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_map"
             app:tint="#000000" />

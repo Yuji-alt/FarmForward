@@ -19,4 +19,7 @@ interface RoomCropDao {
 
     @Query("DELETE FROM crop_table WHERE id = :id")
     suspend fun deleteCropById(id: Int)
+    @Query("SELECT * FROM crop_table WHERE userId = :userId ORDER BY date DESC")
+    suspend fun getCropsForUserList(userId: Int): List<CropEntity>
+
 }

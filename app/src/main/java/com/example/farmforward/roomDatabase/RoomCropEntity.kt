@@ -12,5 +12,7 @@ data class CropEntity(
     val area: Double,
     val expectedYield: Double,
     val date: Long,
+    val maxdate: Long?,
+    val mindate: Long?,
     val lastUpdated: Long = System.currentTimeMillis()
 )

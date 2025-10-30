@@ -1,30 +1,60 @@
-import android.content.Intent
+package com.example.farmforward.fragment
+
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
-import com.example.farmforward.activityViewmodel.LoginActivity
+import com.example.farmforward.fragmentController.HomeController
+import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.session.SessionManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class HomeFragment : Fragment(R.layout.fragment_home) {
+class HomeFragment : Fragment() {
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private lateinit var controller: HomeController
+    private lateinit var searchInput: EditText
+    private lateinit var itemContainer: LinearLayout
+    private var userId: Int? = null
 
-        val logoutButton = view.findViewById<Button>(R.id.btnLogout)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        logoutButton.setOnClickListener {
-            val session = SessionManager(requireContext())
-            session.clearSession()
+        searchInput = view.findViewById(R.id.search_input)
+        itemContainer = view.findViewById(R.id.itemContainer)
+        controller = HomeController(requireContext(), itemContainer)
 
-            // Create intent to go back to LoginActivity
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+        val session = SessionManager(requireContext())
+        userId = session.getUserId()
+        refreshData()
 
-            // Finish the current Activity hosting the fragment
-            requireActivity().finish()
+        return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshData()
+    }
+
+
+    fun refreshData() {
+        val id = userId ?: return
+        val db = AppDatabase.getDatabase(requireContext())
+
+         lifecycleScope.launch(Dispatchers.IO) {
+            val crops = db.cropDao().getCropsForUserList(id)
+            withContext(Dispatchers.Main) {
+                controller.displayCrops(crops)
+            }
         }
     }
 }

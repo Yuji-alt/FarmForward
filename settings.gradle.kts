@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "FarmForward"
 include(":app")
+include(":benchmark")

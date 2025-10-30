@@ -1,52 +1,51 @@
-Crop Name,Value
-Avocados,3534.1
-Bananas,31733.4
-Cabbages,16245.8
-Carrots,12457.6
-Cashew nuts,5354.4
-Broccoli,10161.2
-Cauliflowers,10161.2
-Chicory roots,9054.7
-Chili,4628.1
-Cocoa beans,326.6
-Coconuts,4063.3
-Coffee,266
-Pepper,4628.1
-Cow peas,1645.8
-Cucumbers,7116
-Eggplants,10842.3
-Ginger,6053.2
-Grapes,602.8
-Lime,2008.9
-Lemons,2008.9
-Lettuce,4568.2
-Corn,3307.7
-Guavas,4002
-Mangosteens,4002
-Mangoes,4002
-Okra,7483.2
-Shallots,11840
-Onions,11840
-Oranges,1612.7
-Papayas,20102.9
-Pepper,624.9
-Pineapples,42578.6
-Pomelos,5107.9
-Potatoes,16080.7
-Pumpkins,13556.6
-Rice,4165.4
-Sorghum,6156.8
-Spinach,2253.2
-Strawberries,9588.5
-Sugar cane,52929.7
-Sweet potatoes,5767.5
-Mandarinas,1128.3
-Clementines,1128.3
-Tangerines,1128.3
-Taro,6753
-Tomatoes,14682.1
-Watermelons,14965.8
-Yams,5166.1
-Broccoli,10161.2
-Grapefruits,5107.9
-,
+﻿Crop Name,Value,Min Days,Max Days
+Avocados,3534.1,,
+Bananas,31733.4,,
+Cabbages,16245.8,70,120
+Carrots,12457.6,60,80
+Cashew nuts,5354.4,,
+Broccoli,10161.2,55,75
+Cauliflowers,10161.2,50,80
+Chicory roots,9054.7,120,140
+Chili,4628.1,,
+Cocoa beans,326.6,,
+Coconuts,4063.3,,
+Coffee,266,,
+Pepper,4628.1,,
+Cow peas,1645.8,60,90
+Cucumbers,7116,50,70
+Eggplants,10842.3,70,90
+Ginger,6053.2,240,300
+Grapes,602.8,,
+Lime,2008.9,,
+Lemons,2008.9,,
+Lettuce,4568.2,40,50
+Corn,3307.7,60,100
+Guavas,4002,,
+Mangosteens,4002,,
+Mangoes,4002,,
+Okra,7483.2,50,65
+Shallots,11840,90,110
+Onions,11840,100,120
+Oranges,1612.7,,
+Papayas,20102.9,,
+Pepper,624.9,,
+Pineapples,42578.6,,
+Pomelos,5107.9,,
+Potatoes,16080.7,70,120
+Pumpkins,13556.6,90,120
+Rice,4165.4,100,150
+Sorghum,6156.8,115,140
+Spinach,2253.2,40,50
+Strawberries,9588.5,,
+Sugar cane,52929.7,360,720
+Sweet potatoes,5767.5,90,120
+Mandarinas,1128.3,,
+Clementines,1128.3,,
+Tangerines,1128.3,,
+Taro,6753,210,360
+Tomatoes,14682.1,50,80
+Watermelons,14965.8,80,100
+Yams,5166.1,180,360
+Broccoli,10161.2,55,75
+Grapefruits,5107.9,,

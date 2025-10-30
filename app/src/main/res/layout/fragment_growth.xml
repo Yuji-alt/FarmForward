@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:padding="16dp"
     android:fillViewport="true"
-    android:background="#F5F5F5">
+    android:background="#F5F5F5"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header(Crop Name) -->
+        <!-- Header (Crop Name) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginTop="20dp">
 
             <EditText
                 android:id="@+id/etCropName"
@@ -35,7 +35,8 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp" />
         </LinearLayout>
-        <!--Crop Picture-->
+
+        <!-- Crop Picture -->
         <ImageView
             android:id="@+id/etDescription"
             android:layout_width="match_parent"
@@ -44,7 +45,8 @@
             android:background="@drawable/rounded_box"
             android:padding="12dp"
             android:layout_marginTop="16dp" />
-        <!--Crop Description-->
+
+        <!-- Crop Description -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -59,6 +61,7 @@
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="8dp">
+
                 <TextView
                     android:text="@string/description"
                     android:textStyle="bold"
@@ -73,24 +76,26 @@
                 android:gravity="center_vertical|end"
                 android:paddingEnd="16dp"
                 android:paddingStart="12dp">
+
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/plus_sign" />
+
                 <TextView
                     android:id="@+id/tvEdit"
                     android:text="@string/edit"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     android:drawablePadding="4dp"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content" />
-
             </LinearLayout>
         </LinearLayout>
-        <!--Table of Crop and its information-->
-        \        <TableLayout
+
+        <!-- Table of Crop Information -->
+        <TableLayout
             android:id="@+id/tableCropInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,41 +106,42 @@
             android:padding="8dp">
 
             <TableRow>
-                <TextView android:text="Area" style="@style/LabelText" android:background="@drawable/border_black"/>
-                <TextView android:id="@+id/tvArea" style="@style/ValueText" android:background="@drawable/border_black"/>
+                <TextView android:text="Area" style="@style/LabelText" android:background="@drawable/border_black" />
+                <TextView android:id="@+id/tvArea" style="@style/ValueText" android:background="@drawable/border_black" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Soil Type" style="@style/LabelText" android:background="@drawable/border_black"/>
-                <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:background="@drawable/border_black"/>
+                <TextView android:text="Soil Type" style="@style/LabelText" android:background="@drawable/border_black" />
+                <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:background="@drawable/border_black" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Irrigation Level" style="@style/LabelText" android:background="@drawable/border_black"/>
-                <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:background="@drawable/border_black"/>
+                <TextView android:text="Irrigation Level" style="@style/LabelText" android:background="@drawable/border_black" />
+                <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:background="@drawable/border_black" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Planting Density" style="@style/LabelText" android:background="@drawable/border_black"/>
-                <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:background="@drawable/border_black"/>
+                <TextView android:text="Planting Density" style="@style/LabelText" android:background="@drawable/border_black" />
+                <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:background="@drawable/border_black" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Fertilizer Used" style="@style/LabelText" android:background="@drawable/border_black"/>
+                <TextView android:text="Fertilizer Used" style="@style/LabelText" android:background="@drawable/border_black" />
                 <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:background="@drawable/border_black" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Weather Condition" style="@style/LabelText" android:background="@drawable/border_black"/>
-                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border_black"/>
+                <TextView android:text="Weather Condition" style="@style/LabelText" android:background="@drawable/border_black" />
+                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border_black" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Region" style="@style/LabelText" android:background="@drawable/border_black"/>
-                <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border_black"/>
+                <TextView android:text="Region" style="@style/LabelText" android:background="@drawable/border_black" />
+                <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border_black" />
             </TableRow>
         </TableLayout>
-        <!--Date Planted-->
+
+        <!-- Date Planted -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -157,7 +163,7 @@
                     android:layout_height="wrap_content"
                     android:text="DATE PLANTED"
                     android:textColor="#000000"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -187,7 +193,8 @@
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-        <!--Estimated Harvest Time-->
+
+        <!-- Estimated Harvest Time -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -209,9 +216,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/estimated_harvest_time"
                     android:textColor="#000000"
-                    android:textSize="15dp"
-                    android:textStyle="bold"
-                    tools:ignore="SpUsage" />
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
@@ -230,17 +236,37 @@
                     android:src="@drawable/ic_calendar"
                     app:tint="#FFFFFF" />
 
-                <TextView
-                    android:id="@+id/harvestDate"
-                    android:layout_width="107dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/date"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <TextView
+                        android:id="@+id/minHarvest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/date"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:gravity="center" />
+
+                    <TextView
+                        android:id="@+id/maxHarvest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/date"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <!--Estimated Harvest Yield-->
+
+        <!-- Estimated Harvest Yield -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -262,9 +288,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/estimated_harvest_yield"
                     android:textColor="#000000"
-                    android:textSize="15dp"
-                    android:textStyle="bold"
-                    tools:ignore="SpUsage" />
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
@@ -289,10 +314,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/harvest_yield"
                     android:textColor="#FFFFFF"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</ScrollView>
 
