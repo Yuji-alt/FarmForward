@@ -98,28 +98,30 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:hint="@string/crop"
+                    android:background="@drawable/input_bg"
+                    android:padding="8dp"
+                    android:inputType="text"
                     android:dropDownHeight="wrap_content"
                     android:dropDownVerticalOffset="8dp"
                     android:dropDownHorizontalOffset="0dp"
                     android:completionThreshold="1"
-                    android:hint="@string/crop"
-                    android:background="@drawable/input_bg"
-                    android:inputType="text"
-                    android:padding="8dp" />
+                    />
 
                 <View android:layout_width="8dp" android:layout_height="0dp"/>
 
-                <EditText
+                <AutoCompleteTextView
                     android:id="@+id/inputArea"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/area"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    />
+
             </LinearLayout>
 
-            <!-- Row 2 User Input na Soil and Irrigation level-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,28 +129,42 @@
                 android:weightSum="2"
                 android:layout_marginBottom="8dp">
 
-                <EditText
-                    android:id="@+id/inputSoil"
+                <AutoCompleteTextView
+                    android:id="@+id/inputSoilType"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:inputType="number"
                     android:hint="@string/soil_type"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownVerticalOffset="8dp"
+                    android:dropDownHorizontalOffset="0dp"
+                    android:completionThreshold="1"
+                    android:focusable="true"
+                    android:clickable="true"
+                    />
 
                 <View android:layout_width="8dp" android:layout_height="0dp"/>
 
-                <EditText
-                    android:id="@+id/inputIrrigation"
+                <AutoCompleteTextView
+                    android:id="@+id/inputIrrigationLevel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/irrigation_level"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownVerticalOffset="8dp"
+                    android:dropDownHorizontalOffset="0dp"
+                    android:completionThreshold="1"
+                    android:focusable="true"
+                    android:clickable="true"
+                    />
+
             </LinearLayout>
-            <!-- Row 3 User Input na Density and Fertiizer-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -156,28 +172,41 @@
                 android:weightSum="2"
                 android:layout_marginBottom="8dp">
 
-                <EditText
-                    android:id="@+id/inputDensity"
+                <AutoCompleteTextView
+                    android:id="@+id/inputPlantDensity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/planting_density"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownVerticalOffset="8dp"
+                    android:dropDownHorizontalOffset="0dp"
+                    android:completionThreshold="1"
+                    android:focusable="true"
+                    android:clickable="true"
+                    />
 
                 <View android:layout_width="8dp" android:layout_height="0dp"/>
 
-                <EditText
-                    android:id="@+id/inputFertilizer"
+                <AutoCompleteTextView
+                    android:id="@+id/inputFertilizerUsed"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/fertilizer_used"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownVerticalOffset="8dp"
+                    android:dropDownHorizontalOffset="0dp"
+                    android:completionThreshold="1"
+                    android:focusable="true"
+                    android:clickable="true"
+                    />
             </LinearLayout>
 
-            <!-- Row 4 User iput na weather and Region-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

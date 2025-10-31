@@ -76,6 +76,10 @@ class GardenFragment : Fragment() {
                         putLong("datePlanted", crop.date)
                         putLong("minHarvestDate", crop.mindate ?: 0L)
                         putLong("maxHarvestDate", crop.maxdate ?: 0L)
+                        putString("soilType", crop.soilType)
+                        putString("irrigationLevel", crop.irrigationLevel)
+                        putString("plantDensity", crop.plantDensity)
+                        putString("fertilizerUsed", crop.fertilizerUsed)
                     }
 
                     val growthFragment = GrowthFragment().apply { arguments = bundle }

@@ -14,5 +14,9 @@ data class CropEntity(
     val date: Long,
     val maxdate: Long?,
     val mindate: Long?,
+    val soilType: String? = null,
+    val irrigationLevel: String? = null,
+    val plantDensity: String? = null,
+    val fertilizerUsed: String? = null,
     val lastUpdated: Long = System.currentTimeMillis()
 )

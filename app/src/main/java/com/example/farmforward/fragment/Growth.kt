@@ -23,6 +23,10 @@ class GrowthFragment : Fragment() {
     private lateinit var maxHarvest: TextView
     private lateinit var harvestYield: TextView
     private lateinit var imgCrop: ImageView
+    private lateinit var tvSoilType: TextView
+    private lateinit var tvIrrigation: TextView
+    private lateinit var tvDensity: TextView
+    private lateinit var tvFertilizer: TextView
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -34,13 +38,17 @@ class GrowthFragment : Fragment() {
 
         controller = GrowthController(requireContext())
 
-        tvCropName = view.findViewById(R.id.etCropName)
+        tvCropName = view.findViewById(R.id.tvCropName)
         tvArea = view.findViewById(R.id.tvArea)
         plantedDate = view.findViewById(R.id.plantedDate)
         minHarvest = view.findViewById(R.id.minHarvest)
         maxHarvest = view.findViewById(R.id.maxHarvest)
         harvestYield = view.findViewById(R.id.harvestYield)
         imgCrop = view.findViewById(R.id.etDescription)
+        tvSoilType = view.findViewById(R.id.tvSoilType)
+        tvIrrigation = view.findViewById(R.id.tvIrrigation)
+        tvDensity = view.findViewById(R.id.tvDensity)
+        tvFertilizer = view.findViewById(R.id.tvFertilizer)
 
         // Get crop details from arguments
         val cropName = arguments?.getString("cropName") ?: "Unknown Crop"
@@ -57,14 +65,23 @@ class GrowthFragment : Fragment() {
             datePlanted,
             minHarvestDate,
             maxHarvestDate,
+            arguments?.getString("soilType"),
+            arguments?.getString("irrigationLevel"),
+            arguments?.getString("plantDensity"),
+            arguments?.getString("fertilizerUsed"),
             tvCropName,
             tvArea,
             plantedDate,
             minHarvest,
             maxHarvest,
             harvestYield,
+            tvSoilType,
+            tvIrrigation,
+            tvDensity,
+            tvFertilizer,
             imgCrop
         )
+
 
         return view
     }
