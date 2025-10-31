@@ -109,7 +109,7 @@ class CalcController(private val context: Context, private val cropViewModel: Cr
             btnDay.text = day.toString()
             btnDay.textSize = 14f
             btnDay.setBackgroundResource(R.drawable.day_button_selector)
-            btnDay.setTextColor(ContextCompat.getColorStateList(context, R.drawable.day_text_color))
+            btnDay.setTextColor(ContextCompat.getColorStateList(context, R.color.day_text_color))
             btnDay.layoutParams = GridLayout.LayoutParams().apply {
                 width = 110
                 height = 110
