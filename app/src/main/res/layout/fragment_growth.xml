@@ -248,9 +248,12 @@
                         android:layout_height="wrap_content"
                         android:text="@string/date"
                         android:textColor="#FFFFFF"
-                        android:textSize="15sp"
                         android:textStyle="bold"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="10sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp" />/>
 
                     <TextView
                         android:id="@+id/maxHarvest"
@@ -258,10 +261,13 @@
                         android:layout_height="wrap_content"
                         android:text="@string/date"
                         android:textColor="#FFFFFF"
-                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:gravity="center"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="2dp"
+                        android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="10sp"
+                        android:autoSizeMaxTextSize="18sp"
+                        android:autoSizeStepGranularity="1sp" />/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
