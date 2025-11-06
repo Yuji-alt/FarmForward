@@ -3,7 +3,6 @@ package com.example.farmforward.activityViewmodel
 import GardenFragment
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -14,10 +13,13 @@ import com.example.farmforward.R
 import com.example.farmforward.activityController.MainController
 import com.example.farmforward.firebase.FirebaseSyncManager
 import com.example.farmforward.fragment.HomeFragment
+import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.session.SessionManager
+import com.example.farmforward.utils.NetworkUtils
 import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,11 +31,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var btnSignOut: TextView
     var shouldRefreshHome = false
+    private var hasSynced = false  // ✅ Prevents multiple syncs in one session
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialize Firebase
         if (FirebaseApp.getApps(this).isEmpty()) {
             FirebaseApp.initializeApp(this)
         }
@@ -45,24 +49,22 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-
-
+        // Setup navigation
         home = findViewById(R.id.nav_home)
         garden = findViewById(R.id.nav_garden)
         map = findViewById(R.id.nav_map)
         btnSignOut = findViewById(R.id.signOut)
+        drawerLayout = findViewById(R.id.drawer_layout)
 
         controller = MainController(this, supportFragmentManager)
-
         menuItems = listOf(home, garden, map)
-
         controller.switchFragment(R.id.nav_home)
         controller.highlightSelected(home, menuItems)
-        drawerLayout = findViewById(R.id.drawer_layout)
+
+        // 🔹 Navigation buttons
         home.setOnClickListener {
             controller.switchFragment(R.id.nav_home)
             controller.setActiveMenu(R.id.nav_home)
-
             home.postDelayed({
                 if (shouldRefreshHome) {
                     val homeFragment = controller.getFragment(R.id.nav_home) as? HomeFragment
@@ -71,7 +73,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }, 100)
         }
-
 
         garden.setOnClickListener {
             controller.switchFragment(R.id.nav_garden)
@@ -85,52 +86,57 @@ class MainActivity : AppCompatActivity() {
             controller.setActiveMenu(R.id.nav_map)
         }
 
+        // ✅ Optimized one-time sync block
         lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                FirebaseSyncManager(this@MainActivity).pushLocalToFirebase()
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val isOnline = NetworkUtils.isNetworkAvailable(this@MainActivity)
+            val db = AppDatabase.getDatabase(this@MainActivity)
+            val sessionManager = SessionManager(this@MainActivity)
+            val userId = sessionManager.getUserId() ?: return@launch
+
+            val localCount = db.cropDao().countUserCrops(userId)
+            if (!hasSynced && isOnline && localCount == 0) {
+                hasSynced = true
+                try {
+                    val sync = FirebaseSyncManager(this@MainActivity)
+                    sync.syncUsers()
+                    sync.syncCrops()
+
+                    // ✅ Refresh both Home and Garden UI after sync
+                    withContext(Dispatchers.Main) {
+                        val homeFragment = controller.getFragment(R.id.nav_home) as? HomeFragment
+                        homeFragment?.refreshData()
+
+                        val gardenFragment = controller.getFragment(R.id.nav_garden) as? GardenFragment
+                        gardenFragment?.refreshData()
+                    }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            } else {
+                // If already synced or offline, just refresh UI
+                withContext(Dispatchers.Main) {
+                    val homeFragment = controller.getFragment(R.id.nav_home) as? HomeFragment
+                    homeFragment?.refreshData()
+
+                    val gardenFragment = controller.getFragment(R.id.nav_garden) as? GardenFragment
+                    gardenFragment?.refreshData()
+                }
             }
         }
+
+        // 🔹 Logout handler
         btnSignOut.setOnClickListener {
             val session = SessionManager(this)
             session.clearSession()
-
             drawerLayout.closeDrawer(GravityCompat.END)
-
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
         }
-
-    }
-    fun openDrawer() {
-        drawerLayout.openDrawer(GravityCompat.END)
     }
 
-    fun closeDrawer() {
-        drawerLayout.closeDrawer(GravityCompat.END)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val session = SessionManager(this)
-        if (!session.isLoggedIn()) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-            return
-        }
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val sync = FirebaseSyncManager(this@MainActivity)
-                sync.pushLocalToFirebase()
-                sync.syncUsers()
-                sync.syncCrops()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
+    fun openDrawer() = drawerLayout.openDrawer(GravityCompat.END)
+    fun closeDrawer() = drawerLayout.closeDrawer(GravityCompat.END)
 }

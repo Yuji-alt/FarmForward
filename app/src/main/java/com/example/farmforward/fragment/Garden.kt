@@ -14,6 +14,7 @@ import com.example.farmforward.fragmentController.GardenController
 import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.session.SessionManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -23,6 +24,8 @@ class GardenFragment : Fragment() {
     private lateinit var cropContainer: LinearLayout
     private lateinit var btnAdd: ImageButton
     private var userId: Int? = null
+    private var refreshJob: Job? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,14 +61,14 @@ class GardenFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        refreshData()
     }
 
     fun refreshData() {
+        refreshJob?.cancel()
         val id = userId ?: return
         val db = AppDatabase.getDatabase(requireContext())
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        refreshJob = lifecycleScope.launch(Dispatchers.IO) {
             val crops = db.cropDao().getCropsForUserList(id)
             withContext(Dispatchers.Main) {
                 controller.displayCrops(crops) { crop ->
@@ -88,9 +91,14 @@ class GardenFragment : Fragment() {
                         .add(R.id.fragment_container, growthFragment)
                         .addToBackStack(null)
                         .commit()
-                    (requireActivity() as? MainActivity)?.controller?.setActiveMenu(R.id.nav_growth)
+
+                    (requireActivity() as? MainActivity)
+                        ?.controller
+                        ?.setActiveMenu(R.id.nav_growth)
                 }
             }
         }
+
     }
+
 }

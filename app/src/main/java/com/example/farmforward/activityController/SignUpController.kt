@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.farmforward.firebaseDatabase.FirebaseUserRepository
 import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.roomDatabase.User
+import com.example.farmforward.utils.NetworkUtils
 import kotlinx.coroutines.*
 
 class SignUpController(private val context: Context) {
@@ -34,6 +35,7 @@ class SignUpController(private val context: Context) {
 
         ioScope.launch {
             val exists = db.userDao().checkUserExists(trimmedUsername)
+            // will be remove kapag nakagawa na ng offline mode and sync button or upload data when online
             if (exists > 0) {
                 withContext(Dispatchers.Main) {
                     onResult(false, "Username already exists!")
@@ -41,7 +43,11 @@ class SignUpController(private val context: Context) {
             } else {
                 val user = User(username = trimmedUsername, password = trimmedPassword, lastUpdated = System.currentTimeMillis())
                 db.userDao().registerUser(user)
-                FirebaseUserRepository().registerUser(user)
+
+                if (NetworkUtils.isNetworkAvailable(context)) {
+                    FirebaseUserRepository().registerUser(user)
+                }
+
                 withContext(Dispatchers.Main) {
                     onResult(true, "Registration successful!")
                 }

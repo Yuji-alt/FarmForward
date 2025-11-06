@@ -42,7 +42,6 @@ class LoginActivity : AppCompatActivity() {
 
                     Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
 
-                    // Small delay prevents DeadObjectException in Toast
                     Handler(mainLooper).postDelayed({
                         startActivity(Intent(this, MainActivity::class.java))
                         finish()

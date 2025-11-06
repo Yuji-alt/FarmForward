@@ -1,5 +1,4 @@
 package com.example.farmforward.fragment
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
 import com.example.farmforward.activityViewmodel.MainActivity
+import com.example.farmforward.firebase.FirebaseSyncManager
 import com.example.farmforward.fragmentController.HomeController
 import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.session.SessionManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -24,6 +25,8 @@ class HomeFragment : Fragment() {
     private lateinit var searchInput: EditText
     private lateinit var itemContainer: LinearLayout
     private lateinit var menuButton: ImageButton
+    private var refreshJob: Job? = null
+
 
     private var userId: Int? = null
 
@@ -49,19 +52,21 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        refreshData()
     }
 
 
     fun refreshData() {
+        refreshJob?.cancel() // cancel any running refresh
         val id = userId ?: return
         val db = AppDatabase.getDatabase(requireContext())
 
-         lifecycleScope.launch(Dispatchers.IO) {
+        refreshJob = lifecycleScope.launch(Dispatchers.IO) {
             val crops = db.cropDao().getCropsForUserList(id)
             withContext(Dispatchers.Main) {
                 controller.displayCrops(crops)
             }
         }
     }
+
+
 }

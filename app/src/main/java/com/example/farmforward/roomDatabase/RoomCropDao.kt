@@ -22,4 +22,8 @@ interface RoomCropDao {
     @Query("SELECT * FROM crop_table WHERE userId = :userId ORDER BY date DESC")
     suspend fun getCropsForUserList(userId: Int): List<CropEntity>
 
+    @Query("SELECT COUNT(*) FROM crop_table WHERE userId = :userId")
+    suspend fun countUserCrops(userId: Int): Int
+
+
 }
