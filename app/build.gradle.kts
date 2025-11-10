@@ -1,4 +1,5 @@
-import org.gradle.kotlin.dsl.implementation
+import java.util.Properties
+
 
 plugins {
     alias(libs.plugins.android.application)
@@ -12,6 +13,9 @@ plugins {
 android {
     namespace = "com.example.farmforward"
     compileSdk = 36
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.farmforward"
@@ -19,8 +23,15 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localPropertiesFile = rootProject.file("local.properties")
+        val localProperties = Properties()
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { localProperties.load(it) }
+        }
+        val weatherApiKey = localProperties.getProperty("WEATHER_API_KEY") ?: ""
+        buildConfigField("String", "WEATHER_API_KEY", "\"$weatherApiKey\"")
     }
 
     buildTypes {
@@ -49,10 +60,14 @@ android {
 
 dependencies {
     implementation(libs.firebase.firestore.ktx)
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
     //room
     val room_version = "2.8.1"
     implementation("androidx.room:room-runtime:${room_version}")
     ksp("androidx.room:room-compiler:$room_version")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
     implementation("com.google.firebase:firebase-firestore")

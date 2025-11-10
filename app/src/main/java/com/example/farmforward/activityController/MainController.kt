@@ -1,31 +1,77 @@
 package com.example.farmforward.activityController
 
 import GardenFragment
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.farmforward.R
 import com.example.farmforward.fragment.HomeFragment
 import com.example.farmforward.fragment.MapFragment
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 
 class MainController(
     private val context: Context,
     private val fragmentManager: FragmentManager
 ) {
-    private val fragmentMap = mutableMapOf<Int, Fragment>()
 
-    // Only 3 available fragments
+    private val fragmentMap = mutableMapOf<Int, Fragment>()
+    val LOCATION_PERMISSION_REQUEST_CODE = 1001
+
     fun onMenuItemSelected(menuId: Int): Fragment {
         return when (menuId) {
             R.id.nav_home -> HomeFragment()
             R.id.nav_garden -> GardenFragment()
             R.id.nav_map -> MapFragment()
             else -> HomeFragment()
+        }
+    }
+
+    fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+
+    fun requestLocationPermission(activity: AppCompatActivity) {
+        if (!hasLocationPermission()) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+    fun fetchCurrentLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
+        if (!hasLocationPermission()) {
+            Toast.makeText(context, "Location permission required", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+        try {
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener { location ->
+                    if (location != null) {
+                        onLocation(location.latitude, location.longitude)
+                    } else {
+                        Toast.makeText(context, "Unable to get location", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        } catch (e: SecurityException) {
+            Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -52,7 +98,6 @@ class MainController(
         }
     }
 
-
     fun highlightSelected(selected: LinearLayout, allItems: List<LinearLayout>) {
         for (item in allItems) {
             val icon = item.getChildAt(0) as ImageView
@@ -71,6 +116,7 @@ class MainController(
             }
         }
     }
+
     fun setActiveMenu(menuId: Int) {
         val activity = context as? AppCompatActivity ?: return
         val home = activity.findViewById<LinearLayout>(R.id.nav_home)
@@ -91,6 +137,7 @@ class MainController(
 
         highlightSelected(selected, menuItems)
     }
+
     fun getFragment(menuId: Int): Fragment? {
         return fragmentMap[menuId]
     }

@@ -10,7 +10,7 @@ data class CropEntity(
     val userId: Int = 0,
     val cropName: String = "",
     val area: Double = 0.0,
-    val expectedYield: Double = 0.0,
+    val expectedYield: Double = 0.00,
     val date: Long = 0L,
     val maxdate: Long? = null,
     val mindate: Long? = null,

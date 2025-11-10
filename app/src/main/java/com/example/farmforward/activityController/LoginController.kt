@@ -1,11 +1,19 @@
 package com.example.farmforward.activityController
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.farmforward.firebase.FirebaseSyncManager
 import com.example.farmforward.roomDatabase.AppDatabase
 import com.example.farmforward.roomDatabase.User
 import com.example.farmforward.session.SessionManager
 import com.example.farmforward.utils.NetworkUtils
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
 

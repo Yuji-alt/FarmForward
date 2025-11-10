@@ -12,6 +12,7 @@ import java.io.BufferedReader
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.roundToInt
 
 var selectedDateMillis: Long = System.currentTimeMillis()
 
@@ -192,11 +193,13 @@ class CalcController(private val context: Context, private val cropViewModel: Cr
             calendar.add(Calendar.DAY_OF_YEAR, maxDays)
             calendar.timeInMillis
         } else null
+
+        val roundedYield = (expectedYield * 100).roundToInt() / 100.0
         cropViewModel.setCropData(
             userId,
             cropName,
             area,
-            expectedYield,
+            roundedYield,
             selectedDateMillis,
             minDateMillis,
             maxDateMillis,

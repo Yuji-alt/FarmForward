@@ -3,6 +3,7 @@ package com.example.farmforward.activityViewmodel
 import GardenFragment
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -31,11 +32,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var btnSignOut: TextView
     var shouldRefreshHome = false
-    private var hasSynced = false  // ✅ Prevents multiple syncs in one session
+    private var hasSynced = false  // Prevents multiple syncs
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Initialize controller FIRST
+        controller = MainController(this, supportFragmentManager)
 
         // Initialize Firebase
         if (FirebaseApp.getApps(this).isEmpty()) {
@@ -49,19 +53,25 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Setup navigation
         home = findViewById(R.id.nav_home)
         garden = findViewById(R.id.nav_garden)
         map = findViewById(R.id.nav_map)
         btnSignOut = findViewById(R.id.signOut)
         drawerLayout = findViewById(R.id.drawer_layout)
-
-        controller = MainController(this, supportFragmentManager)
         menuItems = listOf(home, garden, map)
+
         controller.switchFragment(R.id.nav_home)
         controller.highlightSelected(home, menuItems)
 
-        // 🔹 Navigation buttons
+        if (!controller.hasLocationPermission()) {
+            controller.requestLocationPermission(this)
+        } else {
+            controller.fetchCurrentLocation(this) { lat, lon ->
+                Log.d("Location", "Lat: $lat, Lon: $lon")
+            }
+        }
+
+        // Navigation buttons
         home.setOnClickListener {
             controller.switchFragment(R.id.nav_home)
             controller.setActiveMenu(R.id.nav_home)
@@ -86,13 +96,11 @@ class MainActivity : AppCompatActivity() {
             controller.setActiveMenu(R.id.nav_map)
         }
 
-        // ✅ Optimized one-time sync block
+        // One-time sync
         lifecycleScope.launch(Dispatchers.IO) {
             val isOnline = NetworkUtils.isNetworkAvailable(this@MainActivity)
             val db = AppDatabase.getDatabase(this@MainActivity)
-            val sessionManager = SessionManager(this@MainActivity)
-            val userId = sessionManager.getUserId() ?: return@launch
-
+            val userId = session.getUserId() ?: return@launch
             val localCount = db.cropDao().countUserCrops(userId)
             if (!hasSynced && isOnline && localCount == 0) {
                 hasSynced = true
@@ -101,11 +109,9 @@ class MainActivity : AppCompatActivity() {
                     sync.syncUsers()
                     sync.syncCrops()
 
-                    // ✅ Refresh both Home and Garden UI after sync
                     withContext(Dispatchers.Main) {
                         val homeFragment = controller.getFragment(R.id.nav_home) as? HomeFragment
                         homeFragment?.refreshData()
-
                         val gardenFragment = controller.getFragment(R.id.nav_garden) as? GardenFragment
                         gardenFragment?.refreshData()
                     }
@@ -114,20 +120,17 @@ class MainActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
             } else {
-                // If already synced or offline, just refresh UI
                 withContext(Dispatchers.Main) {
                     val homeFragment = controller.getFragment(R.id.nav_home) as? HomeFragment
                     homeFragment?.refreshData()
-
                     val gardenFragment = controller.getFragment(R.id.nav_garden) as? GardenFragment
                     gardenFragment?.refreshData()
                 }
             }
         }
 
-        // 🔹 Logout handler
+        // Logout handler
         btnSignOut.setOnClickListener {
-            val session = SessionManager(this)
             session.clearSession()
             drawerLayout.closeDrawer(GravityCompat.END)
             val intent = Intent(this, LoginActivity::class.java)

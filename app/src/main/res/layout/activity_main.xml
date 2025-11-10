@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/bone">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -13,9 +14,13 @@
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/bottom_nav" />
-
-        <include layout="@layout/custom_bottom_nav" />
+            android:layout_marginBottom="?attr/actionBarSize" />
+        <include
+            android:id="@+id/bottom_nav"
+            layout="@layout/custom_bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
     <LinearLayout
@@ -38,6 +43,7 @@
             android:text="@string/settings"
             android:textSize="18sp"
             android:paddingTop="20dp"
+            android:textColor="@color/kombuGreen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -46,6 +52,7 @@
             android:text="@string/log_out"
             android:textStyle="bold"
             android:textSize="18sp"
+            android:textColor="@color/kombuGreen"
             android:paddingTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
