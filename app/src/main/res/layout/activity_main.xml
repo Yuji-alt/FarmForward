@@ -57,5 +57,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"/>
+        <TextView
+            android:id="@+id/Saved"
+            android:text="@string/saved_offline"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/kombuGreen"
+            android:paddingTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"/>
     </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

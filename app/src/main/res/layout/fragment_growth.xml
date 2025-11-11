@@ -5,15 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#F5F5F5"
+    android:background="@color/bone"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
-        <!-- Header (Crop Name) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,6 +28,7 @@
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
                 android:background="@drawable/input_bg"
                 android:padding="8dp"
                 android:layout_marginStart="8dp"
@@ -40,61 +39,11 @@
         <ImageView
             android:id="@+id/etDescription"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="150dp"
             android:gravity="top|start"
             android:background="@drawable/rounded_box"
             android:padding="12dp"
             android:layout_marginTop="16dp" />
-
-        <!-- Crop Description -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="10dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="8dp">
-
-                <TextView
-                    android:text="@string/description"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical|end"
-                android:paddingEnd="16dp"
-                android:paddingStart="12dp">
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/plus_sign" />
-
-                <TextView
-                    android:id="@+id/tvEdit"
-                    android:text="@string/edit"
-                    android:textSize="15sp"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:drawablePadding="4dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Table of Crop Information -->
         <TableLayout
             android:id="@+id/tableCropInfo"
             android:layout_width="match_parent"
@@ -102,42 +51,42 @@
             android:stretchColumns="1"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/input_bg"
+            android:background="@drawable/border"
             android:padding="8dp">
 
             <TableRow>
-                <TextView android:text="Area" style="@style/LabelText" android:background="@drawable/border_black" />
-                <TextView android:id="@+id/tvArea" style="@style/ValueText" android:background="@drawable/border_black" />
+                <TextView android:text="Area" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvArea" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Soil Type" style="@style/LabelText" android:background="@drawable/border_black" />
-                <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:background="@drawable/border_black" />
+                <TextView android:text="Soil Type" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Irrigation Level" style="@style/LabelText" android:background="@drawable/border_black" />
-                <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:background="@drawable/border_black" />
+                <TextView android:text="Irrigation Level" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Planting Density" style="@style/LabelText" android:background="@drawable/border_black" />
-                <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:background="@drawable/border_black" />
+                <TextView android:text="Planting Density" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Fertilizer Used" style="@style/LabelText" android:background="@drawable/border_black" />
-                <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:background="@drawable/border_black" />
+                <TextView android:text="Fertilizer Used" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Weather Condition" style="@style/LabelText" android:background="@drawable/border_black" />
-                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border_black" />
+                <TextView android:text="Weather Condition" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>
-                <TextView android:text="Region" style="@style/LabelText" android:background="@drawable/border_black" />
-                <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border_black" />
+                <TextView android:text="Region" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
         </TableLayout>
 

@@ -1,6 +1,5 @@
 package com.example.farmforward.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,14 +7,18 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.example.farmforward.CropViewModel
 import com.example.farmforward.R
-import com.example.farmforward.fragmentController.GrowthController
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 class GrowthFragment : Fragment() {
 
-    private lateinit var controller: GrowthController
+    // 1. Get the ViewModel
+    private lateinit var cropViewModel: CropViewModel
+
+    // 2. Define all your UI views
     private lateinit var tvCropName: TextView
     private lateinit var tvArea: TextView
     private lateinit var plantedDate: TextView
@@ -28,15 +31,13 @@ class GrowthFragment : Fragment() {
     private lateinit var tvDensity: TextView
     private lateinit var tvFertilizer: TextView
 
-    @SuppressLint("SetTextI18n")
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_growth, container, false)
 
-        controller = GrowthController(requireContext())
+        cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
 
         tvCropName = view.findViewById(R.id.tvCropName)
         tvArea = view.findViewById(R.id.tvArea)
@@ -44,45 +45,63 @@ class GrowthFragment : Fragment() {
         minHarvest = view.findViewById(R.id.minHarvest)
         maxHarvest = view.findViewById(R.id.maxHarvest)
         harvestYield = view.findViewById(R.id.harvestYield)
+
         imgCrop = view.findViewById(R.id.etDescription)
+
         tvSoilType = view.findViewById(R.id.tvSoilType)
         tvIrrigation = view.findViewById(R.id.tvIrrigation)
         tvDensity = view.findViewById(R.id.tvDensity)
         tvFertilizer = view.findViewById(R.id.tvFertilizer)
 
-        // Get crop details from arguments
-        val cropName = arguments?.getString("cropName") ?: "Unknown Crop"
-        val area = arguments?.getDouble("area") ?: 0.0
-        val expectedYield = arguments?.getDouble("expectedYield") ?: 0.0
-        val datePlanted = arguments?.getLong("datePlanted") ?: System.currentTimeMillis()
-        val minHarvestDate = arguments?.getLong("minHarvestDate")
-        val maxHarvestDate = arguments?.getLong("maxHarvestDate")
-
-        controller.displayCropDetails(
-            cropName,
-            area,
-            expectedYield,
-            datePlanted,
-            minHarvestDate,
-            maxHarvestDate,
-            arguments?.getString("soilType"),
-            arguments?.getString("irrigationLevel"),
-            arguments?.getString("plantDensity"),
-            arguments?.getString("fertilizerUsed"),
-            tvCropName,
-            tvArea,
-            plantedDate,
-            minHarvest,
-            maxHarvest,
-            harvestYield,
-            tvSoilType,
-            tvIrrigation,
-            tvDensity,
-            tvFertilizer,
-            imgCrop
-        )
-
-
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshData()
+    }
+
+
+    fun refreshData() {
+        val crop = cropViewModel.cropData.value
+
+        if (crop == null || crop.cropName.isBlank()) {
+            tvCropName.text = "No Crop Calculated"
+            tvArea.text = "---"
+            plantedDate.text = "---"
+            minHarvest.text = "---"
+            maxHarvest.text = "---"
+            harvestYield.text = "---"
+            tvSoilType.text = "---"
+            tvIrrigation.text = "---"
+            tvDensity.text = "---"
+            tvFertilizer.text = "---"
+            return
+        }
+
+        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+
+        val plantedDateText = dateFormat.format(crop.date)
+        val minHarvestText = crop.mindate?.let { dateFormat.format(it) } ?: "N/A"
+        val maxHarvestText = crop.maxdate?.let { dateFormat.format(it) } ?: "N/A"
+
+        tvCropName.text = crop.cropName
+        tvArea.text = "${crop.area} sq. meters"
+        plantedDate.text = plantedDateText
+        minHarvest.text = minHarvestText
+        maxHarvest.text = maxHarvestText
+        harvestYield.text = "${crop.expectedYield} kg"
+        tvSoilType.text = crop.soilType
+        tvIrrigation.text = crop.irrigationLevel
+        tvDensity.text = crop.plantDensity
+        tvFertilizer.text = crop.fertilizerUsed
+
+        // TODO: Add logic to set imgCrop based on cropName
+        // Example:
+        // when (cropViewModel.cropName.lowercase()) {
+        //    "corn" -> imgCrop.setImageResource(R.drawable.ic_corn)
+        //    "rice" -> imgCrop.setImageResource(R.drawable.ic_rice)
+        //    else -> imgCrop.setImageResource(R.drawable.ic_default_plant)
+        // }
     }
 }

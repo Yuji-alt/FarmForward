@@ -2,13 +2,11 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <!-- Fill color (background inside the border) -->
-    <solid android:color="@color/white"/>
+    <solid android:color="@color/tan"/>
 
-    <!-- Border line -->
     <stroke
         android:width="2dp"
-        android:color="@color/iron_gray"/>
+        android:color="@color/kombuGreen"/>
 
     <padding
         android:left="8dp"

@@ -42,7 +42,7 @@
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
         android:layout_margin="8dp"
         android:overScrollMode="never"
         android:scrollbars="none"
@@ -55,15 +55,14 @@
             android:orientation="horizontal"
             android:paddingHorizontal="8dp" />
     </HorizontalScrollView>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp">
-
+        android:paddingEnd="16dp"
+        android:background="@drawable/top_border">
         <TextView
             android:id="@+id/weather_date"
             android:layout_width="172dp"
@@ -93,15 +92,26 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="8dp">
-
-        <LinearLayout
-            android:id="@+id/weatherContainer"
+        android:layout_margin="8dp"
+        android:fillViewport="true">
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp"/>
+            android:layout_height="wrap_content">
 
+            <ProgressBar
+                android:id="@+id/weatherProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/weatherContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="16dp"/>
+        </FrameLayout>
     </ScrollView>
-
 </LinearLayout>

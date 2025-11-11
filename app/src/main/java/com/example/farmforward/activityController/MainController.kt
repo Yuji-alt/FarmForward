@@ -1,19 +1,25 @@
 package com.example.farmforward.activityController
 
-import GardenFragment
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.farmforward.R
+import com.example.farmforward.fragment.CalcFragment
+import com.example.farmforward.fragment.GardenFragment
+import com.example.farmforward.fragment.GrowthFragment
 import com.example.farmforward.fragment.HomeFragment
 import com.example.farmforward.fragment.MapFragment
 import com.google.android.gms.location.LocationServices
@@ -32,6 +38,8 @@ class MainController(
             R.id.nav_home -> HomeFragment()
             R.id.nav_garden -> GardenFragment()
             R.id.nav_map -> MapFragment()
+            R.id.nav_calc -> CalcFragment()
+            R.id.nav_growth -> GrowthFragment()
             else -> HomeFragment()
         }
     }
@@ -42,18 +50,65 @@ class MainController(
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
+    fun checkAndRequestLocationPermission(
+        activity: AppCompatActivity,
+        onPermissionGranted: () -> Unit,
+        onPermissionDenied: () -> Unit
+    ) {
+        when {
+            hasLocationPermission() -> {
+                onPermissionGranted()
+            }
 
+            ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.permission_needed)
+                    .setMessage(R.string.location_permission_rationale)
+                    .setPositiveButton("OK") { _, _ ->
+                        requestSystemPermission(activity)
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                        onPermissionDenied()
+                    }
+                    .create()
+                    .show()
+            }
 
-    fun requestLocationPermission(activity: AppCompatActivity) {
-        if (!hasLocationPermission()) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
-            )
+            else -> {
+                requestSystemPermission(activity)
+            }
         }
     }
+    fun requestSystemPermission(activity: AppCompatActivity) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            LOCATION_PERMISSION_REQUEST_CODE
+        )
+    }
 
+    fun handlePermissionPermanentlyDenied(activity: AppCompatActivity, onPermissionDenied: () -> Unit) {
+        if (!hasLocationPermission() && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            AlertDialog.Builder(context)
+                .setTitle(R.string.permission_denied)
+                .setMessage(R.string.permission_denied_permanently_message)
+                .setPositiveButton("Go to Settings") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", activity.packageName, null)
+                    intent.data = uri
+                    activity.startActivity(intent)
+                }
+                .setNegativeButton("Not now") { dialog, _ ->
+                    dialog.dismiss()
+                    onPermissionDenied()
+                }
+                .create()
+                .show()
+        } else if (!hasLocationPermission()) {
+            onPermissionDenied()
+        }
+    }
     fun fetchCurrentLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
         if (!hasLocationPermission()) {
             Toast.makeText(context, "Location permission required", Toast.LENGTH_SHORT).show()
@@ -93,6 +148,10 @@ class MainController(
         setActiveMenu(menuId)
         (context as? AppCompatActivity)?.window?.decorView?.post {
             if (fragment is HomeFragment && fragment.isAdded && fragment.isVisible) {
+                fragment.refreshData()
+
+            }
+            else if (fragment is GrowthFragment && fragment.isAdded && fragment.isVisible) {
                 fragment.refreshData()
             }
         }

@@ -30,10 +30,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import android.location.Geocoder
-import androidx.core.content.ContentProviderCompat.requireContext
+import com.example.farmforward.utils.LoadingDialog
 import java.util.Locale
-
-
 
 class HomeFragment : Fragment() {
 
@@ -48,7 +46,9 @@ class HomeFragment : Fragment() {
     private lateinit var weatherContainer: LinearLayout
     private lateinit var locationText: TextView
     private lateinit var weatherText: TextView
-
+    private var lastWeatherFetchTime: Long = 0L
+    private val WEATHER_FETCH_COOLDOWN = 10 * 60 * 1000L
+    private lateinit var loadingDialog: LoadingDialog
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -68,32 +68,55 @@ class HomeFragment : Fragment() {
         controller = HomeController(requireContext(), itemContainer)
 
         val activityContext = activity as? MainActivity ?: return view
-        val mainController = activityContext.controller
-
         val session = SessionManager(requireContext())
         userId = session.getUserId()
+        loadingDialog = LoadingDialog(requireContext())
 
         menuButton.setOnClickListener {
             activityContext.openDrawer()
         }
-        fetchWeatherByLocation(mainController, activityContext)
 
         refreshData()
         return view
     }
 
     private fun fetchWeatherByLocation(mainController: MainController, activity: MainActivity) {
-        if (!mainController.hasLocationPermission()) {
-            mainController.requestLocationPermission(activity)
-            Toast.makeText(requireContext(), "Please grant location permission", Toast.LENGTH_SHORT).show()
-            return
-        }
 
-        mainController.fetchCurrentLocation(activity) { lat, lon ->
-            val locationName = getLocationName(lat, lon)
-            locationText.text = locationName
-            fetchWeatherForecast(lat, lon)
-        }
+        loadingDialog.show()
+        weatherContainer.visibility = View.GONE
+        locationText.text = getString(R.string.location_loading)
+        weatherText.text = getString(R.string.loading)
+
+        mainController.checkAndRequestLocationPermission(
+            activity,
+            onPermissionGranted = {
+                mainController.fetchCurrentLocation(activity) { lat, lon ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val locationName = getLocationName(lat, lon)
+                        withContext(Dispatchers.Main) {
+                            locationText.text = locationName
+                        }
+                        fetchWeatherForecast(lat, lon)
+                    }
+                }
+            },
+            onPermissionDenied = {
+                onPermissionDenied()
+            }
+        )
+    }
+    fun onPermissionGranted() {
+        Log.d("HomeFragment", "Permission was granted! Re-fetching weather.")
+        // Re-run the fetch logic
+        val activityContext = activity as? MainActivity ?: return
+        fetchWeatherByLocation(activityContext.controller, activityContext)
+    }
+
+    fun onPermissionDenied() {
+        Log.d("HomeFragment", "Permission was denied.")
+        loadingDialog.dismiss()
+        locationText.text = getString(R.string.permission_needed)
+        weatherText.text = "---"
     }
 
     private fun fetchWeatherForecast(lat: Double, lon: Double) {
@@ -102,6 +125,10 @@ class HomeFragment : Fragment() {
         RetrofitClient.instance.getForecastByCoordinates(lat, lon, apiKey)
             .enqueue(object : Callback<WeatherResponse> {
                 override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+
+                    loadingDialog.dismiss()
+                    weatherContainer.visibility = View.VISIBLE
+
                     if (response.isSuccessful) {
                         val allForecasts = response.body()?.list ?: return
                         val todayDateString = getWeatherDay()
@@ -110,11 +137,25 @@ class HomeFragment : Fragment() {
                         weatherController.displayForecast(todayForecasts)
                     } else {
                         Log.d("WeatherAPI", "API Error: ${response.code()} ${response.message()}")
+                        val (userMessage, errorTitle) = when (response.code()) {
+                            401 -> "API key is invalid." to "API Error"
+                            429 -> "Rate limit exceeded. Please try again later." to "Error"
+                            500 -> "Server error. Please try again later." to "Error"
+                            else -> "Failed to load weather." to "Error"
+                        }
+                        Toast.makeText(requireContext(), userMessage, Toast.LENGTH_LONG).show()
+                        weatherText.text = errorTitle
+                        locationText.text = "---"
                     }
                 }
 
                 override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                    Log.d("WeatherAPI", "Network Error: ${t.localizedMessage}")
+                    loadingDialog.dismiss()
+                    weatherContainer.visibility = View.VISIBLE
+                    Log.e("WeatherAPI", "Network Error: ${t.localizedMessage}")
+                    Toast.makeText(requireContext(), "Network error. Check connection.", Toast.LENGTH_SHORT).show()
+                    weatherText.text = getString(R.string.network_failed)
+                    locationText.text = " "
                 }
             })
     }
@@ -124,13 +165,14 @@ class HomeFragment : Fragment() {
             val addresses = geocoder.getFromLocation(lat, lon, 1)
             if (!addresses.isNullOrEmpty()) {
                 val address = addresses[0]
-                address.locality ?: address.subAdminArea ?: "Unknown location"
+                // Using adminArea as requested
+                address.adminArea ?: address.locality ?: "Unknown Location"
             } else {
-                "Unknown location"
+                "Unknown Location"
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            "Unknown location"
+            "Unknown Location"
         }
     }
 
@@ -148,7 +190,14 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         val activityContext = activity as? MainActivity ?: return
-        fetchWeatherByLocation(activityContext.controller, activityContext)
+        val now = System.currentTimeMillis()
+        if (now - lastWeatherFetchTime > WEATHER_FETCH_COOLDOWN) {
+            lastWeatherFetchTime = now
+            fetchWeatherByLocation(activityContext.controller, activityContext)
+
+        } else {
+            Log.d("HomeFragment", "Skipping weather fetch, not enough time passed.")
+        }
     }
 
     fun refreshData() {

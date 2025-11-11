@@ -45,4 +45,12 @@
     <string name="don_t_have_an_account_yet">Don\'t have an account yet?</string>
     <string name="sign_up_here">Sign Up here</string>
     <string name="search_crops">Search crops...</string>
+    <string name="loading">Loading...</string>
+    <string name="location_loading">Location Loading...</string>
+    <string name="permission_needed">Permission needed</string>
+    <string name="location_permission_rationale">This app needs location permission to get the weather forecast for your area. Please allow permission.</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="permission_denied_permanently_message">You have permanently denied location permission. To get weather updates, please go to your phone\'s settings and enable location for this app.</string>
+    <string name="network_failed">No Network Connection</string>
+    <string name="saved_offline">Saved Offline</string>
 </resources>
