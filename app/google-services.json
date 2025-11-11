@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "917009966169",
+    "project_id": "farmfoward",
+    "storage_bucket": "farmfoward.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917009966169:android:a34912ca6b6a91c945bd48",
+        "android_client_info": {
+          "package_name": "com.example.farmforward"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIDqWIAHdH29WvxLmaVrvD7FWzrZ7653I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

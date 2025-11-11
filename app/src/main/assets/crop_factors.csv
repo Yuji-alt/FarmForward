@@ -1,0 +1,16 @@
+Crop,Factor,Category,Effect
+Corn,Soil Type,Poor,-20
+Corn,Soil Type,Medium,0
+Corn,Soil Type,Fertile,10
+Corn,Irrigation Level,Rainfed,0
+Corn,Irrigation Level,Supplementary,15
+Corn,Irrigation Level,Fully irrigated,35
+Corn,Planting Density,Low,-10
+Corn,Planting Density,Optimal,15
+Corn,Planting Density,Overcrowded,-5
+Corn,Fertilizer Used,None/Low,0
+Corn,Fertilizer Used,Recommended NPK,30
+Corn,Fertilizer Used,Balanced + Organic,60
+Corn,Weather Condition,Dry/Drought,-30
+Corn,Weather Condition,Normal,0
+Corn,Weather Condition,Wet/Excess,-10
