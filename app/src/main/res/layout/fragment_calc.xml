@@ -250,12 +250,13 @@
 
             <Button
                 android:id="@+id/btnCalculate"
-                android:text="@string/calculate"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:height="50dp"
-                android:backgroundTint="@color/kombuGreen"/>
+                android:textColor="@color/bone"
+                android:backgroundTint="@color/kombuGreen"
+                android:text="@string/calculate" />
 
             <View android:layout_width="8dp" android:layout_height="0dp"/>
 

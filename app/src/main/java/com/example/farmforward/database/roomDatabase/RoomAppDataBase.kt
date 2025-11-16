@@ -1,4 +1,4 @@
-    package com.example.farmforward.roomDatabase
+package com.example.farmforward.database.roomDatabase
 
 import android.content.Context
 import androidx.room.Database

@@ -1,4 +1,4 @@
- package com.example.farmforward.roomDatabase
+package com.example.farmforward.database.roomDatabase
 
 import androidx.room.Dao
 import androidx.room.Insert

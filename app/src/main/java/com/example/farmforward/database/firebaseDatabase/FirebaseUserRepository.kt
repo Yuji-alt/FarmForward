@@ -1,6 +1,6 @@
-package com.example.farmforward.firebaseDatabase
+package com.example.farmforward.database.firebaseDatabase
 
-import com.example.farmforward.roomDatabase.User
+import com.example.farmforward.database.roomDatabase.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 

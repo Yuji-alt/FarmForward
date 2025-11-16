@@ -53,4 +53,5 @@
     <string name="permission_denied_permanently_message">You have permanently denied location permission. To get weather updates, please go to your phone\'s settings and enable location for this app.</string>
     <string name="network_failed">No Network Connection</string>
     <string name="saved_offline">Saved Offline</string>
+    <string name="sync_online_offline">Sync_online/offline</string>
 </resources>

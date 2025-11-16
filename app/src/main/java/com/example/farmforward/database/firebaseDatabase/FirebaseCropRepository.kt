@@ -1,6 +1,6 @@
 package com.example.farmforward.firebase
 
-import com.example.farmforward.roomDatabase.CropEntity
+import com.example.farmforward.database.roomDatabase.CropEntity
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -9,9 +9,9 @@ class FirebaseCropRepository {
     val db = FirebaseFirestore.getInstance()
     private val cropsRef = db.collection("crops")
 
+
     suspend fun insertCrop(crop: CropEntity) {
         val cropData = hashMapOf(
-            "id" to crop.id,
             "userId" to crop.userId.toLong(),
             "cropName" to crop.cropName,
             "area" to crop.area,

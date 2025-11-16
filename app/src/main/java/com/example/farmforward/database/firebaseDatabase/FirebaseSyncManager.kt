@@ -2,10 +2,11 @@ package com.example.farmforward.firebase
 
 import android.content.Context
 import android.util.Log
-import com.example.farmforward.firebaseDatabase.FirebaseUserRepository
-import com.example.farmforward.roomDatabase.AppDatabase
-import com.example.farmforward.roomDatabase.CropEntity
-import com.example.farmforward.roomDatabase.User
+import com.example.farmforward.appActivity.userSession.session.SessionManager
+import com.example.farmforward.database.firebaseDatabase.FirebaseUserRepository
+import com.example.farmforward.database.roomDatabase.AppDatabase
+import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.roomDatabase.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -49,9 +50,10 @@ class FirebaseSyncManager(private val context: Context) {
         }
     }
 
+
     suspend fun syncCrops() = withContext(Dispatchers.IO) {
         val cropDao = db.cropDao()
-        val session = com.example.farmforward.session.SessionManager(context)
+        val session = SessionManager(context)
         val userId = session.getUserId() ?: return@withContext
 
         try {
@@ -59,36 +61,46 @@ class FirebaseSyncManager(private val context: Context) {
                 .whereEqualTo("userId", userId.toLong())
                 .get()
                 .await()
-
             val firebaseCrops = snapshot.toObjects(CropEntity::class.java)
-
-            // ✅ Step 1: Get all local crops for this user
             val localCrops = cropDao.getCropsForUserList(userId)
+            val getCropKey: (CropEntity) -> String = { "${it.cropName}_${it.date}" }
 
-            // ✅ Step 2: Only insert if not already present (by name + date)
-            firebaseCrops.forEach { crop ->
-                val exists = localCrops.any {
-                    it.cropName.equals(crop.cropName, ignoreCase = true) &&
-                            it.date == crop.date
-                }
+            val firebaseMap = firebaseCrops.associateBy(getCropKey)
+            val localMap = localCrops.associateBy(getCropKey)
 
-                if (!exists) {
-                    cropDao.insertCrop(crop)
+            val allCropKeys = firebaseMap.keys union localMap.keys
+            for (key in allCropKeys) {
+                val firebaseItem = firebaseMap[key]
+                val localItem = localMap[key]
+
+                when {
+                    firebaseItem != null && localItem == null -> {
+                        cropDao.insertCrop(firebaseItem)
+                        Log.d("SyncCrops", "PULLED remote crop: $key")
+                    }
+
+                    firebaseItem == null && localItem != null -> {
+                        firebaseCropRepo.insertCrop(localItem)
+                        Log.d("SyncCrops", "PUSHED local crop: $key")
+                    }
+
+                    firebaseItem != null && localItem != null -> {
+                        if (firebaseItem.lastUpdated > localItem.lastUpdated) {
+                            // Firebase is newer -> Pull
+                            cropDao.insertCrop(firebaseItem)
+                            Log.d("SyncCrops", "UPDATED local crop from remote: $key")
+                        } else if (firebaseItem.lastUpdated < localItem.lastUpdated) {
+                            // Local is newer -> Push
+                            firebaseCropRepo.insertCrop(localItem)
+                            Log.d("SyncCrops", "UPDATED remote crop from local: $key")
+                        }
+                    }
                 }
             }
-
-            // ✅ Optional: Push new local-only crops to Firebase
-            localCrops.forEach { localCrop ->
-                val match = firebaseCrops.find {
-                    it.cropName.equals(localCrop.cropName, ignoreCase = true) &&
-                            it.date == localCrop.date
-                }
-                if (match == null || localCrop.lastUpdated > match.lastUpdated) {
-                    firebaseCropRepo.insertCrop(localCrop)
-                }
-            }
+            Log.d("SyncCrops", "Crop sync complete for user $userId")
 
         } catch (e: Exception) {
+            Log.e("SyncCrops", "Error syncing crops: ${e.message}")
             e.printStackTrace()
         }
     }

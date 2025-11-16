@@ -1,4 +1,4 @@
-package com.example.farmforward.fragment
+package com.example.farmforward.appActivity.map
 
 import androidx.fragment.app.Fragment
 import com.example.farmforward.R

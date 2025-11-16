@@ -23,7 +23,7 @@
             tools:targetApi="29" />
 
         <activity
-            android:name=".activityViewmodel.LoginActivity"
+            android:name=".appActivity.userSession.login.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -33,10 +33,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activityViewmodel.SignUpActivity"
+            android:name=".appActivity.userSession.signUp.SignUpActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activityViewmodel.MainActivity"
+            android:name=".appActivity.mainActivity.MainActivity"
             android:screenOrientation="portrait" />
     </application>
 

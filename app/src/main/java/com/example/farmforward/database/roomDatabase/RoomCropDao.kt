@@ -1,4 +1,4 @@
-package com.example.farmforward.roomDatabase
+package com.example.farmforward.database.roomDatabase
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
