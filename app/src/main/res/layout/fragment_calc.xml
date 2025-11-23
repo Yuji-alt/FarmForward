@@ -141,7 +141,6 @@
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_weight="1"
-                    android:inputType="number"
                     android:hint="@string/soil_type"
                     android:background="@drawable/input_bg"
                     android:padding="8dp"
@@ -151,6 +150,8 @@
                     android:completionThreshold="1"
                     android:focusable="true"
                     android:clickable="true"
+                    android:inputType="none"
+                    android:cursorVisible="false"
                     />
 
                 <View android:layout_width="8dp" android:layout_height="0dp"/>
@@ -169,6 +170,8 @@
                     android:completionThreshold="1"
                     android:focusable="true"
                     android:clickable="true"
+                    android:inputType="none"
+                    android:cursorVisible="false"
                     />
 
             </LinearLayout>
@@ -193,6 +196,8 @@
                     android:completionThreshold="1"
                     android:focusable="true"
                     android:clickable="true"
+                    android:inputType="none"
+                    android:cursorVisible="false"
                     />
 
                 <View android:layout_width="8dp" android:layout_height="0dp"/>
@@ -211,6 +216,8 @@
                     android:completionThreshold="1"
                     android:focusable="true"
                     android:clickable="true"
+                    android:inputType="none"
+                    android:cursorVisible="false"
                     />
             </LinearLayout>
 
@@ -226,9 +233,13 @@
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_weight="1"
-                    android:hint="@string/weather_condition"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"/>
+                    android:hint="@string/weather_condition"
+                    android:padding="8dp"
+                    android:clickable="false"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:cursorVisible="false"/>
 
                 <View android:layout_width="8dp" android:layout_height="0dp"/>
 
@@ -239,7 +250,11 @@
                     android:layout_weight="1"
                     android:hint="@string/region"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"/>
+                    android:padding="8dp"
+                    android:clickable="false"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:cursorVisible="false"/>
             </LinearLayout>
         </LinearLayout>
         <LinearLayout

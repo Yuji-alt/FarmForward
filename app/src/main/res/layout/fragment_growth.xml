@@ -81,7 +81,9 @@
 
             <TableRow>
                 <TextView android:text="Weather Condition" style="@style/LabelText" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border" />
+
+                <TextView
+                    android:id="@+id/tvWeather"  style="@style/ValueText"  android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>

@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
     )
     abstract class AppDatabase : RoomDatabase() {
         abstract fun cropDao(): RoomCropDao
-        abstract fun userDao(): UserDao
+        abstract fun userDao(): RoomUserDao
         companion object {
             @Volatile
             private var INSTANCE: AppDatabase? = null

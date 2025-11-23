@@ -1,26 +1,31 @@
 package com.example.farmforward.firebase
 
-import android.content.Context
 import android.util.Log
 import com.example.farmforward.appActivity.userSession.session.SessionManager
 import com.example.farmforward.database.firebaseDatabase.FirebaseUserRepository
-import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.roomDatabase.RoomCropDao
+import com.example.farmforward.database.roomDatabase.RoomUserDao
 import com.example.farmforward.database.roomDatabase.User
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class FirebaseSyncManager(private val context: Context) {
-
-    private val db = AppDatabase.getDatabase(context)
-    private val firebaseUserRepo = FirebaseUserRepository()
-    private val firebaseCropRepo = FirebaseCropRepository()
+class FirebaseSyncManager @Inject constructor(
+    private val userDao: RoomUserDao,
+    private val cropDao: RoomCropDao,
+    private val firebaseUserRepo: FirebaseUserRepository,
+    private val firebaseCropRepo: FirebaseCropRepository,
+    private val session: SessionManager,
+    private val firestore: FirebaseFirestore
+) {
 
     suspend fun syncUsers() = withContext(Dispatchers.IO) {
-        val userDao = db.userDao()
-        val firebaseUsers = firebaseUserRepo.db.collection("users").get().await()
+        val firebaseUsers = firestore.collection("users").get().await()
             .toObjects(User::class.java)
+
         val localUsers = userDao.getAllUsers()
 
         val firebaseMap = firebaseUsers.associateBy { it.username }
@@ -50,17 +55,15 @@ class FirebaseSyncManager(private val context: Context) {
         }
     }
 
-
     suspend fun syncCrops() = withContext(Dispatchers.IO) {
-        val cropDao = db.cropDao()
-        val session = SessionManager(context)
         val userId = session.getUserId() ?: return@withContext
 
         try {
-            val snapshot = firebaseCropRepo.db.collection("crops")
+            val snapshot = firestore.collection("crops")
                 .whereEqualTo("userId", userId.toLong())
                 .get()
                 .await()
+
             val firebaseCrops = snapshot.toObjects(CropEntity::class.java)
             val localCrops = cropDao.getCropsForUserList(userId)
             val getCropKey: (CropEntity) -> String = { "${it.cropName}_${it.date}" }
@@ -86,11 +89,9 @@ class FirebaseSyncManager(private val context: Context) {
 
                     firebaseItem != null && localItem != null -> {
                         if (firebaseItem.lastUpdated > localItem.lastUpdated) {
-                            // Firebase is newer -> Pull
                             cropDao.insertCrop(firebaseItem)
                             Log.d("SyncCrops", "UPDATED local crop from remote: $key")
                         } else if (firebaseItem.lastUpdated < localItem.lastUpdated) {
-                            // Local is newer -> Push
                             firebaseCropRepo.insertCrop(localItem)
                             Log.d("SyncCrops", "UPDATED remote crop from local: $key")
                         }
@@ -105,11 +106,9 @@ class FirebaseSyncManager(private val context: Context) {
         }
     }
 
-
-
     suspend fun pushLocalToFirebase() = withContext(Dispatchers.IO) {
-        val users = db.userDao().getAllUsers()
-        val crops = db.cropDao().getAllCrops()
+        val users = userDao.getAllUsers()
+        val crops = cropDao.getAllCrops()
 
         users.forEach { firebaseUserRepo.registerUser(it) }
         crops.forEach { firebaseCropRepo.insertCrop(it) }

@@ -2,8 +2,14 @@ package com.example.farmforward.appActivity.userSession.session
 
 import android.content.Context
 import android.content.SharedPreferences
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class SessionManager(context: Context) {
+@Singleton // Ensures only one instance exists in the app
+class SessionManager @Inject constructor(
+    @ApplicationContext context: Context
+) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences("user_session", Context.MODE_PRIVATE)

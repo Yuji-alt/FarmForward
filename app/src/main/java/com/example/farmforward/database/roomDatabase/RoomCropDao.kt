@@ -12,7 +12,7 @@ interface RoomCropDao {
     suspend fun insertCrop(crop: CropEntity)
 
     @Query("SELECT * FROM crop_table WHERE userId = :userId ORDER BY date DESC")
-    fun getCropsForUser(userId: Int): LiveData<List<CropEntity>>
+    fun getCropsForUser(userId: Int?): LiveData<List<CropEntity>>
 
     @Query("SELECT * FROM crop_table")
     suspend fun getAllCrops(): List<CropEntity>

@@ -1,64 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:clickable="true"
-    android:background="@drawable/item_card_border"
     android:elevation="2dp"
-    android:focusable="true">
+    android:background="@drawable/item_card_border"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/imgCrop"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/image_border"
+        android:scaleType="centerCrop"
+        android:background="@color/tan"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="Crop image" />
 
     <LinearLayout
-        android:id="@+id/cropListContainer"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingBottom="8dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp"
-            android:elevation="2dp">
+        android:gravity="center_vertical">
 
-            <ImageView
-                android:id="@+id/imgCrop"
-                android:layout_width="80dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/image_border"
-                android:scaleType="centerCrop"
-                android:background="@color/tan"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="Crop image" />
+        <TextView
+            android:id="@+id/tvCropName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Corn"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/kombuGreen" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tvCropName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Crop Name"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/kombuGreen" />
-
-                <TextView
-                    android:id="@+id/tvCropDetails"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Details or growth info"
-                    android:textSize="13sp"
-                    android:textColor="@color/kombuGreen"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-        </LinearLayout>
-
+        <TextView
+            android:id="@+id/tvCropDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Yield: 500kg\nSoil: Loam"
+            android:textSize="13sp"
+            android:textColor="@color/kombuGreen"
+            android:layout_marginTop="4dp" />
     </LinearLayout>
+</LinearLayout>
+
 </FrameLayout>

@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
-interface UserDao {
+interface RoomUserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE )
     suspend fun registerUser(user: User)

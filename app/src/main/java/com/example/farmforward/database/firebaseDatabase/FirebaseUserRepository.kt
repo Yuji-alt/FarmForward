@@ -3,11 +3,13 @@ package com.example.farmforward.database.firebaseDatabase
 import com.example.farmforward.database.roomDatabase.User
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class FirebaseUserRepository {
+class FirebaseUserRepository @Inject constructor(
+    private val firestore: FirebaseFirestore // Hilt injects this singleton
+) {
 
-    val db = FirebaseFirestore.getInstance()
-    private val usersRef = db.collection("users")
+    private val usersRef = firestore.collection("users")
 
     suspend fun registerUser(user: User) {
         usersRef.document(user.username).set(user).await()
