@@ -1,0 +1,19 @@
+package com.example.farmforward.appActivity.mainActivity.calc
+
+import android.widget.Toast
+
+interface CalcView {
+    fun showToast(message: String, isError: Boolean = false)
+
+    fun setCropAdapter(cropNames: List<String>)
+    fun setFactorAdapters(
+        soilOptions: List<String>,
+        irrigationOptions: List<String>,
+        densityOptions: List<String>,
+        fertOptions: List<String>
+    )
+    fun clearFactorInputs()
+    fun clearAllInputs()
+
+    fun navigateToLoading(isOnline: Boolean)
+}

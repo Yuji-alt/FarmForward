@@ -1,12 +1,12 @@
 package com.example.farmforward.di
 
 import android.content.Context
-import com.example.farmforward.appActivity.userSession.session.SessionManager
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.roomDatabase.RoomCropDao
 import com.example.farmforward.database.roomDatabase.RoomUserDao
-import com.example.farmforward.utils.RetrofitClient
-import com.example.farmforward.utils.WeatherApi
+import com.example.farmforward.utils.otherUtils.RetrofitClient
+import com.example.farmforward.utils.weatherUtils.WeatherApi
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -41,5 +41,11 @@ object AppModule {
     @Singleton
     fun provideWeatherApi(): WeatherApi {
         return RetrofitClient.instance
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
     }
 }

@@ -1,262 +1,278 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 🔹 Container ng Calendar input-->
-    <LinearLayout
-        android:id="@+id/calendarContainer"
+    <ScrollView
+        android:id="@+id/calendarScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/inputContainer"
         android:background="@color/bone"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:scrollbars="none">
 
         <LinearLayout
-            android:layout_marginTop="20dp"
-            android:orientation="vertical"
+            android:id="@+id/calendarContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal">
+            android:orientation="vertical">
 
-            <!-- Month and Year -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginBottom="16dp">
+                android:layout_marginTop="20dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-                <ImageButton
-                    android:id="@+id/btnPrevMonth"
-                    android:src="@drawable/ic_arrow_left"
-                    android:background="@null"
-                    android:contentDescription="@string/previous_month"
-                    android:layout_height="wrap_content"
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    app:tint="@color/kombuGreen"/>
-
-                <TextView
-                    android:id="@+id/tvMonthYear"
-                    android:text="@string/month_year"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/kombuGreen"
-                    android:layout_marginHorizontal="16dp"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"/>
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/btnNextMonth"
-                    android:src="@drawable/ic_arrow_right"
-                    android:background="@null"
-                    android:contentDescription="@string/next_month"
+                    <ImageButton
+                        android:id="@+id/btnPrevMonth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:contentDescription="@string/previous_month"
+                        android:src="@drawable/ic_arrow_left"
+                        app:tint="@color/kombuGreen" />
+
+                    <TextView
+                        android:id="@+id/tvMonthYear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:text="@string/month_year"
+                        android:textColor="@color/kombuGreen"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btnNextMonth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:contentDescription="@string/next_month"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/kombuGreen" />
+                </LinearLayout>
+
+                <GridLayout
+                    android:id="@+id/calendarGrid"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    app:tint="@color/kombuGreen"/>
+                    android:layout_marginBottom="24dp"
+                    android:alignmentMode="alignBounds"
+                    android:columnCount="7"
+                    android:useDefaultMargins="true"
+                    android:padding="4dp" />
+
             </LinearLayout>
-
-            <!-- Calendar Grid -->
-            <GridLayout
-                android:id="@+id/calendarGrid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:columnCount="7"
-                android:rowCount="6"
-                android:alignmentMode="alignBounds"
-                android:useDefaultMargins="true"
-                android:layout_marginBottom="24dp"/>
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
-    <!-- 🔹 Container ng input-->
     <LinearLayout
         android:id="@+id/inputContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
         android:background="@color/bone"
         android:elevation="6dp"
-        android:padding="16dp"
-        android:layout_alignParentBottom="true">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Input Fields -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
             android:gravity="center_horizontal"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical">
 
-            <!-- Row 1 User Input na Crop and Area-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginBottom="8dp">
+                android:weightSum="2">
 
                 <AutoCompleteTextView
                     android:id="@+id/inputCrop"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/crop"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"
-                    android:inputType="text"
                     android:dropDownHeight="wrap_content"
-                    android:dropDownVerticalOffset="8dp"
-                    android:dropDownHorizontalOffset="0dp"
-                    android:completionThreshold="1"
-                    />
+                    android:dropDownHorizontalOffset="-4dp"
+                    android:dropDownVerticalOffset="4dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/crop"
+                    android:inputType="textAutoComplete|textCapWords"
+                    android:padding="8dp"
+                    android:popupBackground="@drawable/bg_dropdown_popup" />
 
-                <View android:layout_width="8dp" android:layout_height="0dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="0dp" />
 
                 <AutoCompleteTextView
                     android:id="@+id/inputArea"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/area"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"
-                    android:maxLines="1"
+                    android:hint="@string/area"
                     android:inputType="number"
-                    />
+                    android:maxLines="1"
+                    android:padding="8dp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginBottom="8dp">
+                android:weightSum="2">
 
                 <AutoCompleteTextView
                     android:id="@+id/inputSoilType"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/soil_type"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"
-                    android:dropDownHeight="wrap_content"
-                    android:dropDownVerticalOffset="8dp"
-                    android:dropDownHorizontalOffset="0dp"
-                    android:completionThreshold="1"
-                    android:focusable="true"
                     android:clickable="true"
-                    android:inputType="none"
+                    android:completionThreshold="1"
                     android:cursorVisible="false"
-                    />
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownHorizontalOffset="-4dp"
+                    android:dropDownVerticalOffset="4dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/soil_type"
+                    android:inputType="textAutoComplete|textCapWords"
+                    android:padding="8dp"
+                    android:popupBackground="@drawable/bg_dropdown_popup" />
 
-                <View android:layout_width="8dp" android:layout_height="0dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="0dp" />
 
                 <AutoCompleteTextView
                     android:id="@+id/inputIrrigationLevel"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/irrigation_level"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"
-                    android:dropDownHeight="wrap_content"
-                    android:dropDownVerticalOffset="8dp"
-                    android:dropDownHorizontalOffset="0dp"
-                    android:completionThreshold="1"
-                    android:focusable="true"
                     android:clickable="true"
-                    android:inputType="none"
+                    android:completionThreshold="1"
                     android:cursorVisible="false"
-                    />
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownHorizontalOffset="-4dp"
+                    android:dropDownVerticalOffset="4dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/irrigation_level"
+                    android:inputType="textAutoComplete|textCapWords"
+                    android:padding="8dp"
+                    android:popupBackground="@drawable/bg_dropdown_popup" />
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginBottom="8dp">
+                android:weightSum="2">
 
                 <AutoCompleteTextView
                     android:id="@+id/inputPlantDensity"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/planting_density"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"
-                    android:dropDownHeight="wrap_content"
-                    android:dropDownVerticalOffset="8dp"
-                    android:dropDownHorizontalOffset="0dp"
-                    android:completionThreshold="1"
-                    android:focusable="true"
                     android:clickable="true"
-                    android:inputType="none"
+                    android:completionThreshold="1"
                     android:cursorVisible="false"
-                    />
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownHorizontalOffset="-4dp"
+                    android:dropDownVerticalOffset="4dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/planting_density"
+                    android:inputType="textAutoComplete|textCapWords"
+                    android:padding="8dp"
+                    android:popupBackground="@drawable/bg_dropdown_popup" />
 
-                <View android:layout_width="8dp" android:layout_height="0dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="0dp" />
 
                 <AutoCompleteTextView
                     android:id="@+id/inputFertilizerUsed"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/fertilizer_used"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"
-                    android:dropDownHeight="wrap_content"
-                    android:dropDownVerticalOffset="8dp"
-                    android:dropDownHorizontalOffset="0dp"
-                    android:completionThreshold="1"
-                    android:focusable="true"
                     android:clickable="true"
-                    android:inputType="none"
+                    android:completionThreshold="1"
                     android:cursorVisible="false"
-                    />
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownHorizontalOffset="-4dp"
+                    android:dropDownVerticalOffset="4dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/fertilizer_used"
+                    android:inputType="textAutoComplete|textCapWords"
+                    android:padding="8dp"
+                    android:popupBackground="@drawable/bg_dropdown_popup" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginBottom="8dp">
+                android:weightSum="2">
 
                 <EditText
                     android:id="@+id/inputWeather"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/input_bg"
-                    android:hint="@string/weather_condition"
-                    android:padding="8dp"
                     android:clickable="false"
-                    android:inputType="none"
+                    android:cursorVisible="false"
                     android:focusable="false"
-                    android:cursorVisible="false"/>
+                    android:hint="@string/weather_condition"
+                    android:inputType="none"
+                    android:padding="8dp" />
 
-                <View android:layout_width="8dp" android:layout_height="0dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="0dp" />
 
                 <EditText
                     android:id="@+id/inputRegion"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/region"
                     android:background="@drawable/input_bg"
-                    android:padding="8dp"
                     android:clickable="false"
-                    android:inputType="none"
+                    android:cursorVisible="false"
                     android:focusable="false"
-                    android:cursorVisible="false"/>
+                    android:hint="@string/region"
+                    android:inputType="none"
+                    android:padding="8dp" />
             </LinearLayout>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -266,26 +282,26 @@
             <Button
                 android:id="@+id/btnCalculate"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:height="50dp"
-                android:textColor="@color/bone"
                 android:backgroundTint="@color/kombuGreen"
-                android:text="@string/calculate" />
+                android:text="@string/calculate"
+                android:textColor="@color/bone" />
 
-            <View android:layout_width="8dp" android:layout_height="0dp"/>
+            <View
+                android:layout_width="8dp"
+                android:layout_height="0dp" />
 
             <Button
                 android:id="@+id/btnCancel"
-                android:text="@string/cancel"
                 android:layout_width="0dp"
-                android:height="50dp"
-                android:textColor="@color/kombuGreen"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/tan"
+                android:text="@string/cancel"
+                android:textColor="@color/kombuGreen"
                 app:strokeColor="@color/kombuGreen"
-                app:strokeWidth="1dp"/>
+                app:strokeWidth="1dp" />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

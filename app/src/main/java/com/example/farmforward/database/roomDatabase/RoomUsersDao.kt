@@ -14,11 +14,13 @@ interface RoomUserDao {
     @Query("SELECT COUNT(*) FROM user_table WHERE username = :username")
     suspend fun checkUserExists(username: String): Int
 
-    @Query("SELECT * FROM user_table WHERE username = :username AND password = :password LIMIT 1")
-    suspend fun loginUser(username: String, password: String): User?
+    @Query("SELECT * FROM user_table WHERE (username = :identifier OR email = :identifier) AND password = :password LIMIT 1")
+    suspend fun loginUser(identifier: String, password: String): User?
 
     @Query("SELECT * FROM user_table WHERE username = :username LIMIT 1")
     suspend fun getUserByUsername(username: String): User?
+    @Query("SELECT * FROM user_table WHERE email = :email LIMIT 1")
+    suspend fun getUserByEmail(email: String): User?
     @Query("SELECT * FROM user_table")
     suspend fun getAllUsers(): List<User>
 }

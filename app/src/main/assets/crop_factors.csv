@@ -1,16 +1,76 @@
-Crop,Factor,Category,Effect
-Corn,Soil Type,Poor,-20
-Corn,Soil Type,Medium,0
-Corn,Soil Type,Fertile,10
-Corn,Irrigation Level,Rainfed,0
-Corn,Irrigation Level,Supplementary,15
-Corn,Irrigation Level,Fully irrigated,35
-Corn,Planting Density,Low,-10
-Corn,Planting Density,Optimal,15
-Corn,Planting Density,Overcrowded,-5
-Corn,Fertilizer Used,None/Low,0
-Corn,Fertilizer Used,Recommended NPK,30
-Corn,Fertilizer Used,Balanced + Organic,60
-Corn,Weather Condition,Dry/Drought,-30
-Corn,Weather Condition,Normal,0
-Corn,Weather Condition,Wet/Excess,-10
+Crop Category,Factor,Option,Effect
+Fast Annuals,Soil Type,Poor,-20
+Fast Annuals,Soil Type,Medium,0
+Fast Annuals,Soil Type,Fertile,15
+Fast Annuals,Irrigation Level,Rainfed,0
+Fast Annuals,Irrigation Level,Supplementary,20
+Fast Annuals,Irrigation Level,Fully irrigated,40
+Fast Annuals,Planting Density,Low,-15
+Fast Annuals,Planting Density,Optimal,20
+Fast Annuals,Planting Density,Overcrowded,-25
+Fast Annuals,Fertilizer Used,None/Low,0
+Fast Annuals,Fertilizer Used,Recommended NPK,40
+Fast Annuals,Fertilizer Used,Balanced + Organic,50
+Fast Annuals,Weather Condition,Dry/Drought,-40
+Fast Annuals,Weather Condition,Normal,0
+Fast Annuals,Weather Condition,Wet/Excess,-20
+Fruiting Vegetables,Soil Type,Poor,-15
+Fruiting Vegetables,Soil Type,Medium,0
+Fruiting Vegetables,Soil Type,Fertile,10
+Fruiting Vegetables,Irrigation Level,Rainfed,0
+Fruiting Vegetables,Irrigation Level,Supplementary,25
+Fruiting Vegetables,Irrigation Level,Fully irrigated,50
+Fruiting Vegetables,Planting Density,Low,-10
+Fruiting Vegetables,Planting Density,Optimal,15
+Fruiting Vegetables,Planting Density,Overcrowded,-10
+Fruiting Vegetables,Fertilizer Used,None/Low,0
+Fruiting Vegetables,Fertilizer Used,Recommended NPK,35
+Fruiting Vegetables,Fertilizer Used,Balanced + Organic,45
+Fruiting Vegetables,Weather Condition,Dry/Drought,-30
+Fruiting Vegetables,Weather Condition,Normal,0
+Fruiting Vegetables,Weather Condition,Wet/Excess,-15
+Root Crops,Soil Type,Poor,-40
+Root Crops,Soil Type,Medium,0
+Root Crops,Soil Type,Fertile,20
+Root Crops,Irrigation Level,Rainfed,0
+Root Crops,Irrigation Level,Supplementary,15
+Root Crops,Irrigation Level,Fully irrigated,30
+Root Crops,Planting Density,Low,-20
+Root Crops,Planting Density,Optimal,15
+Root Crops,Planting Density,Overcrowded,-20
+Root Crops,Fertilizer Used,None/Low,0
+Root Crops,Fertilizer Used,Recommended NPK,30
+Root Crops,Fertilizer Used,Balanced + Organic,50
+Root Crops,Weather Condition,Dry/Drought,-20
+Root Crops,Weather Condition,Normal,0
+Root Crops,Weather Condition,Wet/Excess,-30
+Trees & Perennials,Soil Type,Poor,-10
+Trees & Perennials,Soil Type,Medium,0
+Trees & Perennials,Soil Type,Fertile,10
+Trees & Perennials,Irrigation Level,Rainfed,0
+Trees & Perennials,Irrigation Level,Supplementary,25
+Trees & Perennials,Irrigation Level,Fully irrigated,40
+Trees & Perennials,Planting Density,Low,-5
+Trees & Perennials,Planting Density,Optimal,10
+Trees & Perennials,Planting Density,Overcrowded,-15
+Trees & Perennials,Fertilizer Used,None/Low,0
+Trees & Perennials,Fertilizer Used,Recommended NPK,30
+Trees & Perennials,Fertilizer Used,Balanced + Organic,40
+Trees & Perennials,Weather Condition,Dry/Drought,-20
+Trees & Perennials,Weather Condition,Normal,0
+Trees & Perennials,Weather Condition,Wet/Excess,-10
+Field Crops,Soil Type,Poor,-20
+Field Crops,Soil Type,Medium,0
+Field Crops,Soil Type,Fertile,10
+Field Crops,Irrigation Level,Rainfed,0
+Field Crops,Irrigation Level,Supplementary,15
+Field Crops,Irrigation Level,Fully irrigated,35
+Field Crops,Planting Density,Low,-10
+Field Crops,Planting Density,Optimal,15
+Field Crops,Planting Density,Overcrowded,-5
+Field Crops,Fertilizer Used,None/Low,0
+Field Crops,Fertilizer Used,Recommended NPK,30
+Field Crops,Fertilizer Used,Balanced + Organic,50
+Field Crops,Weather Condition,Dry/Drought,-30
+Field Crops,Weather Condition,Normal,0
+Field Crops,Weather Condition,Wet/Excess,-10

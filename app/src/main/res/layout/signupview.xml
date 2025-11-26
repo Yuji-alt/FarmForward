@@ -1,196 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/moss_green"
-    android:clickable="true">
+    android:clickable="true"
+    android:fillViewport="true"
+    android:padding="16dp">
 
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:background="@drawable/image_border"
-        android:padding="3dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
-        app:layout_constraintVertical_bias="0.025"
-        tools:srcCompat="@tools:sample/avatars" />
-
-    <EditText
-        android:id="@+id/userName"
-        android:layout_width="300dp"
-        android:layout_height="40dp"
-        android:background="@drawable/roundrectangle"
-        android:gravity="start"
-        android:hint="Email"
-        android:textColorHint="@color/tan"
-        android:textColor="@color/kombuGreen"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.235" />
-
-    <EditText
-        android:id="@+id/user_name_input"
-        android:layout_width="300dp"
-        android:layout_height="40dp"
-        android:background="@drawable/roundrectangle"
-        android:gravity="start"
-        android:hint="@string/userName"
-        android:textColorHint="@color/tan"
-        android:inputType="text"
-        android:textColor="@color/kombuGreen"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userName"
-        app:layout_constraintVertical_bias="0.125" />
-
-    <TextView
-        android:id="@+id/email"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:ems="10"
-        android:text="@string/email"
-        android:textColor="@color/kombuGreen"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/userName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.222"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:layout_constraintVertical_bias="0.625" />
-
-    <TextView
-        android:id="@+id/user_name_signup"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:ems="10"
-        android:text="@string/userName"
-        android:textColor="@color/kombuGreen"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/user_name_input"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.222"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userName" />
-
-    <TextView
-        android:id="@+id/password2"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:ems="10"
-        android:text="@string/password"
-        android:textColor="@color/kombuGreen"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/signUp_password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.222"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_name_input"
-        app:layout_constraintVertical_bias="0.444" />
-
-    <EditText
-        android:id="@+id/signUp_password"
-        android:layout_width="300dp"
-        android:layout_height="40dp"
-        android:background="@drawable/roundrectangle"
-        android:gravity="start"
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        android:textColor="@color/kombuGreen"
-        android:textColorHint="@color/tan"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_name_input"
-        app:layout_constraintVertical_bias="0.129" />
-
-    <TextView
-        android:id="@+id/confirm_password"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:ems="10"
-        android:text="@string/confirmPassword"
-        android:textColor="@color/kombuGreen"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/inpt_confirm_password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.222"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signUp_password"
-        app:layout_constraintVertical_bias="0.375" />
-
-    <EditText
-        android:id="@+id/inpt_confirm_password"
-        android:layout_width="300dp"
-        android:layout_height="40dp"
-        android:background="@drawable/roundrectangle"
-        android:gravity="start"
-        android:hint="@string/confirmPassword"
-        android:inputType="textPassword"
-        android:textColor="@color/kombuGreen"
-        android:textColorHint="@color/tan"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signUp_password"
-        app:layout_constraintVertical_bias="0.215" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/app_name"
-        android:textSize="24sp"
-        android:textColor="@color/kombuGreen"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/userName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.25" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/welcome_to"
-        android:textColor="@color/kombuGreen"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.092" />
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/welcome_to"
+            android:textColor="@color/kombuGreen"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/signUp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/kombuGreen"
-        android:text="@string/signUp"
-        android:textColor="@color/bone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inpt_confirm_password"
-        app:layout_constraintVertical_bias="0.213" />
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:src="@drawable/agricultwo"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/image_border"
+            android:contentDescription="@string/app_name"
+            android:padding="3dp" />
 
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/app_name"
+            android:textColor="@color/kombuGreen"
+            android:textSize="24sp"
+            android:textStyle="bold|italic" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp" />
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/email_or_username"
+            android:textColor="@color/kombuGreen"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/email_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/roundrectangle"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp"
+            android:paddingHorizontal="12dp"
+            android:textColor="@color/kombuGreen"
+            android:textColorHint="@color/tan" />
+
+        <TextView
+            android:id="@+id/user_name_signup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/userName"
+            android:textColor="@color/kombuGreen"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/user_name_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/roundrectangle"
+            android:hint="@string/userName"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:paddingHorizontal="12dp"
+            android:textColor="@color/kombuGreen"
+            android:textColorHint="@color/tan" />
+
+        <TextView
+            android:id="@+id/password2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/password"
+            android:textColor="@color/kombuGreen"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/signUp_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/roundrectangle"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:paddingHorizontal="12dp"
+            android:textColor="@color/kombuGreen"
+            android:textColorHint="@color/tan" />
+
+        <TextView
+            android:id="@+id/confirm_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/confirmPassword"
+            android:textColor="@color/kombuGreen"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/inpt_confirm_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/roundrectangle"
+            android:hint="@string/confirmPassword"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:paddingHorizontal="12dp"
+            android:textColor="@color/kombuGreen"
+            android:textColorHint="@color/tan" />
+
+        <Button
+            android:id="@+id/signUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="@color/kombuGreen"
+            android:text="@string/signUp"
+            android:textColor="@color/bone" />
+
+    </LinearLayout>
+</ScrollView>

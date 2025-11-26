@@ -4,110 +4,107 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:background="@color/bone"
+    android:fillViewport="true"
     android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
             android:gravity="center_vertical"
-            android:layout_marginTop="20dp">
+            android:orientation="horizontal">
 
-            <EditText
+            <TextView
                 android:id="@+id/tvCropName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="RICE"
-                android:textAlignment="center"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/kombuGreen"
-                android:background="@drawable/input_bg"
-                android:padding="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/input_bg"
+                android:hint="RICE"
+                android:padding="8dp"
+                android:textAlignment="center"
+                android:textColor="@color/kombuGreen"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
 
-        <!-- Crop Picture -->
         <ImageView
             android:id="@+id/etDescription"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:gravity="top|start"
+            android:layout_height="180dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/rounded_box"
+            android:gravity="top|start"
             android:padding="12dp"
-            android:layout_marginTop="16dp" />
+            tools:ignore="ContentDescription" />
+
         <TableLayout
             android:id="@+id/tableCropInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:stretchColumns="1"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/border"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:stretchColumns="1">
 
             <TableRow>
-                <TextView android:text="Area" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Area" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvArea" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
-
             <TableRow>
-                <TextView android:text="Soil Type" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Soil Type" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
-
             <TableRow>
-                <TextView android:text="Irrigation Level" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Irrigation Level" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
-
             <TableRow>
-                <TextView android:text="Planting Density" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Planting Density" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
-
             <TableRow>
-                <TextView android:text="Fertilizer Used" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Fertilizer Used" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
-
             <TableRow>
-                <TextView android:text="Weather Condition" style="@style/LabelText" android:background="@drawable/border" />
-
-                <TextView
-                    android:id="@+id/tvWeather"  style="@style/ValueText"  android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Weather Condition" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
-
             <TableRow>
-                <TextView android:text="Region" style="@style/LabelText" android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Region" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
         </TableLayout>
 
-        <!-- Date Planted -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="10dp">
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:background="@drawable/bg_box_display_leftside"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@drawable/bg_box_display_leftside"
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
-                android:paddingEnd="8dp">
+                android:paddingTop="12dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="12dp"
+                tools:ignore="RtlSymmetry">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -119,39 +116,39 @@
             </LinearLayout>
 
             <LinearLayout
-                android:background="@drawable/bg_box_display_rightside"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="center_vertical|start"
-                android:paddingEnd="16dp"
-                android:paddingStart="12dp">
+                android:background="@drawable/bg_box_display_rightside"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp">
 
                 <ImageView
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/bone" />
+                    app:tint="@color/bone"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/plantedDate"
-                    android:layout_width="107dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/date"
                     android:textColor="@color/bone"
-                    android:textSize="15sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Estimated Harvest Time -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="10dp">
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -160,7 +157,9 @@
                 android:background="@drawable/bg_box_display_leftside"
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
-                android:paddingEnd="8dp">
+                android:paddingTop="12dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -172,64 +171,58 @@
             </LinearLayout>
 
             <LinearLayout
-                android:background="@drawable/bg_box_display_rightside"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="@drawable/bg_box_display_rightside"
                 android:gravity="center_vertical|start"
-                android:paddingEnd="16dp"
-                android:paddingStart="12dp">
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp">
 
                 <ImageView
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/bone" />
+                    app:tint="@color/bone"
+                    tools:ignore="ContentDescription" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/minHarvest"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center"
                         android:text="@string/date"
                         android:textColor="@color/bone"
                         android:textStyle="bold"
-                        android:gravity="center"
-                        android:autoSizeTextType="uniform"
-                        android:autoSizeMinTextSize="10sp"
-                        android:autoSizeMaxTextSize="18sp"
-                        android:autoSizeStepGranularity="1sp" />/>
+                        android:textSize="15sp" />
 
                     <TextView
                         android:id="@+id/maxHarvest"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
                         android:text="@string/date"
                         android:textColor="@color/bone"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:layout_marginTop="2dp"
-                        android:autoSizeTextType="uniform"
-                        android:autoSizeMinTextSize="10sp"
-                        android:autoSizeMaxTextSize="18sp"
-                        android:autoSizeStepGranularity="1sp" />/>
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Estimated Harvest Yield -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="10dp">
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -238,7 +231,9 @@
                 android:background="@drawable/bg_box_display_leftside"
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
-                android:paddingEnd="8dp">
+                android:paddingTop="12dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -250,31 +245,31 @@
             </LinearLayout>
 
             <LinearLayout
-                android:background="@drawable/bg_box_display_rightside"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="@drawable/bg_box_display_rightside"
                 android:gravity="center_vertical|start"
-                android:paddingEnd="16dp"
-                android:paddingStart="12dp">
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp">
 
                 <ImageView
-                    android:layout_width="21dp"
+                    android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_growth"
-                    app:tint="@color/bone" />
+                    app:tint="@color/bone"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/harvestYield"
-                    android:layout_width="107dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/harvest_yield"
                     android:textColor="@color/bone"
-                    android:textSize="15sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
-

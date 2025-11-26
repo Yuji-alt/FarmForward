@@ -25,5 +25,9 @@ interface RoomCropDao {
     @Query("SELECT COUNT(*) FROM crop_table WHERE userId = :userId")
     suspend fun countUserCrops(userId: Int): Int
 
+    @Query("SELECT * FROM crop_table WHERE userId = :userId AND isSynced = 0 ORDER BY date ASC")
+    suspend fun getUnsyncedCrops(userId: Int): List<CropEntity>
 
+    @Query("UPDATE crop_table SET isSynced = 1 WHERE id = :cropId")
+    suspend fun markAsSynced(cropId: Int)
 }
