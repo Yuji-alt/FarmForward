@@ -26,11 +26,15 @@ android {
 
         val localPropertiesFile = rootProject.file("local.properties")
         val localProperties = Properties()
+
         if (localPropertiesFile.exists()) {
             localPropertiesFile.inputStream().use { localProperties.load(it) }
         }
         val weatherApiKey = localProperties.getProperty("WEATHER_API_KEY") ?: ""
         buildConfigField("String", "WEATHER_API_KEY", "\"$weatherApiKey\"")
+
+        val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -79,6 +83,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
 
     implementation("com.google.code.gson:gson:2.10.1")
+
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     implementation("com.google.android.material:material:1.11.0")
     implementation(libs.androidx.core.ktx)

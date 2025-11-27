@@ -54,4 +54,8 @@
     <string name="network_failed">No Network Connection</string>
     <string name="saved_offline">Saved Offline</string>
     <string name="sync_online_offline">Sync_online/offline</string>
+    <string name="confirm_location">Confirm Location</string>
+    <string name="harvest_soon">Harvest Soon</string>
+    <string name="growing">Growing</string>
+    <string name="map_legend">Map Legend</string>
 </resources>

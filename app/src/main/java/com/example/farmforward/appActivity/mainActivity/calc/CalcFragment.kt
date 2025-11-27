@@ -12,18 +12,27 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.farmforward.BuildConfig // Ensure this is imported
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
+import com.example.farmforward.database.roomDatabase.CropEntity
 import com.example.farmforward.database.staticData.CropRepository
+import com.example.farmforward.database.viewModel.CropFormDraft
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
+import com.example.farmforward.utils.otherUtils.NetworkUtils
+import com.example.farmforward.utils.otherUtils.RetrofitClient // Ensure this is imported
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
+import com.example.farmforward.utils.weatherUtils.WeatherResponse // Ensure this is imported
 import com.example.farmforward.database.viewModel.CropViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
@@ -31,7 +40,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CalcFragment : Fragment(), CalcView {
-
     @Inject lateinit var controller: CalcController
     @Inject lateinit var syncManager: FirebaseSyncManager
     @Inject lateinit var weatherRepository: WeatherRepository
@@ -40,7 +48,6 @@ class CalcFragment : Fragment(), CalcView {
     private lateinit var cropViewModel: CropViewModel
     private var validCropNames: List<String> = emptyList()
 
-    // UI Elements
     private lateinit var inputCrop: AutoCompleteTextView
     private lateinit var inputArea: EditText
     private lateinit var inputSoilType: AutoCompleteTextView
@@ -49,7 +56,11 @@ class CalcFragment : Fragment(), CalcView {
     private lateinit var inputFertilizer: AutoCompleteTextView
     private lateinit var inputWeather: EditText
     private lateinit var inputRegion: EditText
+    private lateinit var btnCalculate: Button
+    private lateinit var btnCancel: Button
 
+    private var selectedLat: Double = 0.0
+    private var selectedLng: Double = 0.0
     private var selectedDateMillis: Long = System.currentTimeMillis()
 
     override fun onCreateView(
@@ -57,10 +68,10 @@ class CalcFragment : Fragment(), CalcView {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_calc, container, false)
-
         cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
         controller.bindView(this, cropViewModel, lifecycleScope)
 
+        // ... (FindViewByIds remain the same) ...
         inputCrop = view.findViewById(R.id.inputCrop)
         inputArea = view.findViewById(R.id.inputArea)
         inputSoilType = view.findViewById(R.id.inputSoilType)
@@ -69,14 +80,17 @@ class CalcFragment : Fragment(), CalcView {
         inputFertilizer = view.findViewById(R.id.inputFertilizerUsed)
         inputWeather = view.findViewById(R.id.inputWeather)
         inputRegion = view.findViewById(R.id.inputRegion)
+        btnCalculate = view.findViewById(R.id.btnCalculate)
+        btnCancel = view.findViewById(R.id.btnCancel)
 
-        setupInputFields()
+        btnCancel.setOnClickListener { controller.onCancelClicked() }
 
-        val btnCalculate = view.findViewById<Button>(R.id.btnCalculate)
         val tvMonthYear = view.findViewById<TextView>(R.id.tvMonthYear)
         val calendarGrid = view.findViewById<GridLayout>(R.id.calendarGrid)
         val btnPrev = view.findViewById<ImageButton>(R.id.btnPrevMonth)
         val btnNext = view.findViewById<ImageButton>(R.id.btnNextMonth)
+
+        setupInputFields()
 
         lifecycleScope.launch { controller.onViewCreated() }
 
@@ -100,7 +114,19 @@ class CalcFragment : Fragment(), CalcView {
         val calendar = Calendar.getInstance()
         updateCalendar(calendar, calendarGrid, tvMonthYear, requireContext())
 
-        loadEnvironmentData()
+        cropViewModel.pickedLocation.observe(viewLifecycleOwner) { latLng ->
+            if (latLng != null) {
+                selectedLat = latLng.latitude
+                selectedLng = latLng.longitude
+
+                val address = getAddressName(selectedLat, selectedLng)
+                inputRegion.setText(address)
+                fetchSpecificWeather(selectedLat, selectedLng)
+
+                saveFormState()
+                cropViewModel.clearPickedLocation()
+            }
+        }
 
         btnPrev.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
@@ -111,7 +137,92 @@ class CalcFragment : Fragment(), CalcView {
             updateCalendar(calendar, calendarGrid, tvMonthYear, requireContext())
         }
 
+        if (cropViewModel.formDraft != null) {
+            restoreFormState(cropViewModel.formDraft!!)
+        }
+
         return view
+    }
+
+    private fun fetchSpecificWeather(lat: Double, lng: Double) {
+        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            inputWeather.setText("Offline / Unavailable")
+            return
+        }
+        inputWeather.setText("Loading...")
+
+        val apiKey = BuildConfig.WEATHER_API_KEY
+
+        RetrofitClient.instance.getForecastByCoordinates(lat, lng, apiKey)
+            .enqueue(object : Callback<WeatherResponse> {
+                override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val forecast = response.body()!!.list.firstOrNull()
+                        if (forecast != null) {
+                            val condition = forecast.weather.firstOrNull()?.main ?: "Clear"
+                            val tempVal = forecast.main.temp
+                            val temp = String.format("%.1f°C", tempVal)
+
+                            inputWeather.setText("$condition, $temp")
+                        } else {
+                            inputWeather.setText("No data")
+                        }
+                    } else {
+                        inputWeather.setText("Weather Error")
+                    }
+                }
+
+                override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+                    inputWeather.setText("Network Error")
+                }
+            })
+    }
+
+
+    override fun preFillForm(crop: CropEntity) {
+        inputCrop.setText(crop.cropName, false)
+        inputArea.setText(crop.area.toString())
+        inputSoilType.setText(crop.soilType, false)
+        inputIrrigation.setText(crop.irrigationLevel, false)
+        inputPlantDensity.setText(crop.plantDensity, false)
+        inputFertilizer.setText(crop.fertilizerUsed, false)
+
+        if (selectedLat == 0.0 && selectedLng == 0.0) {
+            selectedLat = crop.latitude
+            selectedLng = crop.longitude
+            if (selectedLat != 0.0) {
+                inputRegion.setText(getAddressName(selectedLat, selectedLng))
+                fetchSpecificWeather(selectedLat, selectedLng)
+            } else {
+                inputRegion.hint = "Tap to add location"
+            }
+        }
+        selectedDateMillis = crop.date
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = selectedDateMillis
+        val calendarGrid = view?.findViewById<GridLayout>(R.id.calendarGrid)
+        val tvMonthYear = view?.findViewById<TextView>(R.id.tvMonthYear)
+        if(calendarGrid != null && tvMonthYear != null) {
+            updateCalendar(calendar, calendarGrid, tvMonthYear, requireContext())
+        }
+    }
+
+    override fun setButtonText(text: String) {
+        btnCalculate.text = text
+    }
+
+    private fun isCropSelected(): Boolean {
+        val input = inputCrop.text.toString().trim()
+        if (input.isEmpty()) {
+            (activity as? MainActivity)?.showToast("Please select a crop first.", isError = true)
+            return false
+        }
+        val exists = validCropNames.any { it.equals(input, ignoreCase = true) }
+        if (!exists) {
+            (activity as? MainActivity)?.showToast("Crop not found! Wait for future updates.", isError = true)
+            return false
+        }
+        return true
     }
 
     private fun setupInputFields() {
@@ -119,10 +230,7 @@ class CalcFragment : Fragment(), CalcView {
         dropdowns.forEach { input ->
             input.inputType = InputType.TYPE_NULL
             input.keyListener = null
-
-            input.setOnClickListener {
-                if (isCropSelected()) input.showDropDown()
-            }
+            input.setOnClickListener { if (isCropSelected()) input.showDropDown() }
             input.setOnFocusChangeListener { view, hasFocus ->
                 if (hasFocus) {
                     hideKeyboard(view)
@@ -131,62 +239,130 @@ class CalcFragment : Fragment(), CalcView {
             }
         }
 
-        val readOnlyFields = listOf(inputWeather, inputRegion)
-        readOnlyFields.forEach { input ->
-            input.inputType = InputType.TYPE_NULL
-            input.keyListener = null
-            input.isFocusable = false
-            input.isClickable = false
+        inputWeather.inputType = InputType.TYPE_NULL
+        inputWeather.keyListener = null
+        inputWeather.isFocusable = false
+        inputWeather.isClickable = false
+
+        inputRegion.inputType = InputType.TYPE_NULL
+        inputRegion.keyListener = null
+        inputRegion.isFocusable = false
+
+        inputRegion.setOnClickListener {
+            if (NetworkUtils.isNetworkAvailable(requireContext())) {
+                openMapPicker()
+            } else {
+                (activity as? MainActivity)?.showToast("Map location requires Internet.", isError = true)
+            }
         }
     }
+    private fun openMapPicker() {
+        saveFormState()
+        cropViewModel.isMapPickerMode = true
+        (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_map)
+        (activity as? MainActivity)?.showToast("Tap the map to pin a location", isError = false)
+    }
+
+    private fun getAddressName(lat: Double, lng: Double): String {
+        return try {
+            val geocoder = android.location.Geocoder(requireContext(), java.util.Locale.getDefault())
+            val addresses = geocoder.getFromLocation(lat, lng, 1)
+            if (!addresses.isNullOrEmpty()) {
+                addresses[0].locality ?: addresses[0].adminArea ?: "Selected Location"
+            } else {
+                "Lat: ${String.format("%.4f", lat)}, Lng: ${String.format("%.4f", lng)}"
+            }
+        } catch (e: Exception) {
+            "Selected Location"
+        }
+    }
+
+    override fun getCurrentLocation(onLocationFound: (Double, Double) -> Unit) {
+        if (selectedLat != 0.0 && selectedLng != 0.0) {
+            onLocationFound(selectedLat, selectedLng)
+        } else {
+            val mainActivity = requireActivity() as MainActivity
+            mainActivity.controller.fetchCurrentLocation(mainActivity) { lat, lng ->
+                onLocationFound(lat, lng)
+            }
+        }
+    }
+
+    override fun clearAllInputs() {
+        inputCrop.setText("", false)
+        inputArea.setText("")
+        clearFactorInputs()
+        inputWeather.setText("")
+        inputRegion.setText("")
+        selectedLat = 0.0
+        selectedLng = 0.0
+        cropViewModel.clearDraft()
+    }
+
 
     private fun hideKeyboard(view: View) {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    private fun loadEnvironmentData() {
-        weatherRepository.loadCachedData()
-        val region = weatherRepository.cachedLocationName
-        if (!region.isNullOrEmpty()) {
-            inputRegion.setText(region)
-        } else {
-            inputRegion.hint = "Location unknown"
-        }
-
-        val forecasts = weatherRepository.cachedForecasts
-        if (!forecasts.isNullOrEmpty()) {
-            val now = System.currentTimeMillis()
-            val closestForecast = forecasts.minByOrNull { abs((it.dt * 1000) - now) }
-
-            if (closestForecast != null && !closestForecast.weather.isNullOrEmpty()) {
-                val mainCondition = closestForecast.weather[0].main
-                val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-                val timeString = timeFormat.format(Date(closestForecast.dt * 1000))
-                inputWeather.setText("$mainCondition @ $timeString")
+    private fun updateCalendar(calendar: Calendar, calendarGrid: GridLayout, tvMonthYear: TextView, context: Context) {
+        calendarGrid.removeAllViews()
+        val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+        tvMonthYear.text = monthFormat.format(calendar.time)
+        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val todayCal = Calendar.getInstance()
+        val selectedCal = Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
+        val paddingPx = (8 * context.resources.displayMetrics.density).toInt()
+        for (day in 1..daysInMonth) {
+            val btnDay = Button(context).apply {
+                text = day.toString()
+                isAllCaps = false
+                setBackgroundResource(R.drawable.day_button_selector)
             }
-        } else {
-            inputWeather.hint = "Weather unavailable"
+            val isToday = year == todayCal.get(Calendar.YEAR) && month == todayCal.get(Calendar.MONTH) && day == todayCal.get(Calendar.DAY_OF_MONTH)
+            val isSelected = year == selectedCal.get(Calendar.YEAR) && month == selectedCal.get(Calendar.MONTH) && day == selectedCal.get(Calendar.DAY_OF_MONTH)
+            when {
+                isSelected -> btnDay.setTextColor(ContextCompat.getColor(context, R.color.tan))
+                isToday -> btnDay.setTextColor(ContextCompat.getColor(context, R.color.kombuGreen))
+                else -> btnDay.setTextColor(ContextCompat.getColorStateList(context, R.color.day_text_color))
+            }
+            btnDay.isSelected = isSelected
+            val params = GridLayout.LayoutParams().apply {
+                width = 0
+                height = ViewGroup.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                setMargins(8, 8, 8, 8)
+            }
+            btnDay.layoutParams = params
+            btnDay.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
+            btnDay.setOnClickListener {
+                selectedDateMillis = Calendar.getInstance().apply {
+                    set(year, month, day, 0, 0, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+                updateCalendar(calendar, calendarGrid, tvMonthYear, context)
+            }
+            calendarGrid.addView(btnDay)
         }
     }
 
-
-    private fun isCropSelected(): Boolean {
-        val input = inputCrop.text.toString().trim()
-        if (input.isEmpty()) {
-            (activity as? MainActivity)?.showToast("Please select a crop first.", isError = true)
-            return false
-        }
-
-        val exists = validCropNames.any { it.equals(input, ignoreCase = true) }
-
-        if (!exists) {
-            (activity as? MainActivity)?.showToast("Crop not found! Wait for future updates.", isError = true)
-            return false
-        }
-
-        return true
+    override fun showToast(message: String, isError: Boolean) {
+        (activity as? MainActivity)?.showToast(message, isError)
     }
+
+    override fun setCropAdapter(cropNames: List<String>) {
+        validCropNames = cropNames
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cropNames)
+        inputCrop.setAdapter(adapter)
+        inputCrop.threshold = 1
+        inputCrop.setOnClickListener { inputCrop.showDropDown() }
+        inputCrop.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) inputCrop.showDropDown()
+        }
+    }
+
     override fun setFactorAdapters(
         soilOptions: List<String>,
         irrigationOptions: List<String>,
@@ -203,74 +379,34 @@ class CalcFragment : Fragment(), CalcView {
         inputPlantDensity.setAdapter(densityAdapter)
         inputFertilizer.setAdapter(fertilizerAdapter)
     }
-
-    private fun updateCalendar(
-        calendar: Calendar,
-        calendarGrid: GridLayout,
-        tvMonthYear: TextView,
-        context: Context
-    ) {
-        calendarGrid.removeAllViews()
-
-        val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        tvMonthYear.text = monthFormat.format(calendar.time)
-
-        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-
-        val todayCal = Calendar.getInstance()
-        val selectedCal = Calendar.getInstance().apply {
-            timeInMillis = selectedDateMillis
-        }
-
-        val paddingPx = (8 * context.resources.displayMetrics.density).toInt() // Inline DP calc
-
-        for (day in 1..daysInMonth) {
-            val btnDay = Button(context).apply {
-                text = day.toString()
-                isAllCaps = false
-                setBackgroundResource(R.drawable.day_button_selector)
-            }
-            val isToday = year == todayCal.get(Calendar.YEAR) && month == todayCal.get(Calendar.MONTH) && day == todayCal.get(Calendar.DAY_OF_MONTH)
-            val isSelected = year == selectedCal.get(Calendar.YEAR) && month == selectedCal.get(Calendar.MONTH) && day == selectedCal.get(Calendar.DAY_OF_MONTH)
-
-            when {
-                isSelected -> btnDay.setTextColor(ContextCompat.getColor(context, R.color.tan))
-                isToday -> btnDay.setTextColor(ContextCompat.getColor(context, R.color.kombuGreen))
-                else -> btnDay.setTextColor(ContextCompat.getColorStateList(context, R.color.day_text_color))
-            }
-            btnDay.isSelected = isSelected
-            val params = GridLayout.LayoutParams().apply {
-                width = 0
-                height = ViewGroup.LayoutParams.WRAP_CONTENT
-                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                setMargins(8, 8, 8, 8)
-            }
-            btnDay.layoutParams = params
-            btnDay.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
-
-            btnDay.setOnClickListener {
-                selectedDateMillis = Calendar.getInstance().apply {
-                    set(year, month, day, 0, 0, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }.timeInMillis
-                updateCalendar(calendar, calendarGrid, tvMonthYear, context)
-            }
-            calendarGrid.addView(btnDay)
-        }
+    private fun saveFormState() {
+        val draft = CropFormDraft(
+            name = inputCrop.text.toString(),
+            area = inputArea.text.toString(),
+            soil = inputSoilType.text.toString(),
+            irrigation = inputIrrigation.text.toString(),
+            density = inputPlantDensity.text.toString(),
+            fertilizer = inputFertilizer.text.toString(),
+            lat = selectedLat,
+            lng = selectedLng
+        )
+        cropViewModel.formDraft = draft
     }
-    override fun showToast(message: String, isError: Boolean) {
-        (activity as? MainActivity)?.showToast(message, isError)
-    }
+    private fun restoreFormState(draft: CropFormDraft) {
+        if (draft.name.isNotEmpty()) inputCrop.setText(draft.name, false)
+        if (draft.area.isNotEmpty()) inputArea.setText(draft.area)
+        if (draft.soil.isNotEmpty()) inputSoilType.setText(draft.soil, false)
+        if (draft.irrigation.isNotEmpty()) inputIrrigation.setText(draft.irrigation, false)
+        if (draft.density.isNotEmpty()) inputPlantDensity.setText(draft.density, false)
+        if (draft.fertilizer.isNotEmpty()) inputFertilizer.setText(draft.fertilizer, false)
 
-    override fun setCropAdapter(cropNames: List<String>) {
-        validCropNames = cropNames
-        val adapter = ArrayAdapter(requireContext(), R.layout.item_crop_dropdown, cropNames)
-        inputCrop.setAdapter(adapter)
-        inputCrop.threshold = 1
-        inputCrop.setOnClickListener { inputCrop.showDropDown() }
-        inputCrop.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) inputCrop.showDropDown() }
+        if (draft.lat != 0.0) {
+            selectedLat = draft.lat
+            selectedLng = draft.lng
+            inputRegion.setText(getAddressName(selectedLat, selectedLng))
+
+            fetchSpecificWeather(selectedLat, selectedLng)
+        }
     }
     override fun clearFactorInputs() {
         inputSoilType.setText("", false)
@@ -278,25 +414,13 @@ class CalcFragment : Fragment(), CalcView {
         inputPlantDensity.setText("", false)
         inputFertilizer.setText("", false)
     }
-    override fun clearAllInputs() {
-        inputCrop.setText("", false)
-        inputArea.setText("")
-        clearFactorInputs()
-        inputWeather.setText("")
-        inputRegion.setText("")
-    }
     override fun navigateToLoading(isOnline: Boolean) {
         val loadingDialog = LoadingDialogFragment()
         loadingDialog.isCancelable = false
         loadingDialog.show(parentFragmentManager, "LoadingDialog")
-
         lifecycleScope.launch(Dispatchers.IO) {
             fun updateUi(progress: Int, msg: String) {
-                launch(Dispatchers.Main) {
-                    if (loadingDialog.isAdded) {
-                        loadingDialog.updateProgress(progress, msg)
-                    }
-                }
+                launch(Dispatchers.Main) { if (loadingDialog.isAdded) loadingDialog.updateProgress(progress, msg) }
             }
             try {
                 updateUi(10, "Saving Calculation...")
@@ -318,6 +442,7 @@ class CalcFragment : Fragment(), CalcView {
             finally {
                 withContext(Dispatchers.Main) {
                     if (loadingDialog.isAdded) loadingDialog.dismiss()
+                    clearAllInputs() // Clear inputs after success
                     (requireActivity() as MainActivity).navigateToGrowthResult()
                 }
             }

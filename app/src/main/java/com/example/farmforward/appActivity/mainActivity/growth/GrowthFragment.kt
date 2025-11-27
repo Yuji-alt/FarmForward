@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.R
+import com.example.farmforward.appActivity.mainActivity.MainActivity
+import com.example.farmforward.database.roomDatabase.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -18,8 +21,6 @@ import javax.inject.Inject
 class GrowthFragment : Fragment(), GrowthView {
 
     @Inject lateinit var controller: GrowthController
-
-
     private lateinit var cropViewModel: CropViewModel
 
     // UI Elements
@@ -34,8 +35,8 @@ class GrowthFragment : Fragment(), GrowthView {
     private lateinit var tvIrrigation: TextView
     private lateinit var tvDensity: TextView
     private lateinit var tvFertilizer: TextView
-
     private lateinit var tvWeather: TextView
+    private lateinit var btnViewOnMap: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +44,8 @@ class GrowthFragment : Fragment(), GrowthView {
     ): View {
         val view = inflater.inflate(R.layout.fragment_growth, container, false)
 
+        // Find Views
+        val tvEdit = view.findViewById<TextView>(R.id.tvEdit)
         tvCropName = view.findViewById(R.id.tvCropName)
         tvArea = view.findViewById(R.id.tvArea)
         plantedDate = view.findViewById(R.id.plantedDate)
@@ -54,8 +57,16 @@ class GrowthFragment : Fragment(), GrowthView {
         tvIrrigation = view.findViewById(R.id.tvIrrigation)
         tvDensity = view.findViewById(R.id.tvDensity)
         tvFertilizer = view.findViewById(R.id.tvFertilizer)
-
         tvWeather = view.findViewById(R.id.tvWeather)
+        btnViewOnMap = view.findViewById(R.id.btnViewOnMap)
+
+        tvEdit.setOnClickListener {
+            controller.onEditClicked(cropViewModel)
+        }
+
+        btnViewOnMap.setOnClickListener {
+            controller.onViewOnMapClicked(cropViewModel)
+        }
 
         return view
     }
@@ -68,13 +79,6 @@ class GrowthFragment : Fragment(), GrowthView {
         controller.setupObserver(viewLifecycleOwner, cropViewModel)
     }
 
-    override fun onDestroy() {
-        controller.onDestroy()
-        super.onDestroy()
-    }
-
-    override fun getFragmentContext(): Context = requireContext()
-
     override fun setCropName(name: String) { tvCropName.text = name }
     override fun setArea(area: String) { tvArea.text = area }
     override fun setPlantedDate(date: String) { plantedDate.text = date }
@@ -85,26 +89,26 @@ class GrowthFragment : Fragment(), GrowthView {
     override fun setIrrigation(irrigation: String) { tvIrrigation.text = irrigation }
     override fun setDensity(density: String) { tvDensity.text = density }
     override fun setFertilizer(fertilizer: String) { tvFertilizer.text = fertilizer }
-
-    override fun setWeather(weather: String) {
-        tvWeather.text = weather
+    override fun setWeather(weather: String) { tvWeather.text = weather }
+    override fun setCropImage(resourceId: Int) { imgCrop.setImageResource(resourceId) }
+    override fun navigateToEdit(crop: CropEntity) {
+        (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
     }
 
-    override fun setCropImage(resourceId: Int) {
-        imgCrop.setImageResource(resourceId)
+    override fun navigateToMap(crop: CropEntity) {
+
+        (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_map)
     }
 
     override fun showEmptyState() {
         tvCropName.text = "No Crop Calculated"
         tvArea.text = "---"
-        plantedDate.text = "---"
-        minHarvest.text = "---"
-        maxHarvest.text = "---"
-        harvestYield.text = "---"
-        tvSoilType.text = "---"
-        tvIrrigation.text = "---"
-        tvDensity.text = "---"
-        tvFertilizer.text = "---"
-        tvWeather.text = "---"
+        btnViewOnMap.visibility = View.GONE
+    }
+
+    override fun getFragmentContext(): Context = requireContext()
+    override fun onDestroy() {
+        controller.onDestroy()
+        super.onDestroy()
     }
 }

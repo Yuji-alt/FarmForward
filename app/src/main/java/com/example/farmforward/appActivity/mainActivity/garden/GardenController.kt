@@ -11,7 +11,6 @@ class GardenController @Inject constructor(
     private val db: AppDatabase,
     private val sessionManager: SessionManager
 ) {
-
     private var view: GardenView? = null
     private var cropsObserver: Observer<List<CropEntity>>? = null
     private var userId: Int = -1
@@ -38,8 +37,8 @@ class GardenController @Inject constructor(
         view?.selectCropForGrowth(crop)
         view?.navigateToGrowth()
     }
-
     fun onAddClicked() {
+
         view?.navigateToCalc()
     }
 

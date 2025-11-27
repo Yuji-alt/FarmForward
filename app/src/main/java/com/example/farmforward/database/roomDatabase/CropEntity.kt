@@ -20,5 +20,7 @@ data class CropEntity(
     val plantDensity: String? = null,
     val fertilizerUsed: String? = null,
     val lastUpdated: Long = System.currentTimeMillis(),
-    val isSynced: Int = 0
+    val isSynced: Int = 0,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )

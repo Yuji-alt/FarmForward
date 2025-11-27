@@ -39,19 +39,33 @@
 
         <ImageView
             android:id="@+id/etDescription"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_gravity="center"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/rounded_box"
             android:gravity="top|start"
             android:padding="12dp"
+            android:src="@drawable/ic_settings"
+            app:tint="@color/kombuGreen"
             tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tvEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:text="Edit Crop"
+            android:textStyle="bold"
+            android:textColor="@color/kombuGreen"
+            android:drawablePadding="8dp"
+            app:backgroundTint="@color/kombuGreen"
+            app:tint="@color/tan" />
 
         <TableLayout
             android:id="@+id/tableCropInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/border"
             android:padding="8dp"
@@ -81,6 +95,7 @@
                 <TextView style="@style/LabelText" android:text="Weather Condition" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border" />
             </TableRow>
+
             <TableRow>
                 <TextView style="@style/LabelText" android:text="Region" android:background="@drawable/border" />
                 <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border" />
@@ -220,7 +235,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -271,5 +286,15 @@
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnViewOnMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Location on Map"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/kombuGreen"
+            android:textColor="@color/bone"/>
+
     </LinearLayout>
 </ScrollView>

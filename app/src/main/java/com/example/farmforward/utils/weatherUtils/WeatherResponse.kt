@@ -8,10 +8,9 @@ data class WeatherResponse(
 
 data class ForecastItem(
     @SerializedName("dt") val dt: Long,
-    @SerializedName("main") val mainStats: MainStats,
+    @SerializedName("main") val main: MainStats,
     @SerializedName("weather") val weather: List<Weather>
 )
-
 data class MainStats(
     val temp: Double,
     val humidity: Int

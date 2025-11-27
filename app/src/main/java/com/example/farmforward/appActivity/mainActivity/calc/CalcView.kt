@@ -1,6 +1,7 @@
 package com.example.farmforward.appActivity.mainActivity.calc
 
 import android.widget.Toast
+import com.example.farmforward.database.roomDatabase.CropEntity
 
 interface CalcView {
     fun showToast(message: String, isError: Boolean = false)
@@ -16,4 +17,7 @@ interface CalcView {
     fun clearAllInputs()
 
     fun navigateToLoading(isOnline: Boolean)
+    fun getCurrentLocation(onLocationFound: (Double, Double) -> Unit)
+    fun preFillForm(crop: CropEntity)
+    fun setButtonText(text: String)
 }

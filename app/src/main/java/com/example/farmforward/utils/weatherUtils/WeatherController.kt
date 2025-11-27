@@ -25,7 +25,7 @@ class WeatherController(private val context: Context, private val container: Lin
             val descText = itemView.findViewById<TextView>(R.id.descText)
             val iconView = itemView.findViewById<ImageView>(R.id.weatherIcon)
 
-            val temp = forecast.mainStats.temp
+            val temp = forecast.main.temp
             val desc = forecast.weather.firstOrNull()?.description ?: "clear sky"
 
             val date = Date(forecast.dt * 1000)

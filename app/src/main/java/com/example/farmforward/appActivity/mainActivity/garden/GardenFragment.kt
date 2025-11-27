@@ -34,31 +34,38 @@ class GardenFragment : Fragment(), GardenView {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_garden, container, false)
+
         cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
+
         cropContainer = view.findViewById(R.id.cropListContainer)
-        btnAdd = view.findViewById(R.id.btnBack)
+        btnAdd = view.findViewById(R.id.btnAdd)
         controller.bindView(this)
         controller.setupObserver(viewLifecycleOwner)
         btnAdd.setOnClickListener {
             controller.onAddClicked()
         }
-
         return view
     }
+
     override fun onDestroy() {
         controller.onDestroy()
         super.onDestroy()
     }
+
     override fun getFragmentContext(): Context = requireContext()
     override fun getScope(): LifecycleCoroutineScope = lifecycleScope
+
     @SuppressLint("SetTextI18n")
     override fun displayCrops(crops: List<CropEntity>) {
         cropContainer.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
+
         for (crop in crops) {
             val itemView = inflater.inflate(R.layout.garden_frame, cropContainer, false)
+
             val tvCropName = itemView.findViewById<TextView>(R.id.tvCropName)
             val tvCropDetails = itemView.findViewById<TextView>(R.id.tvCropDetails)
+
             tvCropName.text = crop.cropName
             val details = buildString {
                 appendLine("Expected yield: ${String.format("%.2f", crop.expectedYield)} kg")
@@ -71,14 +78,17 @@ class GardenFragment : Fragment(), GardenView {
             cropContainer.addView(itemView)
         }
     }
+
     override fun selectCropForGrowth(crop: CropEntity) {
         cropViewModel.viewCropDetails(crop)
     }
+
     override fun navigateToGrowth() {
         (requireActivity() as? MainActivity)
             ?.controller
             ?.onNavigationItemClicked(R.id.nav_growth)
     }
+
     override fun navigateToCalc() {
         (requireActivity() as? MainActivity)
             ?.controller

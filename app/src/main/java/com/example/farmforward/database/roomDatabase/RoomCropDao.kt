@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface RoomCropDao {
@@ -30,4 +31,7 @@ interface RoomCropDao {
 
     @Query("UPDATE crop_table SET isSynced = 1 WHERE id = :cropId")
     suspend fun markAsSynced(cropId: Int)
+
+    @Update
+    suspend fun updateCrop(crop: CropEntity)
 }

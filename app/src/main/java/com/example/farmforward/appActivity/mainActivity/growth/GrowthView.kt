@@ -1,10 +1,12 @@
 package com.example.farmforward.appActivity.mainActivity.growth
 
 import android.content.Context
+import com.example.farmforward.database.roomDatabase.CropEntity
 
 interface GrowthView {
     fun getFragmentContext(): Context
 
+    // Text Setters
     fun setCropName(name: String)
     fun setArea(area: String)
     fun setPlantedDate(date: String)
@@ -15,7 +17,11 @@ interface GrowthView {
     fun setIrrigation(irrigation: String)
     fun setDensity(density: String)
     fun setFertilizer(fertilizer: String)
+
     fun setCropImage(resourceId: Int)
     fun setWeather(weather: String)
+
     fun showEmptyState()
+    fun navigateToEdit(crop: CropEntity)
+    fun navigateToMap(crop: CropEntity)
 }

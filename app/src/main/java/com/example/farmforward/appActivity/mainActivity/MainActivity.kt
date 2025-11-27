@@ -190,15 +190,9 @@ class MainActivity : AppCompatActivity(), MainView {
         val isMovingForward = newIndex > oldIndex
 
         if (isMovingForward) {
-            transaction.setCustomAnimations(
-                R.anim.slide_in_right, R.anim.slide_out_left,
-                R.anim.slide_in_left, R.anim.slide_out_right
-            )
+            transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
         } else {
-            transaction.setCustomAnimations(
-                R.anim.slide_in_left, R.anim.slide_out_right,
-                R.anim.slide_in_right, R.anim.slide_out_left
-            )
+            transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         val currentFragment = fragmentMap[currentMenuId]
@@ -207,12 +201,18 @@ class MainActivity : AppCompatActivity(), MainView {
         }
 
         var newFragment = fragmentMap[newMenuId]
+
+        if (newMenuId == R.id.nav_calc || newMenuId == R.id.nav_growth) {
+            if (newFragment != null) {
+                transaction.remove(newFragment)
+                fragmentMap.remove(newMenuId)
+            }
+            newFragment = null
+        }
+
         if (newFragment == null) {
             newFragment = getFragmentInstance(newMenuId)
             fragmentMap[newMenuId] = newFragment
-        }
-
-        if (!newFragment.isAdded) {
             transaction.add(R.id.fragment_container, newFragment, newMenuId.toString())
         } else {
             transaction.show(newFragment)

@@ -31,7 +31,9 @@ class FirebaseCropRepository @Inject constructor(
                 "plantDensity" to crop.plantDensity,
                 "fertilizerUsed" to crop.fertilizerUsed,
                 "lastUpdated" to crop.lastUpdated,
-                "isSynced" to 1 // Mark as synced in the cloud
+                "isSynced" to 1,
+                "latitude" to crop.latitude,
+                "longitude" to crop.longitude
             )
 
             getUserCropsRef(crop.userId)
