@@ -1,11 +1,14 @@
 package com.example.farmforward.appActivity.mainActivity
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -13,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -21,6 +25,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.calc.CalcFragment
 import com.example.farmforward.appActivity.mainActivity.garden.GardenFragment
@@ -28,8 +35,10 @@ import com.example.farmforward.appActivity.mainActivity.growth.GrowthFragment
 import com.example.farmforward.appActivity.mainActivity.home.HomeFragment
 import com.example.farmforward.appActivity.mainActivity.map.MapFragment
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
+import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,15 +46,11 @@ class MainActivity : AppCompatActivity(), MainView {
     @Inject lateinit var controller: MainController
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var menuItems: List<LinearLayout>
-
-    // Nav Items
     private lateinit var home: LinearLayout
     private lateinit var garden: LinearLayout
     private lateinit var map: LinearLayout
     private lateinit var calc: LinearLayout
     private lateinit var growth: LinearLayout
-
-    // Drawer Items
     private lateinit var btnSignOut: TextView
     private lateinit var btnSaved: TextView
     private val fragmentMap = mutableMapOf<Int, Fragment>()
@@ -73,6 +78,7 @@ class MainActivity : AppCompatActivity(), MainView {
         growth = findViewById(R.id.nav_growth)
         btnSignOut = findViewById(R.id.signOut)
         btnSaved = findViewById(R.id.Saved)
+        val btnCloseNav = findViewById<ImageButton>(R.id.btn_close_nav)
 
         menuItems = listOf(home, garden, map, calc, growth)
         home.setOnClickListener { controller.onNavigationItemClicked(R.id.nav_home) }
@@ -83,6 +89,17 @@ class MainActivity : AppCompatActivity(), MainView {
         btnSaved.setOnClickListener { controller.onSavedClicked() }
         btnSignOut.setOnClickListener { controller.onSignOutClicked() }
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
+            }
+        }
+        btnCloseNav.setOnClickListener {
+            if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                drawerLayout.closeDrawer(GravityCompat.END)
+            }
+        }
+        setupDailyNotifications()
         controller.onViewCreated()
     }
 
@@ -106,12 +123,15 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun showToast(message: String, isError: Boolean) {
         val context = this
-        val rootView = findViewById<android.view.View>(android.R.id.content)
+        val rootView = window.decorView.findViewById<android.view.View>(android.R.id.content)
         val snackbar = Snackbar.make(rootView, message, Snackbar.LENGTH_LONG)
         val snackbarView = snackbar.view
         val params = snackbarView.layoutParams as FrameLayout.LayoutParams
         params.gravity = Gravity.TOP
-        params.topMargin = 60.dpToPx(context).toInt()
+        val insets = ViewCompat.getRootWindowInsets(rootView)
+        val statusBarHeight = insets?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
+        val bufferMargin = 10.dpToPx(context).toInt()
+        params.topMargin = statusBarHeight + bufferMargin
         params.leftMargin = 20.dpToPx(context).toInt()
         params.rightMargin = 20.dpToPx(context).toInt()
         snackbarView.layoutParams = params
@@ -128,6 +148,17 @@ class MainActivity : AppCompatActivity(), MainView {
         snackbar.setActionTextColor(strokeColor)
         snackbar.setAction("OK") { snackbar.dismiss() }
         snackbar.show()
+    }
+    private fun setupDailyNotifications() {
+        val workRequest = PeriodicWorkRequestBuilder<DailyCheckWorker>(1, TimeUnit.DAYS)
+            .setInitialDelay(1, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "FarmDailyCheck",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
     }
     private fun Int.dpToPx(context: Context): Float {
         return this * context.resources.displayMetrics.density

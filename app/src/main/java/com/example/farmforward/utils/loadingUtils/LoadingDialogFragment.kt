@@ -28,7 +28,7 @@ class LoadingDialogFragment : DialogFragment() {
         seekBar.isClickable = false
         seekBar.isFocusable = false
         seekBar.isLongClickable = false
-
+        seekBar.setOnTouchListener { _, _ -> true }
         isCancelable = false
         return view
     }

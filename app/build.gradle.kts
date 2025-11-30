@@ -44,6 +44,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
@@ -86,6 +87,9 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+
+
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 
     implementation("com.google.android.material:material:1.11.0")
     implementation(libs.androidx.core.ktx)

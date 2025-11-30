@@ -10,7 +10,7 @@ import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.roomDatabase.AppDatabase
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.utils.otherUtils.RetrofitClient
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
 import com.example.farmforward.utils.weatherUtils.WeatherResponse

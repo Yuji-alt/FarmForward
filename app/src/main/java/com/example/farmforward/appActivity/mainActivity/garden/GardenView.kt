@@ -2,7 +2,7 @@ package com.example.farmforward.appActivity.mainActivity.garden
 
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 
 interface GardenView {
     fun getFragmentContext(): Context

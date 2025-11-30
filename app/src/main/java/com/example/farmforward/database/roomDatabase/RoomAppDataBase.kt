@@ -4,10 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.farmforward.database.CropEntity
 
-    @Database(
+@Database(
         entities = [User::class, CropEntity::class],
-        version = 8,
+        version = 10,
         exportSchema = false
     )
     abstract class AppDatabase : RoomDatabase() {

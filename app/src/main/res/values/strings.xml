@@ -58,4 +58,8 @@
     <string name="harvest_soon">Harvest Soon</string>
     <string name="growing">Growing</string>
     <string name="map_legend">Map Legend</string>
+    <string name="edit_crop">Edit Crop</string>
+    <string name="delete">Delete</string>
+    <string name="back_to_log_in">back to log in</string>
+    <string name="crop_image">Crop image</string>
 </resources>

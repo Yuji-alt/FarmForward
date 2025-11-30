@@ -1,5 +1,6 @@
 package com.example.farmforward.appActivity.mainActivity.growth
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,7 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -44,8 +45,8 @@ class GrowthFragment : Fragment(), GrowthView {
     ): View {
         val view = inflater.inflate(R.layout.fragment_growth, container, false)
 
-        // Find Views
         val tvEdit = view.findViewById<TextView>(R.id.tvEdit)
+        val tvDelete = view.findViewById<TextView>(R.id.tvDelete)
         tvCropName = view.findViewById(R.id.tvCropName)
         tvArea = view.findViewById(R.id.tvArea)
         plantedDate = view.findViewById(R.id.plantedDate)
@@ -67,6 +68,10 @@ class GrowthFragment : Fragment(), GrowthView {
         btnViewOnMap.setOnClickListener {
             controller.onViewOnMapClicked(cropViewModel)
         }
+        tvDelete.setOnClickListener {
+            controller.onDeleteClicked(cropViewModel)
+        }
+        showEmptyState()
 
         return view
     }
@@ -103,7 +108,25 @@ class GrowthFragment : Fragment(), GrowthView {
     override fun showEmptyState() {
         tvCropName.text = "No Crop Calculated"
         tvArea.text = "---"
+        plantedDate.text = "N/A"
+        minHarvest.text = "N/A"
+        maxHarvest.text = "N/A"
+        harvestYield.text = "N/A"
         btnViewOnMap.visibility = View.GONE
+    }
+    override fun showDeleteConfirmation(message: String, onConfirm: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Crop")
+            .setMessage(message)
+            .setPositiveButton("Delete") { _, _ -> onConfirm() }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    override fun showMapButton(isVisible: Boolean) {
+        btnViewOnMap.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+    override fun navigateToGarden() {
+        (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_garden)
     }
 
     override fun getFragmentContext(): Context = requireContext()

@@ -18,8 +18,10 @@
             android:id="@+id/itemImage"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@android:drawable/ic_menu_gallery"
-            app:tint="@color/kombuGreen" />
+            android:src="@drawable/agricultwo"
+            android:background="@drawable/rounded_box"
+            android:clipToOutline="true"
+            />
 
         <TextView
             android:id="@+id/itemTitle"

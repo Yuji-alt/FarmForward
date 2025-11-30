@@ -6,13 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.farmforward.database.CropEntity
 
 @Dao
 interface RoomCropDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCrop(crop: CropEntity)
 
-    @Query("SELECT * FROM crop_table WHERE userId = :userId ORDER BY date DESC")
+    @Query("SELECT * FROM crop_table WHERE userId = :userId AND isDeleted = 0 ORDER BY date DESC")
     fun getCropsForUser(userId: Int?): LiveData<List<CropEntity>>
 
     @Query("SELECT * FROM crop_table")
@@ -20,7 +21,7 @@ interface RoomCropDao {
 
     @Query("DELETE FROM crop_table WHERE id = :id")
     suspend fun deleteCropById(id: Int)
-    @Query("SELECT * FROM crop_table WHERE userId = :userId ORDER BY date DESC")
+    @Query("SELECT * FROM crop_table WHERE userId = :userId AND isDeleted = 0 ORDER BY date DESC")
     suspend fun getCropsForUserList(userId: Int): List<CropEntity>
 
     @Query("SELECT COUNT(*) FROM crop_table WHERE userId = :userId")
@@ -34,4 +35,10 @@ interface RoomCropDao {
 
     @Update
     suspend fun updateCrop(crop: CropEntity)
+
+    @Query("UPDATE crop_table SET isDeleted = 1, isSynced = 0 WHERE id = :cropId")
+    suspend fun softDeleteCrop(cropId: Int)
+
+    @Query("SELECT * FROM crop_table WHERE userId = :userId")
+    suspend fun getAllCropsIncludeDeleted(userId: Int): List<CropEntity>
 }

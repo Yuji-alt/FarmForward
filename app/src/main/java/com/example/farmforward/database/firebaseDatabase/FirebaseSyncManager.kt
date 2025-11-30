@@ -2,7 +2,7 @@ package com.example.farmforward.database.firebaseDatabase
 
 import android.util.Log
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.roomDatabase.RoomCropDao
 import com.example.farmforward.database.roomDatabase.RoomUserDao
 import com.example.farmforward.database.roomDatabase.User
@@ -68,8 +68,7 @@ class FirebaseSyncManager @Inject constructor(
                 .await()
 
             val firebaseCrops = snapshot.toObjects(CropEntity::class.java)
-            val localCrops = cropDao.getCropsForUserList(userId)
-
+            val localCrops = cropDao.getAllCropsIncludeDeleted(userId)
             val getCropKey: (CropEntity) -> String = { it.firestoreId }
 
             val firebaseMap = firebaseCrops.associateBy(getCropKey)
@@ -85,20 +84,22 @@ class FirebaseSyncManager @Inject constructor(
                     firebaseItem != null && localItem == null -> {
                         val syncedItem = firebaseItem.copy(isSynced = 1)
                         cropDao.insertCrop(syncedItem)
-                        Log.d("SyncCrops", "PULLED remote crop: $key")
                     }
+
                     firebaseItem == null && localItem != null -> {
                         uploadCropToFirebase(userId, localItem)
-                        Log.d("SyncCrops", "PUSHED local crop: $key")
                     }
+
                     firebaseItem != null && localItem != null -> {
-                        if (firebaseItem.lastUpdated > localItem.lastUpdated) {
+                        if (localItem.isDeleted == 1) {
+                            uploadCropToFirebase(userId, localItem)
+                        }
+                        else if (firebaseItem.lastUpdated > localItem.lastUpdated) {
                             val syncedItem = firebaseItem.copy(isSynced = 1)
                             cropDao.insertCrop(syncedItem)
-                            Log.d("SyncCrops", "UPDATED local from remote: $key")
-                        } else if (firebaseItem.lastUpdated < localItem.lastUpdated) {
+                        }
+                        else if (firebaseItem.lastUpdated < localItem.lastUpdated) {
                             uploadCropToFirebase(userId, localItem)
-                            Log.d("SyncCrops", "UPDATED remote from local: $key")
                         }
                     }
                 }
@@ -112,18 +113,29 @@ class FirebaseSyncManager @Inject constructor(
     }
     private suspend fun uploadCropToFirebase(userId: Int, crop: CropEntity) {
         try {
-            val uploadData = crop.copy(isSynced = 1)
+            if (crop.isDeleted == 1) {
+                firestore.collection("users")
+                    .document(userId.toString())
+                    .collection("crops")
+                    .document(crop.firestoreId)
+                    .delete()
+                    .await()
+                cropDao.deleteCropById(crop.id)
+                firestore.collection("...").document(crop.firestoreId).delete().await()
+                Log.d("SyncCrops", "Deleted crop permanently: ${crop.cropName}")
+            } else {
+                val uploadData = crop.copy(isSynced = 1)
+                firestore.collection("users")
+                    .document(userId.toString())
+                    .collection("crops")
+                    .document(crop.firestoreId)
+                    .set(uploadData)
+                    .await()
 
-            firestore.collection("users")
-                .document(userId.toString())
-                .collection("crops")
-                .document(crop.firestoreId)
-                .set(uploadData)
-                .await()
-
-            cropDao.markAsSynced(crop.id)
+                cropDao.markAsSynced(crop.id)
+            }
         } catch (e: Exception) {
-            Log.e("SyncCrops", "Failed to upload crop: ${e.message}")
+            Log.e("SyncCrops", "Failed to sync crop: ${e.message}")
         }
     }
 }

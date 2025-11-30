@@ -66,8 +66,6 @@ class CalcController @Inject constructor(
         view?.clearAllInputs()
 
         viewModel?.cropToEdit = null
-        viewModel?.clearPickedLocation()
-
         view?.setButtonText("Calculate & Save")
 
         view?.showToast("Calculation cleared/cancelled.", isError = false)

@@ -27,6 +27,9 @@ class SignUpController @Inject constructor(
     fun bindView(view: SignUpView) {
         this.view = view
     }
+    fun onBackClicked() {
+        view?.navigateToLogin()
+    }
 
     fun onSignUpClicked(email: String, username: String, password: String, confirm: String) {
         val trimmedEmail = email.trim()

@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.farmforward.database.roomDatabase.AppDatabase
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.utils.weatherUtils.WeatherResponse // Ensure this is imported
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
@@ -133,6 +133,11 @@ class CropViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             cropDao.updateCrop(updatedCrop)
             _cropData.postValue(updatedCrop)
+        }
+    }
+    fun deleteCrop(cropId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            cropDao.softDeleteCrop(cropId)
         }
     }
     fun clearDraft() {

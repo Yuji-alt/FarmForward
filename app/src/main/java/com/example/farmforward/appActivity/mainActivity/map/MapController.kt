@@ -1,7 +1,7 @@
 package com.example.farmforward.appActivity.mainActivity.map
 
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.roomDatabase.RoomCropDao
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng // ADD THIS IMPORT

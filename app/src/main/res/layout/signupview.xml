@@ -4,15 +4,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/moss_green"
+    android:id="@+id/rootLayout"
     android:clickable="true"
     android:fillViewport="true"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:paddingBottom="100dp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal">
+        <ImageButton
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:background="@null"
+            android:contentDescription="@string/back_to_log_in"
+            android:src="@drawable/ic_arrow_left"
+            app:tint="@color/kombuGreen" />
 
         <TextView
             android:id="@+id/textView5"

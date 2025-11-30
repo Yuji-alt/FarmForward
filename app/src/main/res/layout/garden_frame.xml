@@ -20,11 +20,12 @@
         android:id="@+id/imgCrop"
         android:layout_width="80dp"
         android:layout_height="match_parent"
-        android:src="@drawable/image_border"
+        android:src="@drawable/agricultwo"
         android:scaleType="centerCrop"
-        android:background="@color/tan"
+        android:background="@drawable/rounded_box"
         android:layout_marginEnd="12dp"
-        android:contentDescription="Crop image" />
+        android:contentDescription="@string/crop_image"
+        android:clipToOutline="true" />
 
     <LinearLayout
         android:layout_width="0dp"

@@ -1,7 +1,7 @@
 package com.example.farmforward.appActivity.mainActivity.growth
 
 import android.content.Context
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 
 interface GrowthView {
     fun getFragmentContext(): Context
@@ -23,5 +23,8 @@ interface GrowthView {
 
     fun showEmptyState()
     fun navigateToEdit(crop: CropEntity)
+    fun showDeleteConfirmation(message: String, onConfirm: () -> Unit)
+    fun navigateToGarden()
     fun navigateToMap(crop: CropEntity)
+    fun showMapButton(isVisible: Boolean)
 }

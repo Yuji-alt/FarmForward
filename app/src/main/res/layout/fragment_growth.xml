@@ -45,22 +45,42 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/rounded_box"
             android:gravity="top|start"
-            android:padding="12dp"
-            android:src="@drawable/ic_settings"
-            app:tint="@color/kombuGreen"
-            tools:ignore="ContentDescription" />
+            android:src="@drawable/agricultwo"
+            android:clipToOutline="true" />
 
-        <TextView
-            android:id="@+id/tvEdit"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:text="Edit Crop"
-            android:textStyle="bold"
-            android:textColor="@color/kombuGreen"
-            android:drawablePadding="8dp"
-            app:backgroundTint="@color/kombuGreen"
-            app:tint="@color/tan" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tvEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_crop"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:drawablePadding="8dp"
+                app:backgroundTint="@color/kombuGreen"
+                app:tint="@color/tan" />
+
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/tvDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:drawablePadding="8dp"
+                app:backgroundTint="@color/kombuGreen"
+                app:tint="@color/tan" />
+
+        </LinearLayout>
 
         <TableLayout
             android:id="@+id/tableCropInfo"
@@ -93,7 +113,7 @@
             </TableRow>
             <TableRow>
                 <TextView style="@style/LabelText" android:text="Weather Condition" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border" />
+                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:maxLines="1" android:background="@drawable/border" />
             </TableRow>
 
             <TableRow>
@@ -216,7 +236,9 @@
                         android:text="@string/date"
                         android:textColor="@color/bone"
                         android:textStyle="bold"
-                        android:textSize="15sp" />
+                        android:textSize="15sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
                     <TextView
                         android:id="@+id/maxHarvest"
@@ -227,7 +249,9 @@
                         android:text="@string/date"
                         android:textColor="@color/bone"
                         android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

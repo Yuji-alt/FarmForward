@@ -1,5 +1,5 @@
 package com.example.farmforward.appActivity.mainActivity.home
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.utils.weatherUtils.ForecastItem
 

@@ -109,23 +109,28 @@ class MainController @Inject constructor(
     fun fetchCurrentLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
         if (!hasLocationPermission()) {
             view?.showToast("Location permission required", isError = true)
+            onLocation(0.0, 0.0)
             return
         }
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
         try {
-            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
             fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener { location: Location? ->
                     if (location != null) {
                         onLocation(location.latitude, location.longitude)
                     } else {
                         view?.showToast("Unable to get location", isError = true)
+                        onLocation(0.0, 0.0)
                     }
                 }
                 .addOnFailureListener {
                     view?.showToast("Error getting location", isError = true)
+                    onLocation(0.0, 0.0)
                 }
         } catch (e: SecurityException) {
             view?.showToast("Location permission denied", isError = true)
+            onLocation(0.0, 0.0)
         }
     }
     fun handlePermissionResult(

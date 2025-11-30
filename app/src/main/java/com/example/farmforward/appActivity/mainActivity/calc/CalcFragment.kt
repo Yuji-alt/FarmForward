@@ -3,28 +3,32 @@ package com.example.farmforward.appActivity.mainActivity.calc
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.farmforward.BuildConfig // Ensure this is imported
+import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
-import com.example.farmforward.database.roomDatabase.CropEntity
 import com.example.farmforward.database.staticData.CropRepository
 import com.example.farmforward.database.viewModel.CropFormDraft
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
 import com.example.farmforward.utils.otherUtils.NetworkUtils
-import com.example.farmforward.utils.otherUtils.RetrofitClient // Ensure this is imported
+import com.example.farmforward.utils.otherUtils.RetrofitClient
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
-import com.example.farmforward.utils.weatherUtils.WeatherResponse // Ensure this is imported
+import com.example.farmforward.utils.weatherUtils.WeatherResponse
 import com.example.farmforward.database.viewModel.CropViewModel
+import com.example.farmforward.utils.otherUtils.SquareButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -40,6 +44,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CalcFragment : Fragment(), CalcView {
+
     @Inject lateinit var controller: CalcController
     @Inject lateinit var syncManager: FirebaseSyncManager
     @Inject lateinit var weatherRepository: WeatherRepository
@@ -71,7 +76,6 @@ class CalcFragment : Fragment(), CalcView {
         cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
         controller.bindView(this, cropViewModel, lifecycleScope)
 
-        // ... (FindViewByIds remain the same) ...
         inputCrop = view.findViewById(R.id.inputCrop)
         inputArea = view.findViewById(R.id.inputArea)
         inputSoilType = view.findViewById(R.id.inputSoilType)
@@ -91,6 +95,7 @@ class CalcFragment : Fragment(), CalcView {
         val btnNext = view.findViewById<ImageButton>(R.id.btnNextMonth)
 
         setupInputFields()
+        setupKeyboardLogic()
 
         lifecycleScope.launch { controller.onViewCreated() }
 
@@ -116,15 +121,22 @@ class CalcFragment : Fragment(), CalcView {
 
         cropViewModel.pickedLocation.observe(viewLifecycleOwner) { latLng ->
             if (latLng != null) {
-                selectedLat = latLng.latitude
-                selectedLng = latLng.longitude
+                // Check if valid coordinates
+                if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
+                    selectedLat = latLng.latitude
+                    selectedLng = latLng.longitude
 
-                val address = getAddressName(selectedLat, selectedLng)
-                inputRegion.setText(address)
-                fetchSpecificWeather(selectedLat, selectedLng)
+                    val address = getAddressName(selectedLat, selectedLng)
+                    inputRegion.setText(address)
+                    fetchSpecificWeather(selectedLat, selectedLng)
 
-                saveFormState()
+                    saveFormState()
+                }
                 cropViewModel.clearPickedLocation()
+            } else {
+                if (selectedLat == 0.0) {
+                    loadEnvironmentData()
+                }
             }
         }
 
@@ -142,6 +154,60 @@ class CalcFragment : Fragment(), CalcView {
         }
 
         return view
+    }
+
+    override fun getCurrentLocation(onLocationFound: (Double, Double) -> Unit) {
+        if (selectedLat != 0.0 && selectedLng != 0.0) {
+            onLocationFound(selectedLat, selectedLng)
+            return
+        }
+
+        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            onLocationFound(0.0, 0.0)
+            return
+        }
+
+        val mainActivity = requireActivity() as MainActivity
+        if (mainActivity.controller.hasLocationPermission()) {
+            mainActivity.controller.fetchCurrentLocation(mainActivity) { lat, lng ->
+                onLocationFound(lat, lng)
+            }
+        } else {
+            onLocationFound(0.0, 0.0)
+        }
+    }
+
+    private fun setupKeyboardLogic() {
+        inputArea.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                hideKeyboard(v)
+                v.clearFocus()
+                true
+            } else {
+                false
+            }
+        }
+
+        inputCrop.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                hideKeyboard(v)
+                v.clearFocus()
+                inputCrop.dismissDropDown()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    // --- UPDATED FUNCTION: Prevent Auto-Fill ---
+    private fun loadEnvironmentData() {
+        if (selectedLat == 0.0) {
+            inputRegion.hint = "Tap to select location"
+        }
+        // Clear any text and set hint only. Do NOT fetch cached weather.
+        inputWeather.hint = "Weather Condition"
+        inputWeather.text = null
     }
 
     private fun fetchSpecificWeather(lat: Double, lng: Double) {
@@ -162,7 +228,6 @@ class CalcFragment : Fragment(), CalcView {
                             val condition = forecast.weather.firstOrNull()?.main ?: "Clear"
                             val tempVal = forecast.main.temp
                             val temp = String.format("%.1f°C", tempVal)
-
                             inputWeather.setText("$condition, $temp")
                         } else {
                             inputWeather.setText("No data")
@@ -171,13 +236,11 @@ class CalcFragment : Fragment(), CalcView {
                         inputWeather.setText("Weather Error")
                     }
                 }
-
                 override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
                     inputWeather.setText("Network Error")
                 }
             })
     }
-
 
     override fun preFillForm(crop: CropEntity) {
         inputCrop.setText(crop.cropName, false)
@@ -207,9 +270,7 @@ class CalcFragment : Fragment(), CalcView {
         }
     }
 
-    override fun setButtonText(text: String) {
-        btnCalculate.text = text
-    }
+    override fun setButtonText(text: String) { btnCalculate.text = text }
 
     private fun isCropSelected(): Boolean {
         val input = inputCrop.text.toString().trim()
@@ -256,6 +317,7 @@ class CalcFragment : Fragment(), CalcView {
             }
         }
     }
+
     private fun openMapPicker() {
         saveFormState()
         cropViewModel.isMapPickerMode = true
@@ -277,17 +339,6 @@ class CalcFragment : Fragment(), CalcView {
         }
     }
 
-    override fun getCurrentLocation(onLocationFound: (Double, Double) -> Unit) {
-        if (selectedLat != 0.0 && selectedLng != 0.0) {
-            onLocationFound(selectedLat, selectedLng)
-        } else {
-            val mainActivity = requireActivity() as MainActivity
-            mainActivity.controller.fetchCurrentLocation(mainActivity) { lat, lng ->
-                onLocationFound(lat, lng)
-            }
-        }
-    }
-
     override fun clearAllInputs() {
         inputCrop.setText("", false)
         inputArea.setText("")
@@ -299,44 +350,58 @@ class CalcFragment : Fragment(), CalcView {
         cropViewModel.clearDraft()
     }
 
-
     private fun hideKeyboard(view: View) {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    private fun updateCalendar(calendar: Calendar, calendarGrid: GridLayout, tvMonthYear: TextView, context: Context) {
+    private fun updateCalendar(
+        calendar: Calendar,
+        calendarGrid: GridLayout,
+        tvMonthYear: TextView,
+        context: Context
+    ) {
         calendarGrid.removeAllViews()
         val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
         tvMonthYear.text = monthFormat.format(calendar.time)
+
         val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val todayCal = Calendar.getInstance()
         val selectedCal = Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
-        val paddingPx = (8 * context.resources.displayMetrics.density).toInt()
+        val paddingPx = (2 * context.resources.displayMetrics.density).toInt()
+
         for (day in 1..daysInMonth) {
-            val btnDay = Button(context).apply {
+            val btnDay = SquareButton(context).apply {
                 text = day.toString()
+                textSize = 14f
                 isAllCaps = false
+                includeFontPadding = false
+                gravity = android.view.Gravity.CENTER
                 setBackgroundResource(R.drawable.day_button_selector)
             }
+
             val isToday = year == todayCal.get(Calendar.YEAR) && month == todayCal.get(Calendar.MONTH) && day == todayCal.get(Calendar.DAY_OF_MONTH)
             val isSelected = year == selectedCal.get(Calendar.YEAR) && month == selectedCal.get(Calendar.MONTH) && day == selectedCal.get(Calendar.DAY_OF_MONTH)
+
             when {
                 isSelected -> btnDay.setTextColor(ContextCompat.getColor(context, R.color.tan))
                 isToday -> btnDay.setTextColor(ContextCompat.getColor(context, R.color.kombuGreen))
                 else -> btnDay.setTextColor(ContextCompat.getColorStateList(context, R.color.day_text_color))
             }
+
             btnDay.isSelected = isSelected
+
             val params = GridLayout.LayoutParams().apply {
                 width = 0
-                height = ViewGroup.LayoutParams.WRAP_CONTENT
                 columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-                setMargins(8, 8, 8, 8)
+                setMargins(4, 4, 4, 4)
             }
+
             btnDay.layoutParams = params
             btnDay.setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
+
             btnDay.setOnClickListener {
                 selectedDateMillis = Calendar.getInstance().apply {
                     set(year, month, day, 0, 0, 0)
@@ -418,23 +483,30 @@ class CalcFragment : Fragment(), CalcView {
         val loadingDialog = LoadingDialogFragment()
         loadingDialog.isCancelable = false
         loadingDialog.show(parentFragmentManager, "LoadingDialog")
+
         lifecycleScope.launch(Dispatchers.IO) {
             fun updateUi(progress: Int, msg: String) {
-                launch(Dispatchers.Main) { if (loadingDialog.isAdded) loadingDialog.updateProgress(progress, msg) }
+                launch(Dispatchers.Main) {
+                    if (loadingDialog.isAdded) loadingDialog.updateProgress(progress, msg)
+                }
             }
+
             try {
                 updateUi(10, "Saving Calculation...")
                 delay(500)
+
                 if (isOnline) {
                     try {
                         updateUi(40, "Syncing Profile...")
                         syncManager.syncUsers()
                         updateUi(70, "Syncing Crop Data...")
                         syncManager.syncCrops()
-                    } catch (e: Exception) { e.printStackTrace() }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 } else {
-                    updateUi(50, "Offline Mode: Skipping Sync...")
-                    delay(500)
+                    updateUi(50, "Offline Mode: Saved Locally")
+                    delay(800)
                 }
                 updateUi(90, "Finalizing...")
                 delay(400)
@@ -442,7 +514,7 @@ class CalcFragment : Fragment(), CalcView {
             finally {
                 withContext(Dispatchers.Main) {
                     if (loadingDialog.isAdded) loadingDialog.dismiss()
-                    clearAllInputs() // Clear inputs after success
+                    clearAllInputs()
                     (requireActivity() as MainActivity).navigateToGrowthResult()
                 }
             }

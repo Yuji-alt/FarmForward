@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
-import com.example.farmforward.database.roomDatabase.CropEntity
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
