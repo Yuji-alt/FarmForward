@@ -1,0 +1,361 @@
+kotlin version: 2.0.21
+error message: org.jetbrains.kotlin.backend.common.BackendException: Backend Internal error: Exception during IR lowering
+File being compiled: C:/Users/Carl Lowell/AndroidStudioProjects/FarmForward/app/src/main/java/com/example/farmforward/appActivity/mainActivity/calc/CalcFragment.kt
+The root cause java.lang.RuntimeException was thrown at: org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:47)
+	at org.jetbrains.kotlin.backend.common.CodegenUtil.reportBackendException(CodegenUtil.kt:253)
+	at org.jetbrains.kotlin.backend.common.CodegenUtil.reportBackendException$default(CodegenUtil.kt:236)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invokeSequential(performByIrFile.kt:65)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invoke(performByIrFile.kt:52)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invoke(performByIrFile.kt:38)
+	at org.jetbrains.kotlin.backend.common.phaser.NamedCompilerPhase.phaseBody(CompilerPhase.kt:166)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.CompositePhase.invoke(PhaseBuilders.kt:27)
+	at org.jetbrains.kotlin.backend.common.phaser.CompositePhase.invoke(PhaseBuilders.kt:14)
+	at org.jetbrains.kotlin.backend.common.phaser.NamedCompilerPhase.phaseBody(CompilerPhase.kt:166)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.CompilerPhaseKt.invokeToplevel(CompilerPhase.kt:62)
+	at org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory.invokeCodegen(JvmIrCodegenFactory.kt:371)
+	at org.jetbrains.kotlin.codegen.CodegenFactory.generateModule(CodegenFactory.kt:47)
+	at org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory.generateModuleInFrontendIRMode(JvmIrCodegenFactory.kt:433)
+	at org.jetbrains.kotlin.cli.jvm.compiler.pipeline.JvmCompilerPipelineKt.generateCodeFromIr(jvmCompilerPipeline.kt:246)
+	at org.jetbrains.kotlin.cli.jvm.compiler.pipeline.JvmCompilerPipelineKt.compileModulesUsingFrontendIrAndLightTree(jvmCompilerPipeline.kt:142)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecute(K2JVMCompiler.kt:148)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecute(K2JVMCompiler.kt:43)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:103)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:49)
+	at org.jetbrains.kotlin.cli.common.CLITool.exec(CLITool.kt:101)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.runCompiler(IncrementalJvmCompilerRunner.kt:464)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.runCompiler(IncrementalJvmCompilerRunner.kt:73)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.doCompile(IncrementalCompilerRunner.kt:506)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileImpl(IncrementalCompilerRunner.kt:423)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$9$compile(IncrementalCompilerRunner.kt:249)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:267)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:120)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:675)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:92)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1660)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Unknown Source)
+	at java.base/java.security.AccessController.doPrivileged(Unknown Source)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(Unknown Source)
+	at java.base/java.security.AccessController.doPrivileged(Unknown Source)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.lang.RuntimeException: Exception while generating code for:
+FUN name:updateCalendar visibility:private modality:FINAL <> ($this:com.example.farmforward.appActivity.mainActivity.calc.CalcFragment, calendar:java.util.Calendar, calendarGrid:android.widget.GridLayout, tvMonthYear:android.widget.TextView, context:android.content.Context) returnType:kotlin.Unit
+  $this: VALUE_PARAMETER name:<this> type:com.example.farmforward.appActivity.mainActivity.calc.CalcFragment
+  VALUE_PARAMETER name:calendar index:0 type:java.util.Calendar
+  VALUE_PARAMETER name:calendarGrid index:1 type:android.widget.GridLayout
+  VALUE_PARAMETER name:tvMonthYear index:2 type:android.widget.TextView
+  VALUE_PARAMETER name:context index:3 type:android.content.Context
+  BLOCK_BODY
+    CALL 'public open fun removeAllViews (): kotlin.Unit [fake_override] declared in android.widget.GridLayout' type=kotlin.Unit origin=null
+      $this: GET_VAR 'calendarGrid: android.widget.GridLayout declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.widget.GridLayout origin=null
+    VAR name:monthFormat type:java.text.SimpleDateFormat [val]
+      CONSTRUCTOR_CALL 'public constructor <init> (p0: @[FlexibleNullability] kotlin.String?, p1: @[FlexibleNullability] java.util.Locale?) declared in java.text.SimpleDateFormat' type=java.text.SimpleDateFormat origin=null
+        p0: CONST String type=kotlin.String value="MMMM yyyy"
+        p1: CALL 'public open fun getDefault (): @[FlexibleNullability] java.util.Locale? declared in java.util.Locale' type=@[FlexibleNullability] java.util.Locale? origin=null
+    CALL 'public final fun setText (p0: @[FlexibleNullability] kotlin.CharSequence?): kotlin.Unit declared in android.widget.TextView' type=kotlin.Unit origin=EQ
+      $this: GET_VAR 'tvMonthYear: android.widget.TextView declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.widget.TextView origin=null
+      p0: CALL 'public final fun format (p0: @[FlexibleNullability] java.util.Date?): @[FlexibleNullability] kotlin.String? [fake_override] declared in java.text.SimpleDateFormat' type=@[FlexibleNullability] kotlin.String? origin=null
+        $this: GET_VAR 'val monthFormat: java.text.SimpleDateFormat [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=java.text.SimpleDateFormat origin=null
+        p0: CALL 'public final fun getTime (): @[FlexibleNullability] java.util.Date? declared in java.util.Calendar' type=@[FlexibleNullability] java.util.Date? origin=GET_PROPERTY
+          $this: GET_VAR 'calendar: java.util.Calendar declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=java.util.Calendar origin=null
+    VAR name:daysInMonth type:kotlin.Int [val]
+      CALL 'public open fun getActualMaximum (p0: kotlin.Int): kotlin.Int declared in java.util.Calendar' type=kotlin.Int origin=null
+        $this: GET_VAR 'calendar: java.util.Calendar declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=java.util.Calendar origin=null
+        p0: CONST Int type=kotlin.Int value=5
+    VAR name:year type:kotlin.Int [val]
+      CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+        $this: GET_VAR 'calendar: java.util.Calendar declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=java.util.Calendar origin=null
+        p0: CONST Int type=kotlin.Int value=1
+    VAR name:month type:kotlin.Int [val]
+      CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+        $this: GET_VAR 'calendar: java.util.Calendar declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=java.util.Calendar origin=null
+        p0: CONST Int type=kotlin.Int value=2
+    VAR name:todayCal type:@[FlexibleNullability] java.util.Calendar? [val]
+      CALL 'public open fun getInstance (): @[FlexibleNullability] java.util.Calendar? declared in java.util.Calendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+    VAR name:selectedCal type:@[FlexibleNullability] java.util.Calendar? [val]
+      CALL 'public final fun apply <T> (block: @[ExtensionFunctionType] kotlin.Function1<T of kotlin.StandardKt.apply, kotlin.Unit>): T of kotlin.StandardKt.apply [inline] declared in kotlin.StandardKt' type=@[FlexibleNullability] java.util.Calendar? origin=null
+        <T>: @[FlexibleNullability] java.util.Calendar?
+        $receiver: CALL 'public open fun getInstance (): @[FlexibleNullability] java.util.Calendar? declared in java.util.Calendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+        block: BLOCK type=@[ExtensionFunctionType] kotlin.Function1<@[FlexibleNullability] java.util.Calendar?, kotlin.Unit> origin=LAMBDA
+          COMPOSITE type=kotlin.Unit origin=null
+          FUNCTION_REFERENCE 'private final fun updateCalendar$lambda$14 (this$0: com.example.farmforward.appActivity.mainActivity.calc.CalcFragment): kotlin.Unit declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment' type=@[ExtensionFunctionType] kotlin.Function1<@[FlexibleNullability] java.util.Calendar?, kotlin.Unit> origin=INLINE_LAMBDA reflectionTarget=null
+            this$0: GET_VAR '<this>: com.example.farmforward.appActivity.mainActivity.calc.CalcFragment declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.appActivity.mainActivity.calc.CalcFragment origin=null
+    VAR name:paddingPx type:kotlin.Int [val]
+      CALL 'public open fun toInt (): kotlin.Int declared in kotlin.Float' type=kotlin.Int origin=null
+        $this: CALL 'public final fun times (other: kotlin.Float): kotlin.Float [operator] declared in kotlin.Int' type=kotlin.Float origin=MUL
+          $this: CONST Int type=kotlin.Int value=2
+          other: GET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:density type:kotlin.Float visibility:public declared in android.util.DisplayMetrics' type=kotlin.Float superQualifierSymbol=android.util.DisplayMetrics origin=null
+            receiver: CALL 'public open fun getDisplayMetrics (): @[FlexibleNullability] android.util.DisplayMetrics? declared in android.content.res.Resources' type=@[FlexibleNullability] android.util.DisplayMetrics? origin=GET_PROPERTY
+              $this: CALL 'public abstract fun getResources (): @[FlexibleNullability] android.content.res.Resources? declared in android.content.Context' type=@[FlexibleNullability] android.content.res.Resources? origin=GET_PROPERTY
+                $this: GET_VAR 'context: android.content.Context declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.content.Context origin=null
+    VAR name:metrics type:@[FlexibleNullability] android.util.DisplayMetrics? [val]
+      CALL 'public open fun getDisplayMetrics (): @[FlexibleNullability] android.util.DisplayMetrics? declared in android.content.res.Resources' type=@[FlexibleNullability] android.util.DisplayMetrics? origin=GET_PROPERTY
+        $this: CALL 'public abstract fun getResources (): @[FlexibleNullability] android.content.res.Resources? declared in android.content.Context' type=@[FlexibleNullability] android.content.res.Resources? origin=GET_PROPERTY
+          $this: GET_VAR 'context: android.content.Context declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.content.Context origin=null
+    VAR name:screenWidth type:kotlin.Int [val]
+      GET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:widthPixels type:kotlin.Int visibility:public declared in android.util.DisplayMetrics' type=kotlin.Int superQualifierSymbol=android.util.DisplayMetrics origin=null
+        receiver: GET_VAR 'val metrics: @[FlexibleNullability] android.util.DisplayMetrics? [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=@[FlexibleNullability] android.util.DisplayMetrics? origin=null
+    VAR name:maxSize type:kotlin.Int [val]
+      CALL 'public open fun toInt (): kotlin.Int declared in kotlin.Float' type=kotlin.Int origin=null
+        $this: CALL 'public final fun div (other: kotlin.Float): kotlin.Float [operator] declared in kotlin.Int' type=kotlin.Float origin=DIV
+          $this: GET_VAR 'val screenWidth: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+          other: CONST Float type=kotlin.Float value=10.0
+    BLOCK type=kotlin.Unit origin=FOR_LOOP
+      COMPOSITE type=kotlin.Unit origin=null
+        VAR FOR_LOOP_VARIABLE name:day type:kotlin.Int [var]
+          CONST Int type=kotlin.Int value=1
+      WHEN type=kotlin.Unit origin=null
+        BRANCH
+          if: CALL 'public final fun lessOrEqual (arg0: kotlin.Int, arg1: kotlin.Int): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=null
+            arg0: GET_VAR 'var day: kotlin.Int [var] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+            arg1: GET_VAR 'val daysInMonth: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+          then: DO_WHILE label=CalcFragment$updateCalendar1 origin=DO_WHILE_COUNTER_LOOP
+            body: COMPOSITE type=kotlin.Unit origin=FOR_LOOP_INNER_WHILE
+              COMPOSITE type=kotlin.Unit origin=FOR_LOOP_NEXT
+              BLOCK type=kotlin.Unit origin=null
+                VAR name:btnDay type:com.example.farmforward.utils.otherUtils.SquareButton [val]
+                  CALL 'public final fun apply <T> (block: @[ExtensionFunctionType] kotlin.Function1<T of kotlin.StandardKt.apply, kotlin.Unit>): T of kotlin.StandardKt.apply [inline] declared in kotlin.StandardKt' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                    <T>: com.example.farmforward.utils.otherUtils.SquareButton
+                    $receiver: CONSTRUCTOR_CALL 'public constructor <init> (context: android.content.Context, attrs: android.util.AttributeSet?, defStyleAttr: kotlin.Int, $mask0: kotlin.Int, $marker: kotlin.jvm.internal.DefaultConstructorMarker?) declared in com.example.farmforward.utils.otherUtils.SquareButton' type=com.example.farmforward.utils.otherUtils.SquareButton origin=DEFAULT_DISPATCH_CALL
+                      context: GET_VAR 'context: android.content.Context declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.content.Context origin=null
+                      attrs: COMPOSITE type=android.util.AttributeSet? origin=DEFAULT_VALUE
+                        CONST Null type=android.util.AttributeSet? value=null
+                      defStyleAttr: COMPOSITE type=kotlin.Int origin=DEFAULT_VALUE
+                        CONST Int type=kotlin.Int value=0
+                      $mask0: CONST Int type=kotlin.Int value=6
+                      $marker: CONST Null type=kotlin.jvm.internal.DefaultConstructorMarker? value=null
+                    block: BLOCK type=@[ExtensionFunctionType] kotlin.Function1<com.example.farmforward.utils.otherUtils.SquareButton, kotlin.Unit> origin=LAMBDA
+                      COMPOSITE type=kotlin.Unit origin=null
+                      FUNCTION_REFERENCE 'private final fun updateCalendar$lambda$15 ($day: kotlin.Int, $maxSize: kotlin.Int): kotlin.Unit declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment' type=@[ExtensionFunctionType] kotlin.Function1<com.example.farmforward.utils.otherUtils.SquareButton, kotlin.Unit> origin=INLINE_LAMBDA reflectionTarget=null
+                        $day: GET_VAR 'var day: kotlin.Int [var] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                        $maxSize: GET_VAR 'val maxSize: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                VAR name:isToday type:kotlin.Boolean [val]
+                  CALL 'public final fun ANDAND (arg0: kotlin.Boolean, arg1: kotlin.Boolean): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=null
+                    arg0: CALL 'public final fun ANDAND (arg0: kotlin.Boolean, arg1: kotlin.Boolean): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=null
+                      arg0: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EQEQ
+                        arg0: GET_VAR 'val year: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                        arg1: CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+                          $this: GET_VAR 'val todayCal: @[FlexibleNullability] java.util.Calendar? [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+                          p0: CONST Int type=kotlin.Int value=1
+                      arg1: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EQEQ
+                        arg0: GET_VAR 'val month: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                        arg1: CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+                          $this: GET_VAR 'val todayCal: @[FlexibleNullability] java.util.Calendar? [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+                          p0: CONST Int type=kotlin.Int value=2
+                    arg1: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EQEQ
+                      arg0: GET_VAR 'var day: kotlin.Int [var] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                      arg1: CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+                        $this: GET_VAR 'val todayCal: @[FlexibleNullability] java.util.Calendar? [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+                        p0: CONST Int type=kotlin.Int value=5
+                VAR name:isSelected type:kotlin.Boolean [val]
+                  CALL 'public final fun ANDAND (arg0: kotlin.Boolean, arg1: kotlin.Boolean): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=null
+                    arg0: CALL 'public final fun ANDAND (arg0: kotlin.Boolean, arg1: kotlin.Boolean): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=null
+                      arg0: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EQEQ
+                        arg0: GET_VAR 'val year: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                        arg1: CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+                          $this: GET_VAR 'val selectedCal: @[FlexibleNullability] java.util.Calendar? [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+                          p0: CONST Int type=kotlin.Int value=1
+                      arg1: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EQEQ
+                        arg0: GET_VAR 'val month: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                        arg1: CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+                          $this: GET_VAR 'val selectedCal: @[FlexibleNullability] java.util.Calendar? [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+                          p0: CONST Int type=kotlin.Int value=2
+                    arg1: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EQEQ
+                      arg0: GET_VAR 'var day: kotlin.Int [var] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                      arg1: CALL 'public open fun get (p0: kotlin.Int): kotlin.Int [operator] declared in java.util.Calendar' type=kotlin.Int origin=null
+                        $this: GET_VAR 'val selectedCal: @[FlexibleNullability] java.util.Calendar? [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=@[FlexibleNullability] java.util.Calendar? origin=null
+                        p0: CONST Int type=kotlin.Int value=5
+                WHEN type=kotlin.Unit origin=WHEN
+                  BRANCH
+                    if: GET_VAR 'val isSelected: kotlin.Boolean [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Boolean origin=null
+                    then: CALL 'public open fun setTextColor (p0: kotlin.Int): kotlin.Unit [fake_override] declared in com.example.farmforward.utils.otherUtils.SquareButton' type=kotlin.Unit origin=null
+                      $this: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                      p0: CALL 'public open fun getColor (p0: @[NonNull] @[FlexibleNullability] android.content.Context?, p1: kotlin.Int): kotlin.Int declared in androidx.core.content.ContextCompat' type=kotlin.Int origin=null
+                        p0: GET_VAR 'context: android.content.Context declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.content.Context origin=null
+                        p1: GET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:tan type:kotlin.Int visibility:public [static] declared in com.example.farmforward.R.color' type=kotlin.Int superQualifierSymbol=com.example.farmforward.R.color origin=null
+                  BRANCH
+                    if: GET_VAR 'val isToday: kotlin.Boolean [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Boolean origin=null
+                    then: CALL 'public open fun setTextColor (p0: kotlin.Int): kotlin.Unit [fake_override] declared in com.example.farmforward.utils.otherUtils.SquareButton' type=kotlin.Unit origin=null
+                      $this: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                      p0: CALL 'public open fun getColor (p0: @[NonNull] @[FlexibleNullability] android.content.Context?, p1: kotlin.Int): kotlin.Int declared in androidx.core.content.ContextCompat' type=kotlin.Int origin=null
+                        p0: GET_VAR 'context: android.content.Context declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.content.Context origin=null
+                        p1: GET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:kombuGreen type:kotlin.Int visibility:public [static] declared in com.example.farmforward.R.color' type=kotlin.Int superQualifierSymbol=com.example.farmforward.R.color origin=null
+                  BRANCH
+                    if: CONST Boolean type=kotlin.Boolean value=true
+                    then: CALL 'public open fun setTextColor (p0: @[FlexibleNullability] android.content.res.ColorStateList?): kotlin.Unit [fake_override] declared in com.example.farmforward.utils.otherUtils.SquareButton' type=kotlin.Unit origin=null
+                      $this: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                      p0: CALL 'public open fun getColorStateList (p0: @[NonNull] @[FlexibleNullability] android.content.Context?, p1: kotlin.Int): @[Nullable] @[FlexibleNullability] android.content.res.ColorStateList? declared in androidx.core.content.ContextCompat' type=@[FlexibleNullability] @[Nullable] android.content.res.ColorStateList? origin=null
+                        p0: GET_VAR 'context: android.content.Context declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.content.Context origin=null
+                        p1: GET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:day_text_color type:kotlin.Int visibility:public [static] declared in com.example.farmforward.R.color' type=kotlin.Int superQualifierSymbol=com.example.farmforward.R.color origin=null
+                CALL 'public open fun setSelected (p0: kotlin.Boolean): kotlin.Unit [fake_override] declared in com.example.farmforward.utils.otherUtils.SquareButton' type=kotlin.Unit origin=EQ
+                  $this: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                  p0: GET_VAR 'val isSelected: kotlin.Boolean [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Boolean origin=null
+                VAR name:params type:android.widget.GridLayout.LayoutParams [val]
+                  CALL 'public final fun apply <T> (block: @[ExtensionFunctionType] kotlin.Function1<T of kotlin.StandardKt.apply, kotlin.Unit>): T of kotlin.StandardKt.apply [inline] declared in kotlin.StandardKt' type=android.widget.GridLayout.LayoutParams origin=null
+                    <T>: android.widget.GridLayout.LayoutParams
+                    $receiver: CONSTRUCTOR_CALL 'public constructor <init> () declared in android.widget.GridLayout.LayoutParams' type=android.widget.GridLayout.LayoutParams origin=null
+                    block: BLOCK type=@[ExtensionFunctionType] kotlin.Function1<android.widget.GridLayout.LayoutParams, kotlin.Unit> origin=LAMBDA
+                      COMPOSITE type=kotlin.Unit origin=null
+                      FUNCTION_REFERENCE 'private final fun updateCalendar$lambda$16 ($maxSize: kotlin.Int): kotlin.Unit declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment' type=@[ExtensionFunctionType] kotlin.Function1<android.widget.GridLayout.LayoutParams, kotlin.Unit> origin=INLINE_LAMBDA reflectionTarget=null
+                        $maxSize: GET_VAR 'val maxSize: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                CALL 'public open fun setLayoutParams (p0: @[FlexibleNullability] android.view.ViewGroup.LayoutParams?): kotlin.Unit [fake_override] declared in com.example.farmforward.utils.otherUtils.SquareButton' type=kotlin.Unit origin=EQ
+                  $this: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                  p0: GET_VAR 'val params: android.widget.GridLayout.LayoutParams [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.widget.GridLayout.LayoutParams origin=null
+                CALL 'public open fun setPadding (p0: kotlin.Int, p1: kotlin.Int, p2: kotlin.Int, p3: kotlin.Int): kotlin.Unit [fake_override] declared in com.example.farmforward.utils.otherUtils.SquareButton' type=kotlin.Unit origin=null
+                  $this: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                  p0: GET_VAR 'val paddingPx: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                  p1: GET_VAR 'val paddingPx: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                  p2: GET_VAR 'val paddingPx: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                  p3: GET_VAR 'val paddingPx: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                CALL 'public open fun setOnClickListener (p0: @[EnhancedNullability] android.view.View.OnClickListener?): kotlin.Unit [fake_override] declared in com.example.farmforward.utils.otherUtils.SquareButton' type=kotlin.Unit origin=null
+                  $this: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+                  p0: BLOCK type=android.view.View.OnClickListener origin=LAMBDA
+                    COMPOSITE type=kotlin.Unit origin=null
+                    CALL 'public final fun <jvm-indy> <T> (dynamicCall: T of kotlin.jvm.internal.<jvm-indy>, bootstrapMethodHandle: kotlin.Any, vararg bootstrapMethodArguments: kotlin.Any): T of kotlin.jvm.internal.<jvm-indy> declared in kotlin.jvm.internal' type=android.view.View.OnClickListener origin=null
+                      <T>: android.view.View.OnClickListener
+                      dynamicCall: CALL 'public final fun onClick (p0: com.example.farmforward.appActivity.mainActivity.calc.CalcFragment, p1: java.util.Calendar, p2: android.widget.GridLayout, p3: android.widget.TextView, p4: android.content.Context, p5: kotlin.Int, p6: kotlin.Int, p7: kotlin.Int): android.view.View.OnClickListener declared in kotlin.jvm.internal.invokeDynamic' type=android.view.View.OnClickListener origin=null
+                        p0: GET_VAR '<this>: com.example.farmforward.appActivity.mainActivity.calc.CalcFragment declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.appActivity.mainActivity.calc.CalcFragment origin=null
+                        p1: GET_VAR 'calendar: java.util.Calendar declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=java.util.Calendar origin=null
+                        p2: GET_VAR 'calendarGrid: android.widget.GridLayout declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.widget.GridLayout origin=null
+                        p3: GET_VAR 'tvMonthYear: android.widget.TextView declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.widget.TextView origin=null
+                        p4: GET_VAR 'context: android.content.Context declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.content.Context origin=null
+                        p5: GET_VAR 'val year: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                        p6: GET_VAR 'val month: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                        p7: GET_VAR 'var day: kotlin.Int [var] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                      bootstrapMethodHandle: CALL 'public final fun <jvm-method-handle> (tag: kotlin.Int, owner: kotlin.String, name: kotlin.String, descriptor: kotlin.String, isInterface: kotlin.Boolean): kotlin.Any declared in kotlin.jvm.internal' type=kotlin.Any origin=null
+                        tag: CONST Int type=kotlin.Int value=6
+                        owner: CONST String type=kotlin.String value="java/lang/invoke/LambdaMetafactory"
+                        name: CONST String type=kotlin.String value="metafactory"
+                        descriptor: CONST String type=kotlin.String value="(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;"
+                        isInterface: CONST Boolean type=kotlin.Boolean value=false
+                      bootstrapMethodArguments: VARARG type=kotlin.Array<kotlin.Any> varargElementType=kotlin.Any
+                        CALL 'public final fun <jvm-original-method-type> (method: kotlin.Any): kotlin.Any declared in kotlin.jvm.internal' type=kotlin.Any origin=null
+                          method: RAW_FUNCTION_REFERENCE 'public abstract fun onClick (p0: @[FlexibleNullability] android.view.View?): kotlin.Unit declared in android.view.View.OnClickListener' type=kotlin.Any
+                        RAW_FUNCTION_REFERENCE 'private final fun updateCalendar$lambda$18 (this$0: com.example.farmforward.appActivity.mainActivity.calc.CalcFragment, $calendar: java.util.Calendar, $calendarGrid: android.widget.GridLayout, $tvMonthYear: android.widget.TextView, $context: android.content.Context, $year: kotlin.Int, $month: kotlin.Int, $day: kotlin.Int, it: @[FlexibleNullability] android.view.View?): kotlin.Unit declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment' type=kotlin.Any
+                        CALL 'public final fun <jvm-original-method-type> (method: kotlin.Any): kotlin.Any declared in kotlin.jvm.internal' type=kotlin.Any origin=null
+                          method: RAW_FUNCTION_REFERENCE 'public abstract fun onClick (p0: @[FlexibleNullability] android.view.View?): kotlin.Unit [fake_override] declared in kotlin.jvm.internal.invokeDynamic.<fake>' type=kotlin.Any
+                CALL 'public open fun addView (p0: @[FlexibleNullability] android.view.View?): kotlin.Unit [fake_override] declared in android.widget.GridLayout' type=kotlin.Unit origin=null
+                  $this: GET_VAR 'calendarGrid: android.widget.GridLayout declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=android.widget.GridLayout origin=null
+                  p0: GET_VAR 'val btnDay: com.example.farmforward.utils.otherUtils.SquareButton [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=com.example.farmforward.utils.otherUtils.SquareButton origin=null
+            condition: COMPOSITE type=kotlin.Boolean origin=null
+              WHEN type=kotlin.Unit origin=null
+                BRANCH
+                  if: CALL 'public final fun EQEQ (arg0: kotlin.Any?, arg1: kotlin.Any?): kotlin.Boolean declared in kotlin.internal.ir' type=kotlin.Boolean origin=EXCLEQ
+                    arg0: GET_VAR 'var day: kotlin.Int [var] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                    arg1: GET_VAR 'val daysInMonth: kotlin.Int [val] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                  then: BREAK label=null loop.label=CalcFragment$updateCalendar1
+              CALL 'public final fun <int-prefix-incr-decr> (value: kotlin.Int, delta: kotlin.Int): kotlin.Int declared in kotlin.jvm.internal' type=kotlin.Int origin=null
+                value: GET_VAR 'var day: kotlin.Int [var] declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar' type=kotlin.Int origin=null
+                delta: CONST Int type=kotlin.Int value=1
+              CONST Boolean type=kotlin.Boolean value=true
+
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:47)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate$default(FunctionCodegen.kt:40)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ClassCodegen.generateMethodNode(ClassCodegen.kt:406)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ClassCodegen.generateMethod(ClassCodegen.kt:423)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ClassCodegen.generate(ClassCodegen.kt:168)
+	at org.jetbrains.kotlin.backend.jvm.FileCodegen.lower(JvmPhases.kt:39)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseFactoriesKt.createFilePhase$lambda$4(PhaseFactories.kt:71)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseBuildersKt$createSimpleNamedCompilerPhase$1.phaseBody(PhaseBuilders.kt:69)
+	at org.jetbrains.kotlin.backend.common.phaser.SimpleNamedCompilerPhase.phaseBody(CompilerPhase.kt:226)
+	at org.jetbrains.kotlin.backend.common.phaser.AbstractNamedCompilerPhase.invoke(CompilerPhase.kt:113)
+	at org.jetbrains.kotlin.backend.common.phaser.PerformByIrFilePhase.invokeSequential(performByIrFile.kt:62)
+	... 44 more
+Caused by: java.lang.RuntimeException: Exception while generating code for:
+FUN INLINE_LAMBDA name:updateCalendar$lambda$16 visibility:private modality:FINAL <> ($receiver:android.widget.GridLayout.LayoutParams, $maxSize:kotlin.Int) returnType:kotlin.Unit
+  $receiver: VALUE_PARAMETER name:$this$apply type:android.widget.GridLayout.LayoutParams
+  VALUE_PARAMETER BOUND_VALUE_PARAMETER name:$maxSize index:0 type:kotlin.Int
+  BLOCK_BODY
+    VAR name:$i$a$-apply-CalcFragment$updateCalendar$params$1 type:kotlin.Int [val]
+      CONST Int type=kotlin.Int value=0
+    SET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:width type:kotlin.Int visibility:public declared in android.view.ViewGroup.LayoutParams' type=kotlin.Unit superQualifierSymbol=android.widget.GridLayout.LayoutParams origin=EQ
+      receiver: GET_VAR '$this$apply: android.widget.GridLayout.LayoutParams declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar$lambda$16' type=android.widget.GridLayout.LayoutParams origin=null
+      value: GET_VAR '$maxSize: kotlin.Int declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar$lambda$16' type=kotlin.Int origin=null
+    SET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:height type:kotlin.Int visibility:public declared in android.view.ViewGroup.LayoutParams' type=kotlin.Unit superQualifierSymbol=android.widget.GridLayout.LayoutParams origin=EQ
+      receiver: GET_VAR '$this$apply: android.widget.GridLayout.LayoutParams declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar$lambda$16' type=android.widget.GridLayout.LayoutParams origin=null
+      value: GET_VAR '$maxSize: kotlin.Int declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar$lambda$16' type=kotlin.Int origin=null
+    CALL 'public open fun setMargins (p0: kotlin.Int, p1: kotlin.Int, p2: kotlin.Int, p3: kotlin.Int): kotlin.Unit [fake_override] declared in android.widget.GridLayout.LayoutParams' type=kotlin.Unit origin=null
+      $this: GET_VAR '$this$apply: android.widget.GridLayout.LayoutParams declared in com.example.farmforward.appActivity.mainActivity.calc.CalcFragment.updateCalendar$lambda$16' type=android.widget.GridLayout.LayoutParams origin=null
+      p0: CONST Int type=kotlin.Int value=4
+      p1: CONST Int type=kotlin.Int value=4
+      p2: CONST Int type=kotlin.Int value=4
+      p3: CONST Int type=kotlin.Int value=4
+    SET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:gravity type:kotlin.Int visibility:public [final,static] declared in android.R.attr' type=kotlin.Unit superQualifierSymbol=android.R.attr origin=EQ
+      value: CONST Int type=kotlin.Int value=17
+
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:47)
+	at org.jetbrains.kotlin.backend.jvm.codegen.IrSourceCompilerForInline.generateLambdaBody(IrSourceCompilerForInline.kt:67)
+	at org.jetbrains.kotlin.codegen.inline.ExpressionLambda.generateLambdaBody(LambdaInfo.kt:72)
+	at org.jetbrains.kotlin.backend.jvm.codegen.IrInlineCodegen.genValueAndPut(IrInlineCodegen.kt:100)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitCall$handleParameter(ExpressionCodegen.kt:616)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitCall(ExpressionCodegen.kt:644)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitCall(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrCall.accept(IrCall.kt:24)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitVariable(ExpressionCodegen.kt:790)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitVariable(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.declarations.IrVariable.accept(IrVariable.kt:36)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitStatementContainer(ExpressionCodegen.kt:579)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitContainerExpression(ExpressionCodegen.kt:593)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitContainerExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlock(ExpressionCodegen.kt:413)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlock(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitStatementContainer(ExpressionCodegen.kt:579)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitContainerExpression(ExpressionCodegen.kt:593)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitContainerExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitComposite(IrElementVisitor.kt:125)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitComposite(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitComposite(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrComposite.accept(IrComposite.kt:18)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitDoWhileLoop(ExpressionCodegen.kt:1238)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitDoWhileLoop(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrDoWhileLoop.accept(IrDoWhileLoop.kt:19)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitWhen(ExpressionCodegen.kt:1101)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitWhen(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrWhen.accept(IrWhen.kt:24)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitStatementContainer(ExpressionCodegen.kt:579)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitContainerExpression(ExpressionCodegen.kt:593)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitContainerExpression(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlock(IrElementVisitor.kt:122)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlock(ExpressionCodegen.kt:413)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlock(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrBlock.accept(IrBlock.kt:18)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitStatementContainer(ExpressionCodegen.kt:579)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlockBody(ExpressionCodegen.kt:584)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlockBody(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.generate(ExpressionCodegen.kt:240)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.doGenerate(FunctionCodegen.kt:123)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:44)
+	... 54 more
+Caused by: java.lang.AssertionError: access of const val: SET_FIELD 'FIELD IR_EXTERNAL_JAVA_DECLARATION_STUB name:gravity type:kotlin.Int visibility:public [final,static] declared in android.R.attr' type=kotlin.Unit superQualifierSymbol=android.R.attr origin=EQ
+  value: CONST Int type=kotlin.Int value=17
+
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitFieldAccess(ExpressionCodegen.kt:861)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitFieldAccess(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSetField(IrElementVisitor.kt:206)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitSetField(ExpressionCodegen.kt:908)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitSetField(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrSetField.accept(IrSetField.kt:21)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitStatementContainer(ExpressionCodegen.kt:579)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlockBody(ExpressionCodegen.kt:584)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.visitBlockBody(ExpressionCodegen.kt:138)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBlockBody.kt:20)
+	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.generate(ExpressionCodegen.kt:240)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.doGenerate(FunctionCodegen.kt:123)
+	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:44)
+	... 98 more
+
+

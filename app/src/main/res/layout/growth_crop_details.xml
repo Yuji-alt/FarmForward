@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:orientation="vertical"
+    android:background="@color/bone"
+    android:padding="12dp">
+
+    <!-- SCROLLABLE CONTENT -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- BACK BUTTON -->
+            <ImageButton
+                android:id="@+id/btn_close_nav"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:tint="@color/kombuGreen"
+                android:padding="8dp"
+                android:contentDescription="Back" />
+
+            <!-- MAIN INFO CARD -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/input_bg"
+                android:padding="20dp"
+                android:layout_marginTop="16dp"
+                android:elevation="4dp">
+
+                <!-- CROP NAME -->
+                <TextView
+                    android:id="@+id/tvCropName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RICE"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/kombuGreen"
+                    android:gravity="center" />
+
+                <!-- CROP IMAGE -->
+                <ImageView
+                    android:id="@+id/imgCrop"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_gravity="center"
+                    android:padding="30dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/agricultwo"
+                    android:background="@drawable/rounded_box"
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop" />
+
+                <!-- GROWTH PERCENT -->
+                <TextView
+                    android:id="@+id/tvGrowthPercent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Growth: 65%"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/kombuGreen"
+                    android:gravity="center"
+                    android:layout_marginTop="20dp" />
+
+                <!-- PROGRESS BAR -->
+                <SeekBar
+                    android:id="@+id/progressGrowth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="0"
+                    android:layout_marginTop="10dp"
+                    android:splitTrack="false"
+                    android:progressDrawable="@drawable/custom_progress_track"
+                    android:thumb="@drawable/custom_thumb"
+                    android:enabled="false" />
+
+                <!-- DATE PLANTED -->
+                <TextView
+                    android:id="@+id/tvDatePlanted"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Date Planted: December 25"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_marginTop="20dp" />
+
+                <!-- ESTIMATED HARVEST -->
+                <TextView
+                    android:id="@+id/tvEstimatedHarvest"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Estimated Harvest: December 25"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_marginTop="10dp"
+                    android:textStyle="bold" />
+
+                <!-- GROWTH STAGE -->
+                <TextView
+                    android:id="@+id/tvGrowthStage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Growth Stage: Vegetative"
+                    android:textColor="@color/kombuGreen"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="10dp" />
+
+                <!-- DESCRIPTION -->
+                <TextView
+                    android:id="@+id/tvGrowthDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Description: Plant is developing roots and leaves..."
+                    android:textColor="@color/kombuGreen"
+                    android:textSize="14sp"
+                    android:layout_marginTop="6dp" />
+
+                <Button
+                    android:id="@+id/btnHarvest"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/kombuGreen"
+                    android:text="Harvest now"
+                    android:textColor="@color/bone"
+                    android:padding="14dp"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone"
+                    />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+    <Button
+        android:id="@+id/btnViewOnMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/kombuGreen"
+        android:text="Show Location on Map"
+        android:textColor="@color/bone"
+        android:padding="14dp"
+        android:layout_marginTop="12dp" />
+
+</LinearLayout>

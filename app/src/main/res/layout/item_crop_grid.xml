@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="160dp"
+    android:layout_height="160dp"
+    android:layout_margin="10dp"
+    android:background="@drawable/item_card_border"
+    android:elevation="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="10dp">
+
+        <!-- CROP IMAGE -->
+        <ImageView
+            android:id="@+id/imgCrop"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/agricultwo"
+            android:scaleType="centerCrop"
+            android:background="@drawable/rounded_box"
+            android:clipToOutline="true"
+            android:padding="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- CROP NAME -->
+        <TextView
+            android:id="@+id/tvCropName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Corn"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/kombuGreen" />
+
+        <!-- STATUS -->
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Growing"
+            android:textSize="12sp"
+            android:textColor="@color/kombuGreen"
+            android:layout_marginTop="3dp" />
+
+    </LinearLayout>
+</FrameLayout>

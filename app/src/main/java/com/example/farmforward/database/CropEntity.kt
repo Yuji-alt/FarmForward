@@ -1,0 +1,29 @@
+package com.example.farmforward.database
+
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import java.util.UUID
+
+@Entity(tableName = "crop_table", indices = [Index(value = ["userId"])])
+data class CropEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val firestoreId: String = UUID.randomUUID().toString(),
+    val userId: Int = 0,
+    val cropName: String = "",
+    val area: Double = 0.0,
+    val expectedYield: Double = 0.00,
+    val date: Long = 0L,
+    val maxdate: Long? = null,
+    val mindate: Long? = null,
+    val soilType: String? = null,
+    val irrigationLevel: String? = null,
+    val plantDensity: String? = null,
+    val fertilizerUsed: String? = null,
+    val lastUpdated: Long = System.currentTimeMillis(),
+    val isSynced: Int = 0,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val isDeleted: Int = 0,
+    val harvestedDate: Long? = null
+)
