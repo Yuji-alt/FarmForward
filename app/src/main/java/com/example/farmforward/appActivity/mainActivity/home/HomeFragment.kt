@@ -84,12 +84,16 @@ class HomeFragment : Fragment(), HomeView {
     override fun displayCrops(crops: List<CropEntity>) {
         itemContainer.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
+
+        // 1. Prepare the "Add Crop" Card
         val addView = inflater.inflate(R.layout.item_add_crop, itemContainer, false)
-        addView.setOnClickListener {
+
+        val navToCalc = View.OnClickListener {
             (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
         }
-
-        // 1. Display Existing Crops
+        addView.setOnClickListener(navToCalc)
+        addView.findViewById<View>(R.id.itemImage)?.setOnClickListener(navToCalc)
+        addView.findViewById<View>(R.id.itemImage)?.setOnClickListener(navToCalc)
         for (crop in crops) {
             val itemView = inflater.inflate(R.layout.item_crop_card, itemContainer, false)
 
@@ -102,12 +106,13 @@ class HomeFragment : Fragment(), HomeView {
             itemView.setOnClickListener {
                 cropViewModel.viewCropDetails(crop)
                 cropViewModel.lastSourceId = R.id.nav_home
-
                 (activity as? MainActivity)?.controller?.onNavigationItemClicked(MainActivity.NAV_CROP_DETAILS)
             }
 
             itemContainer.addView(itemView)
         }
+
+        // 3. Add the "Add Crop" button at the END
         itemContainer.addView(addView)
     }
 
