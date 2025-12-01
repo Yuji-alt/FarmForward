@@ -1,27 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="150dp"
-    android:layout_height="180dp"
-    android:layout_margin="8dp"
+    android:layout_width="140dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
     android:background="@drawable/item_card_border"
     android:elevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/tan"
-        android:gravity="center">
-
+        android:padding="6dp"
+        android:gravity="center_horizontal">
         <ImageView
             android:id="@+id/itemImage"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:src="@drawable/agricultwo"
+            android:padding="8dp"
             android:background="@drawable/rounded_box"
-            android:clipToOutline="true"
-            />
+            android:clipToOutline="true" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/kombuGreen"
+            android:layout_marginVertical="4dp"/>
 
         <TextView
             android:id="@+id/itemTitle"
@@ -30,21 +34,14 @@
             android:text="@string/crop_name"
             android:textStyle="bold"
             android:textColor="@color/kombuGreen"
-            android:layout_marginTop="8dp" />
+            android:textSize="13sp"
+            android:layout_marginTop="4dp" />
 
         <TextView
-            android:id="@+id/itemDesc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/expected_yield_0_0_kg"
-            android:textSize="12sp"
-            android:textColor="@color/kombuGreen"/>
-        <TextView
-            android:id="@+id/itemArea"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/area_0_0_sqr_meter"
-            android:textSize="12sp"
+            android:text="@string/see_details"
+            android:textSize="11sp"
             android:textColor="@color/kombuGreen" />
     </LinearLayout>
 </FrameLayout>

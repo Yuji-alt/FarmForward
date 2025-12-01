@@ -26,7 +26,7 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
-class HomeFragmentController @Inject constructor(
+class HomeController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val db: AppDatabase,
     private val sessionManager: SessionManager,
@@ -95,7 +95,11 @@ class HomeFragmentController @Inject constructor(
         } else {
             allCrops.filter { crop -> crop.cropName.contains(query, ignoreCase = true) }
         }
+
         view?.displayCrops(filteredCrops)
+
+        val activeCropsOnly = filteredCrops.filter { it.harvestedDate == null }
+        view?.displayActiveStatus(activeCropsOnly)
     }
 
     private fun fetchWeatherByLocation() {

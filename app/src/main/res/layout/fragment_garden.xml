@@ -1,47 +1,212 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bone"
-    android:paddingEnd="16dp"
-    android:paddingStart="16dp">
-
+    android:fillViewport="true"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
     <LinearLayout
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <ImageButton
-            android:id="@+id/btnAdd"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/plus_sign"
-            android:contentDescription="Back" />
-
-        <TextView
+        <FrameLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Add new plant"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/kombuGreen"
-            android:gravity="center" />
+            android:layout_height="50dp">
+
+            <ImageView
+                android:id="@+id/app_logo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/farmforward"
+                android:padding="4dp"
+                android:scaleType="fitStart" />
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/search_border"
+                android:hint="@string/search_crops"
+                android:inputType="text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="16sp"
+                android:textColor="@color/kombuGreen"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:layout_marginStart="10dp"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/kombuGreen" />
+
+        <ImageButton
+            android:id="@+id/menu_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_box"
+            android:src="@drawable/ic_settings"
+            app:tint="@color/bone"
+            android:padding="12dp"
+            android:scaleType="fitCenter"/>
     </LinearLayout>
 
-    <ScrollView
+    <!-- Add, Active, Harvest Section -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="start"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp">
+
+        <!-- Add Plant -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageButton
+                android:id="@+id/btnAdd"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/plus"
+                android:contentDescription="Add Plant"
+                app:tint="@color/moss_green"
+                android:padding="5dp"/>
+
+            <TextView
+                android:id="@+id/tvAddLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add new plant"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Active Crops -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:id="@+id/activeIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_circle"
+                app:tint="@color/moss_green"
+                android:contentDescription="Active Crops"/>
+
+            <TextView
+                android:id="@+id/tvActiveLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:layout_marginStart="8dp" />
+            <TextView
+                android:id="@+id/tvActiveNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Ready to Harvest -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/harvestIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_circle"
+                app:tint="@color/cafenoir"
+                android:contentDescription="Ready to Harvest"/>
+
+            <TextView
+                android:id="@+id/tvHarvestLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ready to harvest:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:layout_marginStart="8dp"/>
+            <TextView
+                android:id="@+id/tvHarvestNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+    <HorizontalScrollView
+        android:id="@+id/scrollActiveCrops"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:scrollbars="none">
+
         <LinearLayout
             android:id="@+id/cropListContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Harvested Crops"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/kombuGreen"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <ScrollView
+        android:id="@+id/scrollHarvestedCrops"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingBottom="16dp">
+
+        <LinearLayout
+            android:id="@+id/harvestedCropListContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp" />
+            android:orientation="vertical" />
     </ScrollView>
 </LinearLayout>

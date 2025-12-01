@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.farmforward.R
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.utils.weatherUtils.WeatherResponse // Ensure this is imported
@@ -24,6 +25,7 @@ class CropViewModel(application: Application) : AndroidViewModel(application) {
     var formDraft: CropFormDraft? = null
     var isMapPickerMode = false
     var cropToEdit: CropEntity? = null
+    var lastSourceId: Int = R.id.nav_home
     private val weatherCache = mutableMapOf<String, WeatherCacheItem>()
 
     data class WeatherCacheItem(val response: WeatherResponse, val timestamp: Long)
@@ -142,6 +144,18 @@ class CropViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun clearDraft() {
         formDraft = null
+    }
+    fun harvestCrop(crop: CropEntity, harvestDate: Long) {
+        val updatedCrop = crop.copy(
+            harvestedDate = harvestDate,
+            lastUpdated = System.currentTimeMillis(),
+            isSynced = 0
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            cropDao.updateCrop(updatedCrop)
+            _cropData.postValue(updatedCrop)
+        }
     }
 }
 

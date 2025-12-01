@@ -1,99 +1,73 @@
 package com.example.farmforward.appActivity.mainActivity.map
 
+import android.location.Location
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
+import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.CropEntity
-import com.example.farmforward.database.roomDatabase.RoomCropDao
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng // ADD THIS IMPORT
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.farmforward.database.viewModel.CropViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import javax.inject.Inject
 
 class MapController @Inject constructor(
-    private val cropDao: RoomCropDao,
-    private val session: SessionManager
+    private val db: AppDatabase,
+    private val sessionManager: SessionManager
 ) {
-
     private var view: MapView? = null
-    private val ioScope = CoroutineScope(Dispatchers.IO)
+    private var cropsObserver: Observer<List<CropEntity>>? = null
+    private var userId: Int = -1
+
+    private var allCrops: List<CropEntity> = emptyList()
+    private var currentSearchQuery: String = ""
 
     fun bindView(view: MapView) {
         this.view = view
     }
-        fun onMapReady(focusTarget: LatLng? = null) {
-        val userId = session.getUserId() ?: -1
+
+    fun setupObserver(lifecycleOwner: LifecycleOwner) {
+        userId = sessionManager.getUserId() ?: -1
         if (userId == -1) return
 
-        ioScope.launch {
-            val crops = cropDao.getCropsForUserList(userId)
+        cropsObserver = Observer { crops ->
+            allCrops = crops
+            processCrops()
+        }
 
-            withContext(Dispatchers.Main) {
-                view?.clearMarkers()
-
-                var hasCrops = false
-                var firstLat = 0.0
-                var firstLng = 0.0
-
-                for (crop in crops) {
-                    if (crop.latitude != 0.0 && crop.longitude != 0.0) {
-                        hasCrops = true
-                        if (firstLat == 0.0) {
-                            firstLat = crop.latitude
-                            firstLng = crop.longitude
-                        }
-
-                        val hue = calculateMarkerColor(crop)
-                        val statusText = calculateStatusText(crop)
-                        view?.addMarker(crop, hue, statusText)
-                    }
-                }
-                if (focusTarget != null) {
-                    view?.moveCamera(focusTarget.latitude, focusTarget.longitude)
-                } else if (hasCrops) {
-                    view?.moveCamera(firstLat, firstLng)
-                }
-            }
+        cropsObserver?.let { observer ->
+            db.cropDao().getCropsForUser(userId).observe(lifecycleOwner, observer)
         }
     }
 
-    private fun calculateStatusText(crop: CropEntity): String {
-        val today = System.currentTimeMillis()
-        if (today < crop.date) {
-            val diff = crop.date - today
-            val days = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diff) + 1
-            return "Scheduled: Planting in $days days"
-        }
-        val minHarvest = crop.mindate ?: return "Yield: ${crop.expectedYield} kg"
-        val diff = minHarvest - today
-        val daysDiff = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diff)
-        return when {
-            daysDiff < 0 -> "Overdue by ${kotlin.math.abs(daysDiff)} days"
-            daysDiff == 0L -> "Harvest TODAY!"
-            daysDiff < 7 -> "Harvest in $daysDiff days"
-            else -> "Growing (${daysDiff} days left)"
-        }
+    fun onSearchQueryChanged(query: String) {
+        currentSearchQuery = query
+        processCrops()
     }
 
-    fun onMarkerClicked(crop: CropEntity) {
-        view?.navigateToGrowth(crop)
+    private fun processCrops() {
+        val filteredList = if (currentSearchQuery.isEmpty()) {
+            allCrops
+        } else {
+            allCrops.filter { it.cropName.contains(currentSearchQuery, ignoreCase = true) }
+        }
+
+        view?.displayCropsOnMap(filteredList)
     }
 
-    private fun calculateMarkerColor(crop: CropEntity): Float {
-        val today = System.currentTimeMillis()
-        if (today < crop.date) return BitmapDescriptorFactory.HUE_AZURE
-        val minHarvest = crop.mindate ?: return BitmapDescriptorFactory.HUE_GREEN
-        val maxHarvest = crop.maxdate ?: return BitmapDescriptorFactory.HUE_GREEN
-        if (today > maxHarvest) return BitmapDescriptorFactory.HUE_RED
-        val sevenDaysInMillis = 7L * 24 * 60 * 60 * 1000
-        if (today >= (minHarvest - sevenDaysInMillis)) return BitmapDescriptorFactory.HUE_YELLOW
-        return BitmapDescriptorFactory.HUE_GREEN
+    fun onCropMarkerClicked(crop: CropEntity, viewModel: CropViewModel) {
+        viewModel.viewCropDetails(crop)
+        viewModel.lastSourceId = R.id.nav_garden
+
+        view?.navigateToCropDetails()
     }
 
     fun onDestroy() {
-        ioScope.cancel()
+        if (userId != -1 && cropsObserver != null) {
+            db.cropDao().getCropsForUser(userId).removeObserver(cropsObserver!!)
+        }
         view = null
     }
 }

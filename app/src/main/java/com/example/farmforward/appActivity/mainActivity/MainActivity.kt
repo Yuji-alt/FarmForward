@@ -31,9 +31,11 @@ import androidx.work.WorkManager
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.calc.CalcFragment
 import com.example.farmforward.appActivity.mainActivity.garden.GardenFragment
+import com.example.farmforward.appActivity.mainActivity.growth.GrowthCropDetailsFragment
 import com.example.farmforward.appActivity.mainActivity.growth.GrowthFragment
 import com.example.farmforward.appActivity.mainActivity.home.HomeFragment
 import com.example.farmforward.appActivity.mainActivity.map.MapFragment
+import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetailsFragment
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
 import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
 import com.google.android.material.snackbar.Snackbar
@@ -54,19 +56,23 @@ class MainActivity : AppCompatActivity(), MainView {
     private lateinit var btnSignOut: TextView
     private lateinit var btnSaved: TextView
     private val fragmentMap = mutableMapOf<Int, Fragment>()
+
+    // Main Tabs
     private val orderedTabs = listOf(
         R.id.nav_home, R.id.nav_garden, R.id.nav_calc, R.id.nav_growth, R.id.nav_map
     )
+    companion object {
+        const val NAV_CROP_DETAILS = 10001
+        const val NAV_GROWTH_CROP_DETAILS = 10002
+    }
+
     private var currentMenuId: Int = R.id.nav_home
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        val insetsController = WindowInsetsControllerCompat(window, window.decorView)
-        insetsController.hide(WindowInsetsCompat.Type.systemBars())
-        insetsController.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
 
         controller.bindView(this)
 
@@ -174,21 +180,18 @@ class MainActivity : AppCompatActivity(), MainView {
             R.id.nav_calc -> calc
             R.id.nav_growth -> growth
             R.id.nav_map -> map
-            else -> home
+            else -> null
         }
 
         for (item in menuItems) {
             val icon = item.getChildAt(0) as ImageView
-            val label = item.getChildAt(1) as TextView
 
             if (item == selected) {
                 icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_selected))
-                label.setTextColor(ContextCompat.getColor(this, R.color.nav_selected))
                 icon.setBackgroundResource(R.drawable.nav_selected_bg)
                 item.animate().scaleX(1.1f).scaleY(1.1f).setDuration(150).start()
             } else {
                 icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_unselected))
-                label.setTextColor(ContextCompat.getColor(this, R.color.nav_unselected))
                 icon.setBackgroundResource(R.drawable.nav_unselected_bg)
                 item.animate().scaleX(1f).scaleY(1f).setDuration(150).start()
             }
@@ -213,17 +216,27 @@ class MainActivity : AppCompatActivity(), MainView {
     fun navigateToGrowthResult() {
         controller.onNavigationItemClicked(R.id.nav_growth)
     }
+
     override fun switchFragment(newMenuId: Int) {
         val transaction = supportFragmentManager.beginTransaction()
 
-        val oldIndex = orderedTabs.indexOf(currentMenuId)
-        val newIndex = orderedTabs.indexOf(newMenuId)
-        val isMovingForward = newIndex > oldIndex
+        val isOpeningDetails = newMenuId == NAV_CROP_DETAILS || newMenuId == NAV_GROWTH_CROP_DETAILS
+        val isClosingDetails = currentMenuId == NAV_CROP_DETAILS || currentMenuId == NAV_GROWTH_CROP_DETAILS
 
-        if (isMovingForward) {
-            transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+        if (isOpeningDetails) {
+            transaction.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit)
+        } else if (isClosingDetails) {
+            transaction.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit)
         } else {
-            transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+            val oldIndex = orderedTabs.indexOf(currentMenuId)
+            val newIndex = orderedTabs.indexOf(newMenuId)
+            val isMovingForward = newIndex > oldIndex
+
+            if (isMovingForward) {
+                transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+            } else {
+                transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+            }
         }
 
         val currentFragment = fragmentMap[currentMenuId]
@@ -232,8 +245,9 @@ class MainActivity : AppCompatActivity(), MainView {
         }
 
         var newFragment = fragmentMap[newMenuId]
-
-        if (newMenuId == R.id.nav_calc || newMenuId == R.id.nav_growth) {
+        if (newMenuId == R.id.nav_calc ||
+            newMenuId == NAV_CROP_DETAILS ||
+            newMenuId == NAV_GROWTH_CROP_DETAILS) {
             if (newFragment != null) {
                 transaction.remove(newFragment)
                 fragmentMap.remove(newMenuId)
@@ -253,6 +267,7 @@ class MainActivity : AppCompatActivity(), MainView {
         currentMenuId = newMenuId
         highlightNavigation(newMenuId)
     }
+
     private fun getFragmentInstance(menuId: Int): Fragment {
         return when (menuId) {
             R.id.nav_home -> HomeFragment()
@@ -260,9 +275,12 @@ class MainActivity : AppCompatActivity(), MainView {
             R.id.nav_map -> MapFragment()
             R.id.nav_calc -> CalcFragment()
             R.id.nav_growth -> GrowthFragment()
+            NAV_CROP_DETAILS -> CropDetailsFragment()
+            NAV_GROWTH_CROP_DETAILS -> GrowthCropDetailsFragment()
             else -> HomeFragment()
         }
     }
+
     override fun showUnsyncedDataWarning(count: Int) {
         AlertDialog.Builder(this)
             .setTitle("Unsynced Data Found")
@@ -295,7 +313,6 @@ class MainActivity : AppCompatActivity(), MainView {
                             .show()
                     },
                     onDenied = {
-                        // Just show the standard error text
                         homeFragment?.onPermissionDenied()
                         showToast("Location permission is needed for weather updates.", isError = true)
                     }

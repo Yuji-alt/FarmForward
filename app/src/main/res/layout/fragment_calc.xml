@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:fillViewport="true"
     android:layout_height="match_parent">
 
     <ScrollView
@@ -10,19 +11,68 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/inputContainer"
         android:background="@color/bone"
-        android:padding="16dp"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <LinearLayout
             android:id="@+id/calendarContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <LinearLayout
+                android:padding="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="50dp">
+                    <ImageView
+                        android:id="@+id/app_logo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/farmforward"
+                        android:padding="4dp"
+                        android:scaleType="fitStart" />
+                    <EditText
+                        android:id="@+id/search_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/search_border"
+                        android:hint="@string/search_crops"
+                        android:inputType="text"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textSize="16sp"
+                        android:textColor="@color/kombuGreen"
+                        android:visibility="gone" />
+                </FrameLayout>
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="10dp" />
+                <ImageButton
+                    android:id="@+id/menu_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/rounded_box"
+                    android:src="@drawable/ic_settings"
+                    app:tint="@color/bone"
+                    android:padding="12dp"
+                    android:scaleType="fitCenter"/>
+            </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 
@@ -62,15 +112,14 @@
                         app:tint="@color/kombuGreen" />
                 </LinearLayout>
 
-                <GridLayout
-                    android:id="@+id/calendarGrid"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    android:alignmentMode="alignBounds"
-                    android:columnCount="7"
-                    android:useDefaultMargins="true"
-                    android:padding="4dp" />
+            <GridLayout
+                android:id="@+id/calendarGrid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:columnCount="7"
+                android:useDefaultMargins="true"
+                android:padding="4dp" />
 
             </LinearLayout>
         </LinearLayout>
@@ -268,7 +317,7 @@
                     android:clickable="false"
                     android:cursorVisible="false"
                     android:focusable="false"
-                    android:hint="@string/region"
+                    android:hint="@string/add_specific_location"
                     android:inputType="none"
                     android:padding="8dp" />
             </LinearLayout>

@@ -15,17 +15,20 @@ class GardenController @Inject constructor(
     private var cropsObserver: Observer<List<CropEntity>>? = null
     private var userId: Int = -1
 
+    private var allCrops: List<CropEntity> = emptyList()
+    private var currentSearchQuery: String = ""
+
     fun bindView(view: GardenView) {
         this.view = view
     }
 
     fun setupObserver(lifecycleOwner: LifecycleOwner) {
         userId = sessionManager.getUserId() ?: -1
-
         if (userId == -1) return
 
         cropsObserver = Observer { crops ->
-            view?.displayCrops(crops)
+            allCrops = crops
+            processCrops()
         }
 
         cropsObserver?.let { observer ->
@@ -33,12 +36,41 @@ class GardenController @Inject constructor(
         }
     }
 
+    fun onSearchQueryChanged(query: String) {
+        currentSearchQuery = query
+        processCrops()
+    }
+
+    private fun processCrops() {
+        // 1. Filter by Search Query first
+        val filteredList = if (currentSearchQuery.isEmpty()) {
+            allCrops
+        } else {
+            allCrops.filter { it.cropName.contains(currentSearchQuery, ignoreCase = true) }
+        }
+
+        val today = System.currentTimeMillis()
+
+        val activeCrops = filteredList.filter { it.harvestedDate == null }
+        val harvestedCrops = filteredList.filter { it.harvestedDate != null }
+        val activeCount = activeCrops.size
+
+        val readyToHarvestCount = activeCrops.count { crop ->
+            val minHarvest = crop.mindate ?: Long.MAX_VALUE
+            today >= minHarvest
+        }
+
+        view?.updateDashboardCounts(activeCount, readyToHarvestCount)
+        view?.displayActiveCrops(activeCrops)
+        view?.displayHarvestedCrops(harvestedCrops)
+    }
+
     fun onCropClicked(crop: CropEntity) {
         view?.selectCropForGrowth(crop)
         view?.navigateToGrowth()
     }
-    fun onAddClicked() {
 
+    fun onAddClicked() {
         view?.navigateToCalc()
     }
 

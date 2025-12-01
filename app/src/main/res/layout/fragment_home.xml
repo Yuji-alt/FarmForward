@@ -3,9 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/bone">
+    android:background="@color/bone"
+    android:fillViewport="true"
+    android:orientation="vertical">
 
+    <!-- SEARCH BAR -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -13,63 +15,84 @@
         android:gravity="center_vertical"
         android:padding="16dp">
 
-        <EditText
-            android:id="@+id/search_input"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="44dp"
-            android:hint="@string/search_crops"
-            android:drawableStart="@android:drawable/ic_menu_search"
-            android:drawablePadding="10dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:textSize="16sp"
-            android:background="@drawable/search_border"
-            android:textColor="@color/kombuGreen"
-            android:textColorHint="@color/kombuGreen"
-            android:singleLine="true" />
+            android:layout_height="50dp">
+
+            <ImageView
+                android:id="@+id/app_logo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/farmforward"
+                android:padding="4dp"
+                android:scaleType="fitStart"
+                android:visibility="visible" />
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/search_border"
+                android:hint="@string/search_crops"
+                android:inputType="text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="16sp"
+                android:textColor="@color/kombuGreen"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:layout_marginStart="10dp"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/kombuGreen" />
 
         <ImageButton
             android:id="@+id/menu_button"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="10dp"
-            android:background="@drawable/setting_button_border"
-            android:contentDescription="@string/menu"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_box"
             android:src="@drawable/ic_settings"
-            app:tint="@color/kombuGreen" />
+            app:tint="@color/bone"
+            android:padding="12dp"
+            android:scaleType="fitCenter"/>
     </LinearLayout>
 
+    <!-- CROP CARDS -->
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="160dp"
         android:layout_margin="8dp"
-        android:overScrollMode="never"
-        android:scrollbars="none"
-        android:layout_marginTop="20dp">
+        android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/itemContainer"
+            android:id="@+id/cropItemContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingHorizontal="8dp" />
     </HorizontalScrollView>
+
+    <!-- WEATHER HEADER -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:background="@drawable/top_border"
+        android:orientation="vertical"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:background="@drawable/top_border">
+        android:paddingEnd="16dp">
+
         <TextView
             android:id="@+id/weather_date"
-            android:layout_width="172dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp"
-            android:layout_weight="1"
             android:text="Today's Forecast"
             android:textColor="@color/kombuGreen"
             android:textSize="18sp"
@@ -79,39 +102,69 @@
             android:id="@+id/locationText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             android:layout_marginBottom="8dp"
-            android:gravity="end"
             android:text="Location"
             android:textColor="@color/kombuGreen"
             android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- WEATHER CONTENT (REDUCED SIZE) -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_margin="8dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/weatherContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp" />
+    </HorizontalScrollView>
+
+    <!-- ACTIVE CROPS HEADER -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="24dp">
+
+        <ImageView
+            android:id="@+id/active_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_pin"
+            app:tint="@color/kombuGreen" />
+
+        <TextView
+            android:id="@+id/active_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Active Crops"
+            android:textColor="@color/kombuGreen"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- ACTIVE CROPS LIST -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_margin="8dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="0dp"
         android:fillViewport="true">
-        <FrameLayout
+
+        <LinearLayout
+            android:id="@+id/active_crop_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ProgressBar
-                android:id="@+id/weatherProgressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="24dp"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/weatherContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="16dp"/>
-        </FrameLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp" />
     </ScrollView>
+
 </LinearLayout>

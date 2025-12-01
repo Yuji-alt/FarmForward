@@ -26,14 +26,8 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_home"
-            app:tint="#000000" />
+            app:tint="@color/black" />
 
-        <TextView
-            android:text="@string/home"
-            android:textSize="12sp"
-            android:textColor="#000000"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
     </LinearLayout>
 
     <!-- GARDEN -->
@@ -51,13 +45,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_garden"
-            app:tint="#000000" />
-        <TextView
-            android:text="@string/garden"
-            android:textSize="12sp"
-            android:textColor="#000000"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            app:tint="@color/black" />
 
     </LinearLayout>
 
@@ -76,13 +64,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_calc"
-            app:tint="#000000" />
-        <TextView
-            android:text="@string/calc"
-            android:textSize="12sp"
-            android:textColor="#000000"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            app:tint="@color/black" />
     </LinearLayout>
 
     <!-- GROWTH -->
@@ -100,13 +82,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_growth"
-            app:tint="#000000" />
-        <TextView
-            android:text="@string/growth"
-            android:textSize="12sp"
-            android:textColor="#000000"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            app:tint="@color/black" />
     </LinearLayout>
 
     <!-- MAP -->
@@ -124,13 +100,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_map"
-            app:tint="#000000" />
-        <TextView
-            android:text="MAP"
-            android:textSize="12sp"
-            android:textColor="#000000"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            app:tint="@color/black" />
     </LinearLayout>
 
 

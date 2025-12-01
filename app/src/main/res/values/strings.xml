@@ -62,4 +62,6 @@
     <string name="delete">Delete</string>
     <string name="back_to_log_in">back to log in</string>
     <string name="crop_image">Crop image</string>
+    <string name="add_specific_location">Add specific location</string>
+    <string name="see_details">See details...</string>
 </resources>

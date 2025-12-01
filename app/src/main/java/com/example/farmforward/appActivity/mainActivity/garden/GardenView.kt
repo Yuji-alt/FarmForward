@@ -7,9 +7,10 @@ import com.example.farmforward.database.CropEntity
 interface GardenView {
     fun getFragmentContext(): Context
     fun getScope(): LifecycleCoroutineScope
-
-    fun displayCrops(crops: List<CropEntity>)
     fun navigateToGrowth()
     fun navigateToCalc()
     fun selectCropForGrowth(crop: CropEntity)
+    fun updateDashboardCounts(activeCount: Int, readyToHarvestCount: Int)
+    fun displayActiveCrops(crops: List<CropEntity>)
+    fun displayHarvestedCrops(crops: List<CropEntity>)
 }

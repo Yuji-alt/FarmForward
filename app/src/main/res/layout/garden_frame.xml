@@ -22,17 +22,17 @@
         android:layout_height="match_parent"
         android:src="@drawable/agricultwo"
         android:scaleType="centerCrop"
+        android:padding="8dp"
         android:background="@drawable/rounded_box"
-        android:layout_marginEnd="12dp"
-        android:contentDescription="@string/crop_image"
-        android:clipToOutline="true" />
+        android:clipToOutline="true"/>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:layout_marginLeft="10dp">
 
         <TextView
             android:id="@+id/tvCropName"
@@ -44,10 +44,10 @@
             android:textColor="@color/kombuGreen" />
 
         <TextView
-            android:id="@+id/tvCropDetails"
+            android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Yield: 500kg\nSoil: Loam"
+            tools:text="Status:"
             android:textSize="13sp"
             android:textColor="@color/kombuGreen"
             android:layout_marginTop="4dp" />

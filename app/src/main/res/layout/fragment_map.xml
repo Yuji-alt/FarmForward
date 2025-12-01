@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:fillViewport="true"
     android:layout_height="match_parent">
 
     <androidx.fragment.app.FragmentContainerView
@@ -9,6 +10,65 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_gravity="top"
+        android:background="@android:color/transparent"
+        android:elevation="10dp">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp">
+
+            <ImageView
+                android:id="@+id/app_logo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/farmforward"
+                android:padding="4dp"
+                android:scaleType="fitStart" />
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/search_border"
+                android:hint="@string/search_crops"
+                android:inputType="text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="16sp"
+                android:textColor="@color/kombuGreen"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:layout_marginStart="10dp"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/kombuGreen" />
+
+        <ImageButton
+            android:id="@+id/menu_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_box"
+            android:src="@drawable/ic_settings"
+            app:tint="@color/bone"
+            android:padding="12dp"
+            android:scaleType="fitCenter"/>
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/layoutMapOffline"
         android:layout_width="match_parent"
@@ -18,17 +78,21 @@
         android:orientation="vertical"
         android:visibility="gone"
         android:clickable="true"
-        android:focusable="true"> <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        app:tint="@android:color/darker_gray"/>
+        android:focusable="true"
+        android:elevation="20dp">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            app:tint="@android:color/darker_gray"/>
+
         <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Map Unavailable"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Map Unavailable"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -51,24 +115,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|start"
-        android:layout_margin="16dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginStart="16dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="#CCFFFFFF">
 
         <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp">
-
-        <TextView
-            android:text="@string/map_legend"
-            android:textStyle="bold"
-            android:textSize="12sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"/>
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:text="@string/map_legend"
+                android:textStyle="bold"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"/>
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -151,6 +217,7 @@
         android:textColor="@android:color/white"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="32dp"
+        android:elevation="6dp"
         android:visibility="gone" />
 
 </FrameLayout>

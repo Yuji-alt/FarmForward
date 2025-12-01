@@ -1,9 +1,11 @@
 package com.example.farmforward.appActivity.mainActivity.calc
 
+import android.R.attr.gravity
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,6 +54,8 @@ class CalcFragment : Fragment(), CalcView {
 
     private lateinit var cropViewModel: CropViewModel
     private var validCropNames: List<String> = emptyList()
+    private lateinit var menuButton: ImageButton
+
 
     private lateinit var inputCrop: AutoCompleteTextView
     private lateinit var inputArea: EditText
@@ -84,6 +88,7 @@ class CalcFragment : Fragment(), CalcView {
         inputFertilizer = view.findViewById(R.id.inputFertilizerUsed)
         inputWeather = view.findViewById(R.id.inputWeather)
         inputRegion = view.findViewById(R.id.inputRegion)
+        menuButton = view.findViewById(R.id.menu_button)
         btnCalculate = view.findViewById(R.id.btnCalculate)
         btnCancel = view.findViewById(R.id.btnCancel)
 
@@ -115,13 +120,15 @@ class CalcFragment : Fragment(), CalcView {
                 selectedDateMillis = selectedDateMillis
             )
         }
+        menuButton.setOnClickListener {
+            (activity as? MainActivity)?.openDrawer()
+        }
 
         val calendar = Calendar.getInstance()
         updateCalendar(calendar, calendarGrid, tvMonthYear, requireContext())
 
         cropViewModel.pickedLocation.observe(viewLifecycleOwner) { latLng ->
             if (latLng != null) {
-                // Check if valid coordinates
                 if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
                     selectedLat = latLng.latitude
                     selectedLng = latLng.longitude
@@ -370,20 +377,30 @@ class CalcFragment : Fragment(), CalcView {
         val month = calendar.get(Calendar.MONTH)
         val todayCal = Calendar.getInstance()
         val selectedCal = Calendar.getInstance().apply { timeInMillis = selectedDateMillis }
+
         val paddingPx = (2 * context.resources.displayMetrics.density).toInt()
+        val metrics = context.resources.displayMetrics
+        val screenWidth = metrics.widthPixels
+        val maxSize = (screenWidth / 10f).toInt()
 
         for (day in 1..daysInMonth) {
+
             val btnDay = SquareButton(context).apply {
                 text = day.toString()
-                textSize = 14f
                 isAllCaps = false
                 includeFontPadding = false
-                gravity = android.view.Gravity.CENTER
+                gravity = Gravity.CENTER
+                textSize = maxSize / 8f
                 setBackgroundResource(R.drawable.day_button_selector)
             }
 
-            val isToday = year == todayCal.get(Calendar.YEAR) && month == todayCal.get(Calendar.MONTH) && day == todayCal.get(Calendar.DAY_OF_MONTH)
-            val isSelected = year == selectedCal.get(Calendar.YEAR) && month == selectedCal.get(Calendar.MONTH) && day == selectedCal.get(Calendar.DAY_OF_MONTH)
+            val isToday = year == todayCal.get(Calendar.YEAR)
+                    && month == todayCal.get(Calendar.MONTH)
+                    && day == todayCal.get(Calendar.DAY_OF_MONTH)
+
+            val isSelected = year == selectedCal.get(Calendar.YEAR)
+                    && month == selectedCal.get(Calendar.MONTH)
+                    && day == selectedCal.get(Calendar.DAY_OF_MONTH)
 
             when {
                 isSelected -> btnDay.setTextColor(ContextCompat.getColor(context, R.color.tan))
@@ -394,9 +411,10 @@ class CalcFragment : Fragment(), CalcView {
             btnDay.isSelected = isSelected
 
             val params = GridLayout.LayoutParams().apply {
-                width = 0
-                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                width = maxSize
+                height = maxSize
                 setMargins(4, 4, 4, 4)
+                setGravity(Gravity.CENTER)
             }
 
             btnDay.layoutParams = params
@@ -409,9 +427,11 @@ class CalcFragment : Fragment(), CalcView {
                 }.timeInMillis
                 updateCalendar(calendar, calendarGrid, tvMonthYear, context)
             }
+
             calendarGrid.addView(btnDay)
         }
     }
+
 
     override fun showToast(message: String, isError: Boolean) {
         (activity as? MainActivity)?.showToast(message, isError)
