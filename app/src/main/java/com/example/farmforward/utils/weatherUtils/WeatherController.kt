@@ -38,7 +38,8 @@ class WeatherController(private val context: Context, private val container: Lin
 
             val drawableId = getDrawableForWeather(desc)
             iconView.setImageResource(drawableId)
-
+            val color = androidx.core.content.ContextCompat.getColor(itemView.context, R.color.cafenoir)
+            iconView.setColorFilter(color)
             container.addView(itemView)
         }
     }

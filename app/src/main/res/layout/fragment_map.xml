@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:fillViewport="true"
-    android:layout_height="match_parent">
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bone">
 
     <LinearLayout
         android:padding="16dp"
@@ -17,9 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_gravity="top"
-        android:background="@android:color/transparent"
-        android:elevation="10dp">
+        android:background="@android:color/transparent">
 
         <FrameLayout
             android:layout_width="0dp"
@@ -30,9 +23,10 @@
                 android:id="@+id/app_logo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/farmforward"
                 android:padding="4dp"
-                android:scaleType="fitStart" />
+                android:scaleType="centerInside"
+                android:src="@drawable/farmforward_logo"
+                android:visibility="visible" />
 
             <EditText
                 android:id="@+id/search_input"
@@ -46,6 +40,7 @@
                 android:textSize="16sp"
                 android:textColor="@color/kombuGreen"
                 android:visibility="gone" />
+
         </FrameLayout>
 
         <ImageButton
@@ -62,162 +57,148 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/rounded_box"
-            android:src="@drawable/ic_settings"
-            app:tint="@color/bone"
             android:padding="12dp"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_settings"
+            android:background="@android:color/transparent"
+            app:tint="@color/kombuGreen" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutMapOffline"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/bone"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:clickable="true"
-        android:focusable="true"
-        android:elevation="20dp">
+        android:layout_height="2dp"
+        android:background="@color/kombuGreen"
+        android:layout_marginTop="10dp"
+        android:alpha="5" />
 
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            app:tint="@android:color/darker_gray"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Map Unavailable"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Connect to Wi-Fi/Data to view crops."
-            android:layout_marginTop="8dp"/>
-
-        <Button
-            android:id="@+id/btnRetryMap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/kombuGreen"
-            android:text="Retry Connection"
-            android:textColor="@color/tan"
-            android:layout_marginTop="24dp"/>
-    </LinearLayout>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/mapLegend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_marginTop="80dp"
-        android:layout_marginStart="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="#CCFFFFFF">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/layoutMapOffline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bone"
+            android:gravity="center"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="20dp">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:tint="@android:color/darker_gray"/>
 
             <TextView
-                android:text="@string/map_legend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Map Unavailable"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textSize="12sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginTop="16dp"/>
 
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="2dp"
-                android:orientation="horizontal">
-                <View
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@android:color/holo_blue_dark" />
-                <TextView
-                    android:text="Scheduled"
-                    android:textSize="10sp"
-                    android:layout_marginStart="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
+                android:text="Connect to Wi-Fi/Data to view crops."
+                android:layout_marginTop="8dp"/>
 
-            <LinearLayout
+            <Button
+                android:id="@+id/btnRetryMap"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <View
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@android:color/holo_green_dark" />
-                <TextView
-                    android:text="@string/growing"
-                    android:textSize="10sp"
-                    android:layout_marginStart="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
-                <View
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@android:color/holo_orange_light" />
-                <TextView
-                    android:text="@string/harvest_soon"
-                    android:textSize="10sp"
-                    android:layout_marginStart="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
-                <View
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@android:color/holo_red_dark" />
-                <TextView
-                    android:text="Overdue"
-                    android:textSize="10sp"
-                    android:layout_marginStart="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
+                android:backgroundTint="@color/kombuGreen"
+                android:text="Retry Connection"
+                android:textColor="@color/tan"
+                android:layout_marginTop="24dp"/>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <Button
-        android:id="@+id/btnConfirmLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/confirm_location"
-        android:backgroundTint="@color/kombuGreen"
-        android:textColor="@android:color/white"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="32dp"
-        android:elevation="6dp"
-        android:visibility="gone" />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/mapLegend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#CCFFFFFF">
 
-</FrameLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    android:text="@string/map_legend"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="2dp"
+                    android:orientation="horizontal">
+                    <View android:layout_width="10dp" android:layout_height="10dp" android:background="@android:color/holo_blue_dark" />
+                    <TextView android:text="Scheduled" android:textSize="10sp" android:layout_marginStart="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <View android:layout_width="10dp" android:layout_height="10dp" android:background="@android:color/holo_green_dark" />
+                    <TextView android:text="@string/growing" android:textSize="10sp" android:layout_marginStart="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal">
+                    <View android:layout_width="10dp" android:layout_height="10dp" android:background="@android:color/holo_orange_light" />
+                    <TextView android:text="@string/harvest_soon" android:textSize="10sp" android:layout_marginStart="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal">
+                    <View android:layout_width="10dp" android:layout_height="10dp" android:background="@android:color/holo_red_dark" />
+                    <TextView android:text="Overdue" android:textSize="10sp" android:layout_marginStart="8dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btnConfirmLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/confirm_location"
+            android:backgroundTint="@color/kombuGreen"
+            android:textColor="@android:color/white"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="32dp"
+            android:elevation="6dp"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+</LinearLayout>

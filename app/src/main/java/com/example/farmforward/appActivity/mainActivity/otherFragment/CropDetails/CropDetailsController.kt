@@ -30,10 +30,6 @@ class CropDetailsController @Inject constructor() {
         this.view = view
     }
 
-    fun onBackClicked(viewModel: CropViewModel) {
-        val target = if (viewModel.lastSourceId != 0) viewModel.lastSourceId else R.id.nav_home
-        view?.navigateBack(target)
-    }
 
     fun onEditClicked(viewModel: CropViewModel) {
         val currentCrop = viewModel.cropData.value
@@ -82,7 +78,6 @@ class CropDetailsController @Inject constructor() {
         }
     }
 
-    // UPDATED: Trigger Date Picker instead of immediate logic
     fun onHarvestClicked(viewModel: CropViewModel) {
         val currentCrop = viewModel.cropData.value ?: return
         val minDate = currentCrop.mindate ?: 0L

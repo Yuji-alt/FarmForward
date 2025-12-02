@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.roomDatabase.AppDatabase
+import com.example.farmforward.database.viewModel.CropViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.firebase.FirebaseApp
@@ -49,8 +50,13 @@ class MainController @Inject constructor(
         currentMenuId = menuId
         view?.switchFragment(menuId)
     }
+    fun onBackClicked(viewModel: CropViewModel) {
+        val targetId = if (viewModel.lastSourceId != 0) viewModel.lastSourceId else R.id.nav_home
+
+        onNavigationItemClicked(targetId)
+    }
     fun onSavedClicked() {
-        session.clearSession()
+        session.logout()
         view?.closeDrawer()
         view?.showToast("Logged out. Offline data is saved.", isError = false)
         view?.navigateToLogin()
@@ -70,6 +76,7 @@ class MainController @Inject constructor(
             }
         }
     }
+
     fun onSignOutConfirmed() {
         view?.getScope()?.launch(Dispatchers.IO) {
             db.clearAllTables()

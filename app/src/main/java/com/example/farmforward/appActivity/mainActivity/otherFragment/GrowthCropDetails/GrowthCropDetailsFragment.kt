@@ -57,9 +57,6 @@ class GrowthCropDetailsFragment : Fragment(), GrowthCropDetailsView {
         btnHarvest = view.findViewById(R.id.btnHarvest)
         btnViewOnMap = view.findViewById(R.id.btnViewOnMap)
         val btnCloseNav = view.findViewById<ImageButton>(R.id.btn_close_nav)
-
-        // --- FIX: Disable Dragging via Code ---
-        // This ensures the bar keeps its color but ignores user touches
         progressGrowth.setOnTouchListener { _, _ -> true }
 
         controller.bindView(this)

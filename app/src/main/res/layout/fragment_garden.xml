@@ -4,9 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bone"
-    android:fillViewport="true"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:fillViewport="true">
     <LinearLayout
         android:padding="16dp"
         android:layout_width="match_parent"
@@ -23,9 +21,10 @@
                 android:id="@+id/app_logo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/farmforward"
                 android:padding="4dp"
-                android:scaleType="fitStart" />
+                android:scaleType="centerInside"
+                android:src="@drawable/farmforward_logo"
+                android:visibility="visible" />
 
             <EditText
                 android:id="@+id/search_input"
@@ -55,12 +54,20 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/rounded_box"
-            android:src="@drawable/ic_settings"
-            app:tint="@color/bone"
             android:padding="12dp"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_settings"
+            android:background="@android:color/transparent"
+            app:tint="@color/kombuGreen" />
+
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/kombuGreen"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:alpha="5" />
 
     <!-- Add, Active, Harvest Section -->
     <LinearLayout
@@ -69,7 +76,9 @@
         android:orientation="vertical"
         android:gravity="start"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <!-- Add Plant -->
         <LinearLayout
@@ -86,7 +95,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/plus"
                 android:contentDescription="Add Plant"
-                app:tint="@color/moss_green"
+                app:tint="@color/kombuGreen"
                 android:padding="5dp"/>
 
             <TextView
@@ -114,7 +123,7 @@
                 android:layout_height="40dp"
                 android:padding="5dp"
                 android:src="@drawable/ic_circle"
-                app:tint="@color/moss_green"
+                app:tint="@color/kombuGreen"
                 android:contentDescription="Active Crops"/>
 
             <TextView
@@ -186,21 +195,33 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" />
     </HorizontalScrollView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/kombuGreen"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:alpha="5" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Harvested Crops"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/kombuGreen"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="Harvested Crops"
+        android:textColor="@color/kombuGreen"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <ScrollView
         android:id="@+id/scrollHarvestedCrops"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:paddingBottom="16dp">
 
         <LinearLayout

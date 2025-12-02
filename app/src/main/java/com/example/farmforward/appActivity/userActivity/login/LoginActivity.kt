@@ -131,6 +131,13 @@ class LoginActivity : AppCompatActivity(), LoginView {
             != PackageManager.PERMISSION_GRANTED) {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
+        val savedEmail = session.getUserEmail()
+        if (savedEmail != "No Email Found") {
+            usernameInput.setText(savedEmail)
+        }
+        if (session.isOfflineMode()) {
+            offlineSwitch.isChecked = true
+        }
 
         controller.onViewCreated()
 
@@ -138,7 +145,6 @@ class LoginActivity : AppCompatActivity(), LoginView {
             val username = usernameInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
             val isOffline = offlineSwitch.isChecked
-
             controller.onLoginClicked(username, password, isOffline)
         }
 
@@ -205,8 +211,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
     override fun startLoginSync() {
         val loadingDialog = LoadingDialogFragment()
         loadingDialog.show(supportFragmentManager, "LoginLoadingDialog")
-
-        val isOfflineMode = offlineSwitch.isChecked
+        val isOfflineMode = offlineSwitch.isChecked || session.isOfflineMode()
 
         lifecycleScope.launch(Dispatchers.IO) {
 
@@ -217,8 +222,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
                     }
                 }
             }
-
-            var hasNetworkError = false
+            var fatalError = false
 
             try {
                 updateUi(10, "Verifying credentials...")
@@ -239,61 +243,27 @@ class LoginActivity : AppCompatActivity(), LoginView {
                     updateUi(40, "Offline Mode: Using local data...")
                     delay(500)
                 }
-
-                updateUi(70, "Checking Local Weather...")
-
-                val hasPermission = ContextCompat.checkSelfPermission(
-                    this@LoginActivity,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-
-                if (!isOfflineMode && hasPermission) {
-
-                    val isLocationOn = withContext(Dispatchers.Main) { ensureLocationOn() }
-
-                    if (isLocationOn) {
-                        updateUi(75, "Fetching Local Weather...")
-                        try {
-                            fetchWeatherSync()
-                        } catch (e: Exception) {
-                            Log.e("LoginActivity", "Weather sync failed: ${e.message}")
-                        }
-                    } else {
-                        Log.d("LoginActivity", "Skipping weather: User refused to turn on GPS")
-                        updateUi(75, "Skipping weather (GPS Off)...")
-                        delay(500)
-                    }
-                } else {
-                    // Logic for Offline or No Permission
-                    val reason = if (isOfflineMode) "Offline" else "No Permission"
-                    updateUi(75, "Skipping weather ($reason)...")
-                    delay(300)
-                }
-
-                updateUi(90, "Preparing Dashboard...")
-                delay(300)
                 updateUi(100, "Welcome Back!")
                 delay(200)
 
             } catch (e: IOException) {
                 Log.e("LoginActivity", "Sync/Download failed: ${e.message}")
-                hasNetworkError = true
-                updateUi(100, "Error: Network required for Online setup.")
-                delay(1500)
-
+                updateUi(100, "Network failed. Switching to Offline Mode.")
+                session.saveOfflineMode(true)
+                delay(1000)
             } catch (e: Exception) {
                 Log.e("LoginActivity", "Sync failed: ${e.message}")
-                hasNetworkError = true
+                fatalError = true // Generic crashes are still fatal
                 updateUi(100, "Error: Data synchronization failed.")
                 delay(1500)
             }
 
             withContext(Dispatchers.Main) {
                 loadingDialog.dismiss()
-                if (!hasNetworkError) {
+                if (!fatalError) {
                     navigateToMain()
                 } else {
-                    showToast("Sync failed. Switch to Offline Mode if network is poor.", isError = true)
+                    showToast("Login Error. Please check data or try Offline Mode.", isError = true)
                 }
             }
         }

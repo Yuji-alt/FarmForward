@@ -33,8 +33,6 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     private lateinit var tvCropName: TextView
     private lateinit var tvArea: TextView
     private lateinit var plantedDate: TextView
-    private lateinit var minHarvest: TextView
-    private lateinit var maxHarvest: TextView
     private lateinit var harvestYield: TextView
     private lateinit var imgCrop: ImageView
     private lateinit var tvSoilType: TextView
@@ -71,8 +69,8 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
 
         val btnCloseNav = view.findViewById<ImageButton>(R.id.btn_close_nav)
 
-        btnCloseNav?.setOnClickListener {
-            controller.onBackClicked(cropViewModel)
+        btnCloseNav.setOnClickListener {
+            (activity as? MainActivity)?.controller?.onBackClicked(cropViewModel)
         }
 
         tvEdit.setOnClickListener {
@@ -145,7 +143,6 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_map)
     }
 
-    // --- FIX IS HERE: Use switchFragment directly ---
     override fun navigateBack(destinationId: Int) {
         (activity as? MainActivity)?.switchFragment(destinationId)
     }

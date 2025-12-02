@@ -38,7 +38,7 @@
     <string name="expected_yield_0_0_kg">Expected Yield: 0.0 kg</string>
     <string name="crop_name">Crop Name</string>
     <string name="menu">Menu</string>
-    <string name="log_out">Log Out</string>
+    <string name="sign_out">Sign Out</string>
     <string name="settings">Settings</string>
     <string name="welcome_to">Welcome to</string>
     <string name="email_username">Email/Username</string>
@@ -52,7 +52,6 @@
     <string name="permission_denied">Permission Denied</string>
     <string name="permission_denied_permanently_message">You have permanently denied location permission. To get weather updates, please go to your phone\'s settings and enable location for this app.</string>
     <string name="network_failed">No Network Connection</string>
-    <string name="saved_offline">Saved Offline</string>
     <string name="sync_online_offline">Sync_online/offline</string>
     <string name="confirm_location">Confirm Location</string>
     <string name="harvest_soon">Harvest Soon</string>
@@ -64,4 +63,9 @@
     <string name="crop_image">Crop image</string>
     <string name="add_specific_location">Add specific location</string>
     <string name="see_details">See details...</string>
+    <string name="account">Account</string>
+    <string name="profile">Profile</string>
+    <string name="calculator">Calculator</string>
+    <string name="harvest_history">Harvest History</string>
+    <string name="terms_conditions"><![CDATA[Terms & Conditions]]></string>
 </resources>

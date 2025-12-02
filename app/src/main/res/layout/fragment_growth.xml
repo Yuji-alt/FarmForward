@@ -4,9 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bone"
-    android:paddingStart="16dp"
     android:fillViewport="true"
-    android:paddingEnd="16dp">
+    >
 
     <LinearLayout
         android:paddingTop="16dp"
@@ -14,7 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <FrameLayout
             android:layout_width="0dp"
@@ -25,9 +26,10 @@
                 android:id="@+id/app_logo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/farmforward"
                 android:padding="4dp"
-                android:scaleType="fitStart" />
+                android:scaleType="centerInside"
+                android:src="@drawable/farmforward_logo"
+                android:visibility="visible" />
 
             <EditText
                 android:id="@+id/search_input"
@@ -57,12 +59,19 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/rounded_box"
-            android:src="@drawable/ic_settings"
-            app:tint="@color/bone"
             android:padding="12dp"
-            android:scaleType="fitCenter"/>
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_settings"
+            android:background="@android:color/transparent"
+            app:tint="@color/kombuGreen" />
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/kombuGreen"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:alpha="5" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -70,7 +79,9 @@
         android:orientation="vertical"
         android:gravity="start"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <TextView
             android:id="@+id/tvAddLabel"
@@ -88,7 +99,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <GridLayout
             android:id="@+id/cropListContainer"

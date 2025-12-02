@@ -12,8 +12,8 @@
         android:layout_above="@+id/inputContainer"
         android:background="@color/bone"
         android:scrollbars="none"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        >
+
 
         <LinearLayout
             android:id="@+id/calendarContainer"
@@ -37,9 +37,10 @@
                         android:id="@+id/app_logo"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/farmforward"
                         android:padding="4dp"
-                        android:scaleType="fitStart" />
+                        android:scaleType="centerInside"
+                        android:src="@drawable/farmforward_logo"
+                        android:visibility="visible" />
                     <EditText
                         android:id="@+id/search_input"
                         android:layout_width="match_parent"
@@ -57,24 +58,34 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginStart="10dp" />
+
                 <ImageButton
                     android:id="@+id/menu_button"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_marginStart="8dp"
-                    android:background="@drawable/rounded_box"
-                    android:src="@drawable/ic_settings"
-                    app:tint="@color/bone"
+                    android:background="@android:color/transparent"
                     android:padding="12dp"
-                    android:scaleType="fitCenter"/>
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_settings"
+                    app:tint="@color/kombuGreen" />
             </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/kombuGreen"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:alpha="5" />
 
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -162,6 +173,7 @@
                     android:focusableInTouchMode="true"
                     android:hint="@string/crop"
                     android:inputType="textAutoComplete|textCapWords"
+                    android:textColorHint="@color/kombuGreen"
                     android:padding="8dp"
                     android:popupBackground="@drawable/bg_dropdown_popup" />
 
@@ -176,6 +188,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/input_bg"
                     android:hint="@string/area"
+                    android:textColorHint="@color/kombuGreen"
                     android:inputType="number"
                     android:maxLines="1"
                     android:padding="8dp" />
@@ -206,7 +219,9 @@
                     android:hint="@string/soil_type"
                     android:inputType="textAutoComplete|textCapWords"
                     android:padding="8dp"
-                    android:popupBackground="@drawable/bg_dropdown_popup" />
+                    android:popupBackground="@drawable/bg_dropdown_popup"
+                    android:textColorHint="@color/kombuGreen"
+                    />
 
                 <View
                     android:layout_width="8dp"
@@ -229,7 +244,9 @@
                     android:hint="@string/irrigation_level"
                     android:inputType="textAutoComplete|textCapWords"
                     android:padding="8dp"
-                    android:popupBackground="@drawable/bg_dropdown_popup" />
+                    android:popupBackground="@drawable/bg_dropdown_popup"
+                    android:textColorHint="@color/kombuGreen"
+                    />
 
             </LinearLayout>
 
@@ -257,7 +274,9 @@
                     android:hint="@string/planting_density"
                     android:inputType="textAutoComplete|textCapWords"
                     android:padding="8dp"
-                    android:popupBackground="@drawable/bg_dropdown_popup" />
+                    android:popupBackground="@drawable/bg_dropdown_popup"
+                    android:textColorHint="@color/kombuGreen"
+                    />
 
                 <View
                     android:layout_width="8dp"
@@ -280,7 +299,9 @@
                     android:hint="@string/fertilizer_used"
                     android:inputType="textAutoComplete|textCapWords"
                     android:padding="8dp"
-                    android:popupBackground="@drawable/bg_dropdown_popup" />
+                    android:popupBackground="@drawable/bg_dropdown_popup"
+                    android:textColorHint="@color/kombuGreen"
+                    />
             </LinearLayout>
 
             <LinearLayout
@@ -302,7 +323,9 @@
                     android:focusable="false"
                     android:hint="@string/weather_condition"
                     android:inputType="none"
-                    android:padding="8dp" />
+                    android:padding="8dp"
+                    android:textColorHint="@color/kombuGreen"
+                    />
 
                 <View
                     android:layout_width="8dp"
@@ -319,7 +342,9 @@
                     android:focusable="false"
                     android:hint="@string/add_specific_location"
                     android:inputType="none"
-                    android:padding="8dp" />
+                    android:padding="8dp"
+                    android:textColorHint="@color/kombuGreen"
+                    />
             </LinearLayout>
         </LinearLayout>
 

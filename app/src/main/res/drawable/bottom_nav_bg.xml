@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@color/moss_green" /> <!-- background color -->
-    <corners android:topLeftRadius="20dp" android:topRightRadius="20dp" /> <!-- curved top -->
-    <padding android:top="8dp" android:bottom="8dp" />
-    <stroke android:color="@color/moss_green" android:width="1dp" /> <!-- optional border -->
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/kombuGreen" />
+            <corners android:topLeftRadius="20dp" android:topRightRadius="20dp" />
+        </shape>
+    </item>
+
+    <item android:top="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/moss_green" />
+            <corners android:topLeftRadius="20dp" android:topRightRadius="20dp" />
+            <padding android:top="8dp" android:bottom="8dp" />
+        </shape>
+    </item>
+
+</layer-list>

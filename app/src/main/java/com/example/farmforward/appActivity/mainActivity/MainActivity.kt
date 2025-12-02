@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
@@ -24,6 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -36,7 +38,12 @@ import com.example.farmforward.appActivity.mainActivity.growth.GrowthFragment
 import com.example.farmforward.appActivity.mainActivity.home.HomeFragment
 import com.example.farmforward.appActivity.mainActivity.map.MapFragment
 import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetailsFragment
+import com.example.farmforward.appActivity.mainActivity.otherFragment.GardenTools.GardenToolsFragment
+import com.example.farmforward.appActivity.mainActivity.otherFragment.ProfileFragment
+import com.example.farmforward.appActivity.mainActivity.otherFragment.Settings.SettingsFragment
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
+import com.example.farmforward.appActivity.userActivity.session.SessionManager
+import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,6 +53,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), MainView {
     @Inject lateinit var controller: MainController
+    @Inject lateinit var session: SessionManager
+    private lateinit var cropViewModel: CropViewModel
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var menuItems: List<LinearLayout>
     private lateinit var home: LinearLayout
@@ -56,14 +65,16 @@ class MainActivity : AppCompatActivity(), MainView {
     private lateinit var btnSignOut: TextView
     private lateinit var btnSaved: TextView
     private val fragmentMap = mutableMapOf<Int, Fragment>()
-
-    // Main Tabs
     private val orderedTabs = listOf(
         R.id.nav_home, R.id.nav_garden, R.id.nav_calc, R.id.nav_growth, R.id.nav_map
     )
     companion object {
         const val NAV_CROP_DETAILS = 10001
         const val NAV_GROWTH_CROP_DETAILS = 10002
+        const val NAV_PROFILE = 10003
+        const val NAV_HARVEST = 10004
+        const val NAV_WEATHER = 10005
+        const val NAV_SETTINGS = 10006
     }
 
     private var currentMenuId: Int = R.id.nav_home
@@ -72,7 +83,6 @@ class MainActivity : AppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
 
         controller.bindView(this)
 
@@ -84,7 +94,9 @@ class MainActivity : AppCompatActivity(), MainView {
         growth = findViewById(R.id.nav_growth)
         btnSignOut = findViewById(R.id.signOut)
         btnSaved = findViewById(R.id.Saved)
+        cropViewModel = ViewModelProvider(this)[CropViewModel::class.java]
         val btnCloseNav = findViewById<ImageButton>(R.id.btn_close_nav)
+        val btnProfileContainer = findViewById<LinearLayout>(R.id.btn_profile_container)
 
         menuItems = listOf(home, garden, map, calc, growth)
         home.setOnClickListener { controller.onNavigationItemClicked(R.id.nav_home) }
@@ -104,6 +116,34 @@ class MainActivity : AppCompatActivity(), MainView {
             if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                 drawerLayout.closeDrawer(GravityCompat.END)
             }
+        }
+        btnProfileContainer.setOnClickListener {
+            controller.onNavigationItemClicked(NAV_PROFILE)
+            closeDrawer()
+        }
+        findViewById<LinearLayout>(R.id.btn_my_profile).setOnClickListener {
+            controller.onNavigationItemClicked(R.id.nav_garden)
+            closeDrawer()
+        }
+        val btnSettingsContainer = findViewById<LinearLayout>(R.id.btn_settings_container)
+
+        btnSettingsContainer.setOnClickListener {
+            controller.onNavigationItemClicked(NAV_SETTINGS)
+            closeDrawer()
+        }
+        findViewById<LinearLayout>(R.id.btn_calculator).setOnClickListener {
+            controller.onNavigationItemClicked(R.id.nav_calc)
+            closeDrawer()
+        }
+
+        findViewById<LinearLayout>(R.id.btn_harvest_history).setOnClickListener {
+            controller.onNavigationItemClicked(NAV_HARVEST)
+            closeDrawer()
+        }
+
+        findViewById<LinearLayout>(R.id.btn_weather).setOnClickListener {
+            controller.onNavigationItemClicked(NAV_WEATHER)
+            closeDrawer()
         }
         setupDailyNotifications()
         controller.onViewCreated()
@@ -189,11 +229,9 @@ class MainActivity : AppCompatActivity(), MainView {
             if (item == selected) {
                 icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_selected))
                 icon.setBackgroundResource(R.drawable.nav_selected_bg)
-                item.animate().scaleX(1.1f).scaleY(1.1f).setDuration(150).start()
             } else {
                 icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_unselected))
                 icon.setBackgroundResource(R.drawable.nav_unselected_bg)
-                item.animate().scaleX(1f).scaleY(1f).setDuration(150).start()
             }
         }
     }
@@ -221,7 +259,11 @@ class MainActivity : AppCompatActivity(), MainView {
         val transaction = supportFragmentManager.beginTransaction()
 
         val isOpeningDetails = newMenuId == NAV_CROP_DETAILS || newMenuId == NAV_GROWTH_CROP_DETAILS
+                || newMenuId == NAV_PROFILE || newMenuId == NAV_HARVEST || newMenuId == NAV_WEATHER || newMenuId == NAV_SETTINGS
+
         val isClosingDetails = currentMenuId == NAV_CROP_DETAILS || currentMenuId == NAV_GROWTH_CROP_DETAILS
+                || currentMenuId == NAV_PROFILE || currentMenuId == NAV_HARVEST || currentMenuId == NAV_WEATHER || currentMenuId == NAV_SETTINGS
+
 
         if (isOpeningDetails) {
             transaction.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit)
@@ -277,6 +319,10 @@ class MainActivity : AppCompatActivity(), MainView {
             R.id.nav_growth -> GrowthFragment()
             NAV_CROP_DETAILS -> CropDetailsFragment()
             NAV_GROWTH_CROP_DETAILS -> GrowthCropDetailsFragment()
+            NAV_PROFILE -> ProfileFragment()
+            NAV_HARVEST -> GardenToolsFragment.newInstance("HARVEST")
+            NAV_WEATHER -> GardenToolsFragment.newInstance("WEATHER")
+            NAV_SETTINGS -> SettingsFragment()
             else -> HomeFragment()
         }
     }

@@ -13,7 +13,7 @@
         android:background="@color/tan"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="4dp">
+        >
 
         <!-- LEFT TEXT -->
         <LinearLayout
@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:text="12:00"
                 android:textColor="@color/kombuGreen"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:text="29°C"
                 android:textColor="@color/kombuGreen"
-                android:textSize="11sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginTop="1dp" />
 
@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:text="clear sky"
                 android:textColor="@color/kombuGreen"
-                android:textSize="9sp"
+                android:textSize="16sp"
                 android:maxLines="2"
                 android:ellipsize="end" />
         </LinearLayout>

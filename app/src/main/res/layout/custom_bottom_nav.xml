@@ -26,7 +26,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_home"
-            app:tint="@color/black" />
+            app:tint="@color/kombuGreen" />
 
     </LinearLayout>
 
@@ -45,7 +45,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_garden"
-            app:tint="@color/black" />
+            app:tint="@color/kombuGreen" />
 
     </LinearLayout>
 
@@ -64,7 +64,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_calc"
-            app:tint="@color/black" />
+            app:tint="@color/kombuGreen" />
     </LinearLayout>
 
     <!-- GROWTH -->
@@ -82,7 +82,7 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_growth"
-            app:tint="@color/black" />
+            app:tint="@color/kombuGreen" />
     </LinearLayout>
 
     <!-- MAP -->
@@ -100,11 +100,6 @@
             android:background="@drawable/nav_unselected_bg"
             android:padding="8dp"
             android:src="@drawable/ic_map"
-            app:tint="@color/black" />
+            app:tint="@color/kombuGreen" />
     </LinearLayout>
-
-
-
-
-
 </LinearLayout>

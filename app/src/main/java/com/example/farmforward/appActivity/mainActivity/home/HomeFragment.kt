@@ -85,7 +85,6 @@ class HomeFragment : Fragment(), HomeView {
         itemContainer.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
 
-        // 1. Prepare the "Add Crop" Card
         val addView = inflater.inflate(R.layout.item_add_crop, itemContainer, false)
 
         val navToCalc = View.OnClickListener {
@@ -112,7 +111,6 @@ class HomeFragment : Fragment(), HomeView {
             itemContainer.addView(itemView)
         }
 
-        // 3. Add the "Add Crop" button at the END
         itemContainer.addView(addView)
     }
 

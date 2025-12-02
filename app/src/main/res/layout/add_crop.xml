@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
     android:elevation="2dp"
     android:background="@drawable/item_card_border"
@@ -25,6 +26,7 @@
             android:layout_marginEnd="12dp"
             android:padding="10dp"
             android:contentDescription="@string/crop_image"
-            android:clipToOutline="true" />
+            android:clipToOutline="true"
+            app:tint="@color/kombuGreen"/>
     </LinearLayout>
 </FrameLayout>

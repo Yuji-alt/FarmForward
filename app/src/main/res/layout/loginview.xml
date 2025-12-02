@@ -67,7 +67,7 @@
             android:minHeight="48dp"
             android:paddingHorizontal="12dp"
             android:textColor="@color/black"
-            android:textColorHint="@color/moss_green" />
+            android:textColorHint="@color/kombuGreen" />
 
         <TextView
             android:id="@+id/password"
@@ -89,7 +89,7 @@
             android:minHeight="48dp"
             android:paddingHorizontal="12dp"
             android:textColor="@color/black"
-            android:textColorHint="@color/moss_green" />
+            android:textColorHint="@color/kombuGreen" />
 
         <TextView
             android:id="@+id/forgotPassword"

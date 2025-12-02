@@ -20,40 +20,37 @@ class FirebaseSyncManager @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
 
-    suspend fun syncUsers() = withContext(Dispatchers.IO) {
+    suspend fun syncUsers() {
         try {
-            val firebaseUsers = firestore.collection("users").get().await()
-                .toObjects(User::class.java)
-            val localUsers = userDao.getAllUsers()
-            val firebaseMap = firebaseUsers.associateBy { it.username }
-            val localMap = localUsers.associateBy { it.username }
-            val allUsernames = firebaseMap.keys union localMap.keys
-            for (username in allUsernames) {
-                val firebaseItem = firebaseMap[username]
-                val localItem = localMap[username]
+            val currentUsername = session.getUserName()
+            val currentEmail = session.getUserEmail()
+            if (currentUsername == null && currentEmail == null) return
+            val usersRef = firestore.collection("users")
+            var documentSnapshot = usersRef.document(currentUsername ?: "").get().await()
+            if (!documentSnapshot.exists() && currentEmail != null) {
+                val querySnapshot = usersRef.whereEqualTo("email", currentEmail).get().await()
+                if (!querySnapshot.isEmpty) {
+                    documentSnapshot = querySnapshot.documents[0]
+                }
+            }
+            if (documentSnapshot.exists()) {
+                var remoteUser = documentSnapshot.toObject(User::class.java)
 
-                when {
-                    firebaseItem == null && localItem != null -> {
-                        firebaseUserRepo.registerUser(localItem)
-                    }
-                    firebaseItem != null && localItem == null -> {
-                        userDao.registerUser(firebaseItem)
-                    }
-                    firebaseItem != null && localItem != null -> {
-                        if (firebaseItem.lastUpdated > localItem.lastUpdated) {
-                            val mergedUser = firebaseItem.copy(
-                                password = if (firebaseItem.password.isNotEmpty()) firebaseItem.password else localItem.password
-                            )
-                            userDao.registerUser(mergedUser)
+                if (remoteUser != null) {
+                    val existingLocalUser = userDao.getUserByUsername(remoteUser.username)
+                        ?: userDao.getUserByEmail(remoteUser.email)
 
-                        } else if (firebaseItem.lastUpdated < localItem.lastUpdated) {
-                            firebaseUserRepo.registerUser(localItem)
-                        }
+                    if (existingLocalUser != null && existingLocalUser.password.isNotEmpty()) {
+                        remoteUser = remoteUser.copy(
+                            id = existingLocalUser.id,
+                            password = existingLocalUser.password
+                        )
                     }
+                    userDao.registerUser(remoteUser)
                 }
             }
         } catch (e: Exception) {
-            Log.e("SyncUsers", "Error syncing users: ${e.message}")
+            e.printStackTrace()
         }
     }
 

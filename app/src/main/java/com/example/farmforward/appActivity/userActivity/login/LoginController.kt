@@ -56,6 +56,7 @@ class LoginController @Inject constructor(
     }
     private fun handleLogin(identifier: String, password: String, isOfflineMode: Boolean) {
         ioScope.launch {
+            // 1. Offline Check
             if (isOfflineMode || !NetworkUtils.isNetworkAvailable(context)) {
                 checkLocal(identifier, password, isOfflineMode)
                 return@launch
@@ -72,48 +73,61 @@ class LoginController @Inject constructor(
                 localUser = userDao.getUserByUsername(identifier)
                 emailToUse = localUser?.email
             }
+
             if (localUser == null) {
                 try {
                     val usersRef = firestore.collection("users")
-                    val query = if (isInputEmail) {
-                        usersRef.whereEqualTo("email", identifier)
-                    } else {
-                        usersRef.whereEqualTo("username", identifier)
-                    }
+                    val query = if (isInputEmail) usersRef.whereEqualTo("email", identifier) else usersRef.whereEqualTo("username", identifier)
                     val snapshot = query.get().await()
                     if (!snapshot.isEmpty) {
                         val doc = snapshot.documents[0]
-                        val dbEmail = doc.getString("email")
-                        emailToUse = dbEmail
+                        emailToUse = doc.getString("email")
                         localUser = User(
                             id = doc.getLong("id")?.toInt() ?: 0,
                             username = doc.getString("username") ?: "",
-                            email = dbEmail ?: "",
+                            email = emailToUse ?: "",
                             password = password
                         )
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                } catch (e: Exception) { e.printStackTrace() }
             }
+
             if (emailToUse.isNullOrEmpty()) {
-                withContext(Dispatchers.Main) {
-                    view?.showToast("Account not found.", isError = true)
-                }
+                withContext(Dispatchers.Main) { view?.showToast("Account not found.", isError = true) }
                 return@launch
             }
 
             auth.signInWithEmailAndPassword(emailToUse!!, password)
-                .addOnSuccessListener {
+                .addOnSuccessListener { authResult ->
                     ioScope.launch {
+
+                        if (localUser == null) {
+                            val firebaseUser = authResult.user
+                            if (firebaseUser != null) {
+                                localUser = User(
+                                    id = 0,
+                                    username = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "Farmer",
+                                    email = firebaseUser.email ?: emailToUse!!,
+                                    password = password
+                                )
+                            }
+                        }
+
                         if (localUser != null) {
                             val updatedUser = localUser!!.copy(password = password)
+
                             userDao.registerUser(updatedUser)
-                            session.saveSession(updatedUser.id, updatedUser.username)
+
+                            session.saveSession(updatedUser.id, updatedUser.username, updatedUser.email)
+                            session.saveOfflineMode(isOfflineMode)
 
                             withContext(Dispatchers.Main) {
                                 view?.showToast("Login successful!", isError = false)
                                 view?.startLoginSync()
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                view?.showToast("Error: Could not save user data locally.", isError = true)
                             }
                         }
                     }
@@ -143,19 +157,26 @@ class LoginController @Inject constructor(
 
     private fun checkLocal(identifier: String, password: String, isOffline: Boolean) {
         ioScope.launch {
-            val user = userDao.loginUser(identifier, password)
+            var user: User? = null
+            val isInputEmail = identifier.contains("@")
+            if (isInputEmail) {
+                user = userDao.getUserByEmail(identifier)
+            } else {
+                user = userDao.getUserByUsername(identifier)
+            }
 
             withContext(Dispatchers.Main) {
-                if (user != null) {
-                    session.saveSession(user.id, user.username)
+                if (user != null && user!!.password == password) {
+                    session.saveSession(user!!.id, user!!.username, user!!.email)
+                    session.saveOfflineMode(isOffline)
+                    view?.showToast("Offline Login Successful!", isError = false)
                     view?.startLoginSync()
                 } else {
-                    val message = if (isOffline) {
-                        "Invalid credentials for offline mode."
+                    if (user == null) {
+                        view?.showToast("User not found on this device. Login Online first.", isError = true)
                     } else {
-                        "Invalid credentials or no network."
+                        view?.showToast("Incorrect Password for Offline Mode.", isError = true)
                     }
-                    view?.showToast(message, isError = true)
                 }
             }
         }
