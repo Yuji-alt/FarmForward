@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:id="@+id/nav_view"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:orientation="vertical"
+        android:background="@drawable/bg_menu"
+        tools:ignore="MissingConstraints">
+
+        <ImageButton
+            android:id="@+id/btn_close_nav"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/kombuGreen"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:alpha="5" />
+
+        <TextView
+            android:text="@string/account"
+            android:paddingStart="10dp"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/kombuGreen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <LinearLayout
+            android:id="@+id/btn_profile_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_profile"
+                app:tint="@color/kombuGreen"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/profile"
+                android:text="@string/profile"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_settings_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_setting"
+                app:tint="@color/kombuGreen"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/settings"
+                android:text="@string/settings"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:alpha="3"
+            android:background="@color/kombuGreen" />
+
+        <TextView
+            android:text="Garden Tools"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/kombuGreen"
+            android:paddingTop="10dp"
+            android:paddingStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"/>
+        <LinearLayout
+            android:id="@+id/btn_my_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_garden"
+                app:tint="@color/kombuGreen"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/myGarden"
+                android:text="My Garden"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_calculator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_calc"
+                app:tint="@color/kombuGreen"
+                android:contentDescription="@null" />
+            <TextView
+                android:text="@string/calculator"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/btn_harvest_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_plant"
+                app:tint="@color/kombuGreen" />
+            <TextView
+                android:text="@string/harvest_history"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_weather"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:src="@drawable/broken_clouds"
+                app:tint="@color/kombuGreen" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:text="Weather &amp; Forecast"
+                android:textColor="@color/kombuGreen"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/kombuGreen"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:alpha="3" />
+        <TextView
+            android:text="Support"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/kombuGreen"
+            android:paddingTop="10dp"
+            android:paddingStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_help"
+                app:tint="@color/kombuGreen"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/btn_help"
+                android:text="Help / FAQS"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_contacts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="10dp"
+            android:paddingStart="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_contact"
+                app:tint="@color/kombuGreen"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/contacts"
+                android:text="Contacts"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/kombuGreen"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:alpha="3" />
+
+
+        <Button
+            android:id="@+id/signOut"
+            android:text="@string/sign_out"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/tan"
+            android:backgroundTint="@color/kombuGreen"
+            android:layout_margin="10dp"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"/>
+        <Button
+            android:id="@+id/Saved"
+            android:text="@string/save"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/tan"
+            android:backgroundTint="@color/kombuGreen"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"/>
+    </LinearLayout>
+
+</LinearLayout>

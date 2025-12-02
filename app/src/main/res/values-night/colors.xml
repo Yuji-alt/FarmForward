@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FFFFFF</color>
+    <color name="nav_selected">#000000</color>
+    <color name="nav_unselected">#FFFFFF</color>
+    <color name="kombuGreen">#FFFFFF</color>
+    <color name="tan">#000000</color>
+    <color name="moss_green">#000000</color>
+    <color name="bone">#000000</color>
+    <color name="cafenoir">#FFFFFF</color>
+    <color name="light_moss">#FFFFFF</color>
+    <color name="white">#000000</color>
+</resources>
