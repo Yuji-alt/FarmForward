@@ -63,6 +63,10 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     private var searchResults: List<CropEntity> = emptyList()
     private var currentSearchIndex = 0
+    private   val philippinesBounds = com.google.android.gms.maps.model.LatLngBounds(
+        LatLng(4.215806, 116.809228),
+        LatLng(21.321798, 126.605335)
+    )
 
     // -------------------------------------------------------------------------
     // Lifecycle Methods
@@ -121,6 +125,8 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
     // -------------------------------------------------------------------------
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
+        map.setLatLngBoundsForCameraTarget(philippinesBounds)
+        map.setMinZoomPreference(5.5f)
         map.uiSettings.isZoomControlsEnabled = true
         map.uiSettings.isCompassEnabled = true
 
@@ -191,9 +197,14 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
 
         btnConfirm.setOnClickListener {
             if (selectedLatLng != null) {
-                cropViewModel.pickLocation(selectedLatLng!!.latitude, selectedLatLng!!.longitude)
-                cropViewModel.isMapPickerMode = false
-                (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
+                if (philippinesBounds.contains(selectedLatLng!!)) {
+                    cropViewModel.pickLocation(selectedLatLng!!.latitude, selectedLatLng!!.longitude)
+                    cropViewModel.isMapPickerMode = false
+                    (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
+
+                } else {
+                    showToast("Please select a location inside the Philippines.")
+                }
             } else {
                 showToast("Please tap the map to pin a location first.")
             }
@@ -204,7 +215,7 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
                     currentSearchIndex--
                     focusOnCurrentResult()
                 } else {
-                    // Optional: Loop back to end?
+
                     currentSearchIndex = searchResults.lastIndex
                     focusOnCurrentResult()
                 }
