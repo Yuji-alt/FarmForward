@@ -7,7 +7,7 @@ import com.example.farmforward.database.roomDatabase.User
 import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await // Important for Firestore check
+import kotlinx.coroutines.tasks.await
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,13 +24,27 @@ class SignUpController @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
 
+    // -------------------------------------------------------------------------
+    // Variables & Scope
+    // -------------------------------------------------------------------------
     private var view: SignUpView? = null
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
+    // -------------------------------------------------------------------------
+    // Lifecycle & Binding
+    // -------------------------------------------------------------------------
     fun bindView(view: SignUpView) {
         this.view = view
     }
 
+    fun onDestroy() {
+        view = null
+        ioScope.cancel()
+    }
+
+    // -------------------------------------------------------------------------
+    // Core Business Logic (Sign Up)
+    // -------------------------------------------------------------------------
     fun onBackClicked() {
         view?.navigateToLogin()
     }
@@ -41,6 +55,7 @@ class SignUpController @Inject constructor(
         val trimmedPassword = password.trim()
         val trimmedConfirm = confirm.trim()
 
+        // 1. Basic Input Validation
         if (trimmedEmail.isEmpty() || trimmedUsername.isEmpty() || trimmedPassword.isEmpty() || trimmedConfirm.isEmpty()) {
             view?.showToast("Please fill in all fields", isError = true)
             return
@@ -54,9 +69,18 @@ class SignUpController @Inject constructor(
             return
         }
 
+        // 2. STRICT NETWORK CHECK (Online Only)
+        if (!NetworkUtils.isNetworkAvailable(context)) {
+            view?.showToast("Internet connection is required to sign up.", isError = true)
+            return
+        }
+
+        // Disable button to prevent double clicks
         view?.setSignUpButtonEnabled(false)
 
         ioScope.launch {
+            // 3. Local DB Check (Quick Fail)
+            // Even though we are online, check if this phone already has this user locally
             val localExists = userDao.checkUserExists(trimmedUsername)
             if (localExists > 0) {
                 withContext(Dispatchers.Main) {
@@ -66,28 +90,29 @@ class SignUpController @Inject constructor(
                 return@launch
             }
 
-            if (NetworkUtils.isNetworkAvailable(context)) {
-                try {
-                    val snapshot = firestore.collection("users")
-                        .whereEqualTo("username", trimmedUsername)
-                        .get()
-                        .await()
+            // 4. Cloud DB Check (Check for duplicates globally)
+            try {
+                val snapshot = firestore.collection("users")
+                    .whereEqualTo("username", trimmedUsername)
+                    .get()
+                    .await()
 
-                    if (!snapshot.isEmpty) {
-                        withContext(Dispatchers.Main) {
-                            view?.showToast("Username is already taken by another user.", isError = true)
-                            view?.setSignUpButtonEnabled(true)
-                        }
-                        return@launch
-                    }
-                } catch (e: Exception) {
+                if (!snapshot.isEmpty) {
                     withContext(Dispatchers.Main) {
-                        view?.showToast("Network error checking username. Please try again.", isError = true)
+                        view?.showToast("Username is already taken.", isError = true)
                         view?.setSignUpButtonEnabled(true)
                     }
                     return@launch
                 }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    view?.showToast("Network error checking username.", isError = true)
+                    view?.setSignUpButtonEnabled(true)
+                }
+                return@launch
             }
+
+            // 5. Proceed to Create Account
             val newUser = User(
                 username = trimmedUsername,
                 password = trimmedPassword,
@@ -95,46 +120,39 @@ class SignUpController @Inject constructor(
                 lastUpdated = System.currentTimeMillis()
             )
 
-            if (NetworkUtils.isNetworkAvailable(context)) {
-                try {
-                    auth.createUserWithEmailAndPassword(trimmedEmail, trimmedPassword)
-                        .addOnSuccessListener { authResult ->
-                            ioScope.launch {
-                                saveUserToDatabases(newUser)
-                            }
+            try {
+                auth.createUserWithEmailAndPassword(trimmedEmail, trimmedPassword)
+                    .addOnSuccessListener {
+                        ioScope.launch {
+                            saveUserToDatabases(newUser)
                         }
-                        .addOnFailureListener { e ->
-                            view?.setSignUpButtonEnabled(true)
-                            view?.showToast("Registration Failed: ${e.message}", isError = true)
-                        }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        view?.setSignUpButtonEnabled(true)
-                        view?.showToast("Error: ${e.message}", isError = true)
                     }
-                }
-            } else {
-                saveUserToDatabases(newUser)
+                    .addOnFailureListener { e ->
+                        view?.setSignUpButtonEnabled(true)
+                        view?.showToast("Registration Failed: ${e.message}", isError = true)
+                    }
+            } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    view?.showToast("Saved Offline. Please sync later.", isError = false)
+                    view?.setSignUpButtonEnabled(true)
+                    view?.showToast("Error: ${e.message}", isError = true)
                 }
             }
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Database Operations
+    // -------------------------------------------------------------------------
     private suspend fun saveUserToDatabases(user: User) {
+        // Save Local
         userDao.registerUser(user)
-        if (NetworkUtils.isNetworkAvailable(context)) {
-            firebaseRepo.registerUser(user)
-        }
+
+        // Save Cloud (Guaranteed online at this point)
+        firebaseRepo.registerUser(user)
+
         withContext(Dispatchers.Main) {
             view?.showToast("Registration successful!", isError = false)
             view?.navigateToLogin()
         }
-    }
-
-    fun onDestroy() {
-        view = null
-        ioScope.cancel()
     }
 }

@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+
 class HomeController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val db: AppDatabase,
@@ -88,6 +89,7 @@ class HomeController @Inject constructor(
                     if (firstForecast != null) {
                         val forecastTimeMillis = firstForecast.dt * 1000L
                         val threeHoursMillis = 3 * 60 * 60 * 1000L
+                        // Refresh if the data is older than 3 hours
                         if (System.currentTimeMillis() > (forecastTimeMillis + threeHoursMillis)) {
                             isForecastExpired = true
                         }
@@ -134,6 +136,8 @@ class HomeController @Inject constructor(
     private fun fetchWeatherByLocation() {
         checkLocationAndRefreshIfNeeded()
     }
+
+    // --- MODIFIED FUNCTION ---
     private fun fetchWeatherForecast(lat: Double, lon: Double, locationName: String) {
         lastWeatherFetchTime = System.currentTimeMillis()
         val apiKey = BuildConfig.WEATHER_API_KEY
@@ -143,24 +147,30 @@ class HomeController @Inject constructor(
                 override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
                     if (response.isSuccessful) {
                         val allForecasts = response.body()?.list ?: return
-                        val upcomingForecasts = allForecasts.take(8)
-                        weatherRepository.saveWeatherData(upcomingForecasts, locationName, getWeatherDay())
+                        val now = System.currentTimeMillis()
+                        val futureForecasts = allForecasts.filter { item ->
+                            val itemTime = item.dt * 1000L
+                            itemTime >= (now - 3600000)
+                        }
+
+                        val displayList = futureForecasts.take(9)
+                        weatherRepository.saveWeatherData(displayList, locationName, getWeatherDay())
 
                         view?.showWeatherContainer(true)
                         view?.setLocationText(locationName)
                         view?.setWeatherDateText(getWeatherDay())
-                        view?.displayForecast(upcomingForecasts)
+                        view?.displayForecast(displayList)
                     } else {
                         displayCachedData()
                     }
                 }
 
                 override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                    Log.e("HomeController", "Weather Fetch Failed: ${t.message}")
                     displayCachedData()
                 }
             })
     }
+
     private fun getLocationName(lat: Double, lon: Double): String {
         return try {
             val geocoder = Geocoder(context, Locale.getDefault())

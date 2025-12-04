@@ -32,9 +32,14 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment(), HomeView {
 
+    // -------------------------------------------------------------------------
+    // Dependencies & Variables
+    // -------------------------------------------------------------------------
     @Inject lateinit var controller: HomeController
     private lateinit var weatherController: WeatherController
+    private lateinit var cropViewModel: CropViewModel
 
+    // UI Elements
     private lateinit var searchInput: EditText
     private lateinit var appLogo: ImageView
     private lateinit var searchButton: ImageButton
@@ -43,10 +48,13 @@ class HomeFragment : Fragment(), HomeView {
     private lateinit var weatherContainer: LinearLayout
     private lateinit var locationText: TextView
     private lateinit var weatherText: TextView
-    private lateinit var cropViewModel: CropViewModel
     private lateinit var activeCropContainer: LinearLayout
+
     private var isSearchOpen = false
 
+    // -------------------------------------------------------------------------
+    // Lifecycle Methods
+    // -------------------------------------------------------------------------
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -58,47 +66,58 @@ class HomeFragment : Fragment(), HomeView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Init ViewModel
         cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
+
+        // Init Views
+        initViews(view)
+
+        // Init Controllers
+        weatherController = WeatherController(requireContext(), weatherContainer)
+        controller.bindView(this, viewLifecycleOwner.lifecycleScope)
+        controller.setupObserver(viewLifecycleOwner)
+
+        // Setup Listeners
+        menuButton.setOnClickListener { (activity as? MainActivity)?.openDrawer() }
+        setupSearchLogic()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        controller.onViewResumed()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        controller.onDestroy()
+    }
+
+    private fun initViews(view: View) {
         searchInput = view.findViewById(R.id.search_input)
         appLogo = view.findViewById(R.id.app_logo)
         searchButton = view.findViewById(R.id.search_button)
         weatherContainer = view.findViewById(R.id.weatherContainer)
-        searchInput = view.findViewById(R.id.search_input)
         itemContainer = view.findViewById(R.id.cropItemContainer)
         menuButton = view.findViewById(R.id.menu_button)
         locationText = view.findViewById(R.id.locationText)
         weatherText = view.findViewById(R.id.weather_date)
         activeCropContainer = view.findViewById(R.id.active_crop_container)
-        weatherController = WeatherController(requireContext(), weatherContainer)
-
-
-        controller.bindView(this, viewLifecycleOwner.lifecycleScope)
-        controller.setupObserver(viewLifecycleOwner)
-
-        menuButton.setOnClickListener {
-            (activity as? MainActivity)?.openDrawer()
-        }
-
-        setupSearchLogic()
     }
 
+    // -------------------------------------------------------------------------
+    // View Interface Implementation (UI Updates)
+    // -------------------------------------------------------------------------
     override fun displayCrops(crops: List<CropEntity>) {
         itemContainer.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
 
-        val addView = inflater.inflate(R.layout.item_add_crop, itemContainer, false)
-
-        val navToCalc = View.OnClickListener {
-            (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
-        }
-        addView.setOnClickListener(navToCalc)
-        addView.findViewById<View>(R.id.itemImage)?.setOnClickListener(navToCalc)
-        addView.findViewById<View>(R.id.itemImage)?.setOnClickListener(navToCalc)
+        // 1. Add Crop Items
         for (crop in crops) {
             val itemView = inflater.inflate(R.layout.item_crop_card, itemContainer, false)
 
             val itemTitle = itemView.findViewById<TextView>(R.id.itemTitle)
             val imgCrop = itemView.findViewById<ImageView>(R.id.itemImage)
+
             imgCrop.setImageResource(CropImageHelper.getImageRes(crop.cropName))
             imgCrop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.moss_green))
             itemTitle.text = crop.cropName
@@ -108,10 +127,16 @@ class HomeFragment : Fragment(), HomeView {
                 cropViewModel.lastSourceId = R.id.nav_home
                 (activity as? MainActivity)?.controller?.onNavigationItemClicked(MainActivity.NAV_CROP_DETAILS)
             }
-
             itemContainer.addView(itemView)
         }
 
+        // 2. Add "Add New Crop" Button first
+        val addView = inflater.inflate(R.layout.item_add_crop, itemContainer, false)
+        val navToCalc = View.OnClickListener {
+            (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
+        }
+        addView.setOnClickListener(navToCalc)
+        addView.findViewById<View>(R.id.itemImage)?.setOnClickListener(navToCalc)
         itemContainer.addView(addView)
     }
 
@@ -129,38 +154,34 @@ class HomeFragment : Fragment(), HomeView {
 
             imgCrop.setImageResource(CropImageHelper.getImageRes(crop.cropName))
             imgCrop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.moss_green))
-
             tvCropName.text = crop.cropName
 
             val status = calculateStatus(crop)
-
             tvDays.text = status.daysText
             tvStatus.text = status.statusText
-
 
             view.setOnClickListener {
                 cropViewModel.viewCropDetails(crop)
                 cropViewModel.lastSourceId = R.id.nav_home
                 (activity as? MainActivity)?.controller?.onNavigationItemClicked(MainActivity.NAV_CROP_DETAILS)
             }
-
             activeCropContainer.addView(view)
         }
+
+        // Add "Add Crop" button at the end of Active list too
         val addView = inflater.inflate(R.layout.add_crop, activeCropContainer, false)
         addView.setOnClickListener {
             (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
         }
-
         activeCropContainer.addView(addView)
     }
 
+    // -------------------------------------------------------------------------
+    // Search Logic
+    // -------------------------------------------------------------------------
     private fun setupSearchLogic() {
         searchButton.setOnClickListener {
-            if (isSearchOpen) {
-                closeSearch()
-            } else {
-                openSearch()
-            }
+            if (isSearchOpen) closeSearch() else openSearch()
         }
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -191,6 +212,37 @@ class HomeFragment : Fragment(), HomeView {
         imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
     }
 
+    // -------------------------------------------------------------------------
+    // Helpers & Permissions
+    // -------------------------------------------------------------------------
+    override fun setLocationText(text: String) {
+        if (view != null) locationText.text = text
+    }
+
+    override fun setWeatherDateText(text: String) {
+        if (view != null) weatherText.text = text
+    }
+
+    override fun displayForecast(forecasts: List<ForecastItem>) {
+        if (view != null) weatherController.displayForecast(forecasts)
+    }
+
+    override fun showWeatherContainer(isVisible: Boolean) {
+        if (view != null) {
+            weatherContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
+        }
+    }
+
+    override fun showToast(message: String, isError: Boolean) {
+        (activity as? MainActivity)?.showToast(message, isError)
+    }
+
+    override fun getMainActivity(): MainActivity? = activity as? MainActivity
+
+    fun onPermissionGranted() = controller.onPermissionGranted()
+    fun onPermissionDenied() = controller.onPermissionDenied()
+
+    // Status Helper Class
     data class CropStatus(val daysText: String, val statusText: String, val colorRes: Int)
 
     private fun calculateStatus(crop: CropEntity): CropStatus {
@@ -217,49 +269,5 @@ class HomeFragment : Fragment(), HomeView {
             daysDiff < 7 -> CropStatus("$daysDiff DAYS", "SOON", android.R.color.holo_orange_dark)
             else -> CropStatus("$daysDiff DAYS", "GROWING", R.color.kombuGreen)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        controller.onViewResumed()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        controller.onDestroy()
-    }
-
-    fun onPermissionGranted() {
-        controller.onPermissionGranted()
-    }
-
-    fun onPermissionDenied() {
-        controller.onPermissionDenied()
-    }
-
-    override fun setLocationText(text: String) {
-        if (view != null) locationText.text = text
-    }
-
-    override fun setWeatherDateText(text: String) {
-        if (view != null) weatherText.text = text
-    }
-
-    override fun displayForecast(forecasts: List<ForecastItem>) {
-        if (view != null) weatherController.displayForecast(forecasts)
-    }
-
-    override fun showWeatherContainer(isVisible: Boolean) {
-        if (view != null) {
-            weatherContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
-        }
-    }
-
-    override fun showToast(message: String, isError: Boolean) {
-        (activity as? MainActivity)?.showToast(message, isError)
-    }
-
-    override fun getMainActivity(): MainActivity? {
-        return activity as? MainActivity
     }
 }
