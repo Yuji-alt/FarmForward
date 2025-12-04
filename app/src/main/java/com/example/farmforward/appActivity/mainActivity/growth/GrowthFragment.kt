@@ -31,12 +31,16 @@ class GrowthFragment : Fragment(), GrowthView {
 
     @Inject lateinit var controller: GrowthController
     private lateinit var cropViewModel: CropViewModel
-
     private lateinit var gridContainer: GridLayout
+
     private lateinit var searchInput: EditText
+
     private lateinit var searchButton: ImageButton
-    private lateinit var appLogo: ImageView
+
+    private lateinit var appLogo: TextView
+
     private lateinit var menuButton: ImageButton
+
     private var isSearchOpen = false
 
     override fun onCreateView(
@@ -49,8 +53,9 @@ class GrowthFragment : Fragment(), GrowthView {
         gridContainer = view.findViewById(R.id.cropListContainer)
         searchInput = view.findViewById(R.id.search_input)
         searchButton = view.findViewById(R.id.search_button)
-        appLogo = view.findViewById(R.id.app_logo)
         menuButton = view.findViewById(R.id.menu_button)
+
+        appLogo = view.findViewById(R.id.app_logo_text)
 
         controller.bindView(this)
         controller.setupObserver(viewLifecycleOwner)
@@ -67,7 +72,6 @@ class GrowthFragment : Fragment(), GrowthView {
         gridContainer.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
 
-        // Grid calculation logic
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val density = displayMetrics.density

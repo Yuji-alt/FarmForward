@@ -66,8 +66,8 @@
             android:inputType="text"
             android:minHeight="48dp"
             android:paddingHorizontal="12dp"
-            android:textColor="@color/black"
-            android:textColorHint="@color/kombuGreen" />
+            android:textColor="@color/kombuGreen"
+            android:textColorHint="@color/moss_green" />
 
         <TextView
             android:id="@+id/password"
@@ -88,8 +88,8 @@
             android:inputType="textPassword"
             android:minHeight="48dp"
             android:paddingHorizontal="12dp"
-            android:textColor="@color/black"
-            android:textColorHint="@color/kombuGreen" />
+            android:textColor="@color/kombuGreen"
+            android:textColorHint="@color/moss_green" />
 
         <TextView
             android:id="@+id/forgotPassword"
