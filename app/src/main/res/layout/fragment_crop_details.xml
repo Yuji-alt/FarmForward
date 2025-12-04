@@ -42,8 +42,9 @@
                 android:padding="8dp"
                 android:textAlignment="center"
                 android:textColor="@color/kombuGreen"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/roboto"/>
         </LinearLayout>
 
         <ImageView
@@ -54,7 +55,7 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/rounded_box"
             android:clipToOutline="true"
-            android:padding="10dp"
+            android:padding="30dp"
             android:gravity="top|start"
             android:src="@drawable/agricultwo" />
 
@@ -76,7 +77,9 @@
                 android:drawablePadding="8dp"
                 app:backgroundTint="@color/kombuGreen"
                 app:tint="@color/tan"
-                android:padding="8dp"/>
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:fontFamily="@font/noto_sans"/>
 
             <View
                 android:layout_width="0dp"
@@ -93,7 +96,9 @@
                 android:drawablePadding="8dp"
                 app:backgroundTint="@color/kombuGreen"
                 app:tint="@color/tan"
-                android:padding="8dp"/>
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:fontFamily="@font/noto_sans"/>
         </LinearLayout>
 
         <TableLayout
@@ -106,32 +111,39 @@
             android:stretchColumns="1">
 
             <TableRow>
-                <TextView style="@style/LabelText" android:text="Area" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvArea" style="@style/ValueText" android:background="@drawable/border"  android:maxLines="1" />
+                <TextView style="@style/LabelText" android:text="Area" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
+                <TextView android:id="@+id/tvArea" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
             </TableRow>
             <TableRow>
-                <TextView style="@style/LabelText" android:text="Soil Type" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:background="@drawable/border"  android:maxLines="1"/>
+                <TextView style="@style/LabelText" android:text="Soil Type" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
+                <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
             </TableRow>
             <TableRow>
-                <TextView style="@style/LabelText" android:text="Irrigation Level" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:background="@drawable/border"  android:maxLines="1"/>
+                <TextView style="@style/LabelText" android:text="Irrigation Level" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
+                <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
             </TableRow>
             <TableRow>
-                <TextView style="@style/LabelText" android:text="Planting Density" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:background="@drawable/border"  android:maxLines="1"/>
+                <TextView style="@style/LabelText" android:text="Planting Density" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
+                <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
             </TableRow>
             <TableRow>
-                <TextView style="@style/LabelText" android:text="Fertilizer Used" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:background="@drawable/border"  android:maxLines="1"/>
+                <TextView style="@style/LabelText" android:text="Fertilizer Used" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
+                <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
             </TableRow>
             <TableRow>
-                <TextView style="@style/LabelText" android:text="Weather Condition" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:maxLines="1" android:background="@drawable/border" />
+                <TextView style="@style/LabelText" android:text="Weather Condition" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
+                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:maxLines="1" android:textColor="@color/kombuGreen" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
             </TableRow>
             <TableRow>
-                <TextView style="@style/LabelText" android:text="Region" android:background="@drawable/border" />
-                <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border"  android:maxLines="1"/>
+
+                <TextView
+                    style="@style/LabelText"
+                    android:background="@drawable/border"
+                    android:fontFamily="@font/noto_sans"
+                    android:textSize="16sp"
+                    android:text="Region" />
+
+                <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
             </TableRow>
         </TableLayout>
 
@@ -148,14 +160,17 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_box_display_leftside"
                 android:gravity="center_vertical"
-                android:padding="12dp">
+                android:padding="12dp"
+                >
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="DATE PLANTED"
                     android:textColor="@color/kombuGreen"
                     android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:maxLines="1"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/noto_sans"/>
             </LinearLayout>
 
             <LinearLayout
@@ -177,8 +192,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/date"
                     android:textColor="@color/bone"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/noto_sans"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -201,8 +217,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/estimated_harvest_yield"
                     android:textColor="@color/kombuGreen"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textSize="20sp"
+                    android:maxLines="1"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/noto_sans"/>
             </LinearLayout>
 
             <LinearLayout
@@ -225,7 +243,8 @@
                     android:text="---"
                     android:textColor="@color/bone"
                     android:textStyle="bold"
-                    android:textSize="18sp" />
+                    android:textSize="20sp"
+                    android:fontFamily="@font/noto_sans"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -235,7 +254,9 @@
             android:layout_height="wrap_content"
             android:text="Harvest"
             android:backgroundTint="@color/kombuGreen"
-            android:textColor="@color/bone" />
+            android:textColor="@color/bone"
+            android:textSize="20sp"
+            android:fontFamily="@font/noto_sans"/>
         <Button
             android:id="@+id/btnViewOnMap"
             android:layout_width="match_parent"
@@ -243,7 +264,9 @@
             android:text="Show Location on Map"
             android:layout_marginBottom="24dp"
             android:backgroundTint="@color/kombuGreen"
-            android:textColor="@color/bone"/>
+            android:textSize="20sp"
+            android:textColor="@color/bone"
+            android:fontFamily="@font/noto_sans"/>
 
     </LinearLayout>
 </ScrollView>

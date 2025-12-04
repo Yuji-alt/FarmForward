@@ -21,10 +21,10 @@ import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.database.CropEntity
-import com.example.farmforward.utils.weatherUtils.ForecastItem
-import com.example.farmforward.utils.weatherUtils.WeatherController
 import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.CropImageHelper
+import com.example.farmforward.utils.weatherUtils.ForecastItem
+import com.example.farmforward.utils.weatherUtils.WeatherController
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -70,6 +70,7 @@ class HomeFragment : Fragment(), HomeView {
         weatherText = view.findViewById(R.id.weather_date)
         activeCropContainer = view.findViewById(R.id.active_crop_container)
         weatherController = WeatherController(requireContext(), weatherContainer)
+
 
         controller.bindView(this, viewLifecycleOwner.lifecycleScope)
         controller.setupObserver(viewLifecycleOwner)

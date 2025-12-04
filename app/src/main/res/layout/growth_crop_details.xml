@@ -46,10 +46,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="RICE"
-                    android:textSize="22sp"
+                    android:textSize="30sp"
                     android:textStyle="bold"
                     android:textColor="@color/kombuGreen"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:fontFamily="@font/roboto"/>
 
                 <!-- CROP IMAGE -->
                 <ImageView
@@ -70,11 +71,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Growth: 65%"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/kombuGreen"
                     android:gravity="center"
-                    android:layout_marginTop="20dp" />
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/noto_sans"/>
 
                 <!-- PROGRESS BAR -->
                 <SeekBar
@@ -95,10 +97,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Date Planted: December 25"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/kombuGreen"
-                    android:layout_marginTop="20dp" />
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/noto_sans"/>
 
                 <!-- ESTIMATED HARVEST -->
                 <TextView
@@ -106,10 +109,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Estimated Harvest: December 25"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textColor="@color/kombuGreen"
                     android:layout_marginTop="10dp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/noto_sans"/>
 
                 <!-- GROWTH STAGE -->
                 <TextView
@@ -118,9 +122,10 @@
                     android:layout_height="wrap_content"
                     android:text="Growth Stage: Vegetative"
                     android:textColor="@color/kombuGreen"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="10dp" />
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/noto_sans"/>
 
                 <!-- DESCRIPTION -->
                 <TextView
@@ -129,8 +134,9 @@
                     android:layout_height="wrap_content"
                     android:text="Description: Plant is developing roots and leaves..."
                     android:textColor="@color/kombuGreen"
-                    android:textSize="14sp"
-                    android:layout_marginTop="6dp" />
+                    android:textSize="20sp"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="@font/noto_sans"/>
 
                 <Button
                     android:id="@+id/btnHarvest"
@@ -140,8 +146,10 @@
                     android:text="Harvest now"
                     android:textColor="@color/bone"
                     android:padding="14dp"
+                    android:textSize="20sp"
                     android:layout_marginTop="12dp"
                     android:visibility="gone"
+                    android:fontFamily="@font/roboto"
                     />
 
             </LinearLayout>
@@ -156,6 +164,8 @@
         android:text="Show Location on Map"
         android:textColor="@color/bone"
         android:padding="14dp"
-        android:layout_marginTop="12dp" />
+        android:textSize="20sp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/roboto"/>
 
 </LinearLayout>

@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
+import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails.CropDetailsController
 import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails.CropDetailsView
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel
@@ -40,6 +41,8 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     private lateinit var tvDensity: TextView
     private lateinit var tvFertilizer: TextView
     private lateinit var tvWeather: TextView
+    private lateinit var tvRegion: TextView
+
     private lateinit var btnViewOnMap: Button
     private lateinit var btnHarvest: Button
 
@@ -53,6 +56,7 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
 
         val tvEdit = view.findViewById<TextView>(R.id.tvEdit)
         val tvDelete = view.findViewById<TextView>(R.id.tvDelete)
+        val btnCloseNav = view.findViewById<ImageButton>(R.id.btn_close_nav)
 
         tvCropName = view.findViewById(R.id.tvCropName)
         tvArea = view.findViewById(R.id.tvArea)
@@ -64,10 +68,11 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         tvDensity = view.findViewById(R.id.tvDensity)
         tvFertilizer = view.findViewById(R.id.tvFertilizer)
         tvWeather = view.findViewById(R.id.tvWeather)
+
+        tvRegion = view.findViewById(R.id.tvRegion)
+
         btnViewOnMap = view.findViewById(R.id.btnViewOnMap)
         btnHarvest = view.findViewById(R.id.btnHarvest)
-
-        val btnCloseNav = view.findViewById<ImageButton>(R.id.btn_close_nav)
 
         btnCloseNav.setOnClickListener {
             (activity as? MainActivity)?.controller?.onBackClicked(cropViewModel)
@@ -96,6 +101,7 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         controller.bindView(this)
         controller.setupObserver(viewLifecycleOwner, cropViewModel)
     }
+
 
     override fun showHarvestDatePicker(minHarvestDate: Long, onDateSelected: (Long) -> Unit) {
         val calendar = Calendar.getInstance()
@@ -135,6 +141,15 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     override fun setWeather(weather: String) { tvWeather.text = weather }
     override fun setCropImage(resourceId: Int) { imgCrop.setImageResource(resourceId) }
 
+
+    override fun setLocation(region: String, locality: String) {
+        if (locality.isNotEmpty()) {
+            tvRegion.text = "$region - $locality"
+        } else {
+            tvRegion.text = region
+        }
+    }
+
     override fun navigateToEdit(crop: CropEntity) {
         (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
     }
@@ -163,7 +178,10 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Crop")
             .setMessage(message)
-            .setPositiveButton("Delete") { _, _ -> onConfirm() }
+            .setPositiveButton("Delete") { _, _ ->
+                // This triggers the Controller's logic
+                onConfirm()
+            }
             .setNegativeButton("Cancel", null)
             .show()
     }

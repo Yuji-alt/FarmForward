@@ -17,9 +17,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
+import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -45,30 +45,7 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val rootLayout = findViewById<ScrollView>(R.id.rootLayout)
-
-        ViewCompat.setOnApplyWindowInsetsListener(rootLayout) { view, insets ->
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val bottomPadding = max(imeInsets.bottom, systemBars.bottom)
-            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, bottomPadding)
-
-            val isKeyboardVisible = imeInsets.bottom > 0
-            if (isKeyboardVisible) {
-                val focusedView = currentFocus
-                if (focusedView != null) {
-                    view.post {
-                        val rect = Rect()
-                        focusedView.getDrawingRect(rect)
-                        rootLayout.offsetDescendantRectToMyCoords(focusedView, rect)
-                        val scrollY = rect.top - 100
-                        rootLayout.smoothScrollTo(0, scrollY)
-                    }
-                }
-            }
-
-            insets
-        }
-
+        rootLayout.handleKeyboardVisibility()
         emailInput = findViewById(R.id.email_input)
         usernameInput = findViewById(R.id.user_name_input)
         passwordInput = findViewById(R.id.signUp_password)

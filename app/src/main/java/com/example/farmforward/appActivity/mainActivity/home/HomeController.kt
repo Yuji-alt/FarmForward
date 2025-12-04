@@ -9,8 +9,9 @@ import androidx.lifecycle.Observer
 import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
-import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.CropEntity
+import com.example.farmforward.database.roomDatabase.AppDatabase
+import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.example.farmforward.utils.otherUtils.RetrofitClient
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
 import com.example.farmforward.utils.weatherUtils.WeatherResponse
@@ -25,7 +26,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-
 class HomeController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val db: AppDatabase,
@@ -40,7 +40,6 @@ class HomeController @Inject constructor(
 
     private var lastWeatherFetchTime: Long = 0L
     private val WEATHER_FETCH_COOLDOWN = 10 * 60 * 1000L
-
     private val cropsObserver = Observer<List<CropEntity>> { crops ->
         allCrops = crops
         filterAndDisplayCrops(currentSearchQuery)
@@ -59,16 +58,53 @@ class HomeController @Inject constructor(
 
     fun onViewResumed() {
         weatherRepository.loadCachedData()
+        displayCachedData()
+
+        checkLocationAndRefreshIfNeeded()
+    }
+
+    private fun displayCachedData() {
         if (!weatherRepository.cachedForecasts.isNullOrEmpty()) {
             view?.showWeatherContainer(true)
             view?.setLocationText(weatherRepository.cachedLocationName ?: "Unknown")
             view?.setWeatherDateText(weatherRepository.cachedDateText ?: "Today")
             view?.displayForecast(weatherRepository.cachedForecasts!!)
-        } else {
-            val now = System.currentTimeMillis()
-            if (now - lastWeatherFetchTime > WEATHER_FETCH_COOLDOWN) {
-                lastWeatherFetchTime = now
-                fetchWeatherByLocation()
+        }
+    }
+
+    private fun checkLocationAndRefreshIfNeeded() {
+        val activity = view?.getMainActivity() ?: return
+        val mainController = activity.controller
+        if (mainController.hasLocationPermission() && NetworkUtils.isNetworkAvailable(context)) {
+            mainController.fetchCurrentLocation(activity) { lat, lon ->
+                scopeOwner?.launch(Dispatchers.IO) {
+                    val currentLocality = getLocationName(lat, lon)
+                    val cachedLocality = weatherRepository.cachedLocationName ?: ""
+
+                    val locationChanged = !currentLocality.equals(cachedLocality, ignoreCase = true)
+                    var isForecastExpired = false
+                    val firstForecast = weatherRepository.cachedForecasts?.firstOrNull()
+
+                    if (firstForecast != null) {
+                        val forecastTimeMillis = firstForecast.dt * 1000L
+                        val threeHoursMillis = 3 * 60 * 60 * 1000L
+                        if (System.currentTimeMillis() > (forecastTimeMillis + threeHoursMillis)) {
+                            isForecastExpired = true
+                        }
+                    } else {
+                        isForecastExpired = true
+                    }
+                    if (locationChanged || isForecastExpired) {
+                        Log.d("HomeController", "Refreshing weather. LocationChanged: $locationChanged, Expired: $isForecastExpired")
+                        withContext(Dispatchers.Main) {
+                            view?.setLocationText(currentLocality)
+                            view?.setWeatherDateText("Updating...")
+                        }
+                        fetchWeatherForecast(lat, lon, currentLocality)
+                    } else {
+                        Log.d("HomeController", "Weather is up to date. No refresh needed.")
+                    }
+                }
             }
         }
     }
@@ -79,99 +115,56 @@ class HomeController @Inject constructor(
     }
 
     fun onPermissionGranted() {
-        Log.d("HomeFragment", "Permission was granted! Re-fetching weather.")
         fetchWeatherByLocation()
     }
-
     fun onPermissionDenied() {
-        Log.d("HomeFragment", "Permission was denied.")
         view?.setLocationText(context.getString(R.string.permission_needed))
         view?.setWeatherDateText("---")
     }
-
     private fun filterAndDisplayCrops(query: String) {
         val filteredCrops = if (query.isEmpty()) {
             allCrops
         } else {
             allCrops.filter { crop -> crop.cropName.contains(query, ignoreCase = true) }
         }
-
         view?.displayCrops(filteredCrops)
-
         val activeCropsOnly = filteredCrops.filter { it.harvestedDate == null }
         view?.displayActiveStatus(activeCropsOnly)
     }
-
     private fun fetchWeatherByLocation() {
-        val activity = view?.getMainActivity() ?: return
-        val mainController = activity.controller
-
-        view?.showWeatherContainer(true)
-        view?.setLocationText(context.getString(R.string.location_loading))
-        view?.setWeatherDateText(context.getString(R.string.loading))
-
-        mainController.checkAndRequestLocationPermission(
-            activity,
-            onPermissionGranted = {
-                mainController.fetchCurrentLocation(activity) { lat, lon ->
-                    scopeOwner?.launch(Dispatchers.IO) {
-                        val locationName = getLocationName(lat, lon)
-                        withContext(Dispatchers.Main) {
-                            view?.setLocationText(locationName)
-                        }
-                        fetchWeatherForecast(lat, lon, locationName)
-                    }
-                }
-            },
-            onPermissionDenied = { onPermissionDenied() }
-        )
+        checkLocationAndRefreshIfNeeded()
     }
-
     private fun fetchWeatherForecast(lat: Double, lon: Double, locationName: String) {
+        lastWeatherFetchTime = System.currentTimeMillis()
         val apiKey = BuildConfig.WEATHER_API_KEY
 
         RetrofitClient.instance.getForecastByCoordinates(lat, lon, apiKey)
             .enqueue(object : Callback<WeatherResponse> {
                 override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-                    view?.showWeatherContainer(true)
-
                     if (response.isSuccessful) {
                         val allForecasts = response.body()?.list ?: return
-                        view?.setWeatherDateText(getWeatherDay())
                         val upcomingForecasts = allForecasts.take(8)
-
                         weatherRepository.saveWeatherData(upcomingForecasts, locationName, getWeatherDay())
 
+                        view?.showWeatherContainer(true)
+                        view?.setLocationText(locationName)
+                        view?.setWeatherDateText(getWeatherDay())
                         view?.displayForecast(upcomingForecasts)
                     } else {
-                        Log.d("WeatherAPI", "API Error: ${response.code()}")
-                        view?.showToast("Failed to load weather.", isError = true)
-                        view?.setWeatherDateText("Error")
-                        view?.setLocationText("---")
+                        displayCachedData()
                     }
                 }
 
                 override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                    view?.showWeatherContainer(true)
-                    Log.e("WeatherAPI", "Network Error: ${t.localizedMessage}")
-                    weatherRepository.loadCachedData()
-
-                    if(!weatherRepository.cachedForecasts.isNullOrEmpty()) {
-                        view?.showToast("Offline Mode: Showing cached weather.", isError = false)
-
-                        view?.setLocationText(weatherRepository.cachedLocationName ?: "Unknown")
-                        view?.setWeatherDateText(weatherRepository.cachedDateText ?: "")
-                        view?.displayForecast(weatherRepository.cachedForecasts!!)
-                    } else {
-                        view?.showToast("Network error.", isError = true)
-                        view?.setWeatherDateText(context.getString(R.string.network_failed))
-                    }
+                    Log.e("HomeController", "Weather Fetch Failed: ${t.message}")
+                    displayCachedData()
                 }
             })
     }
     private fun getLocationName(lat: Double, lon: Double): String {
         return try {
             val geocoder = Geocoder(context, Locale.getDefault())
+            @Suppress("DEPRECATION")
             val addresses = geocoder.getFromLocation(lat, lon, 1)
             if (!addresses.isNullOrEmpty()) {
                 val address = addresses[0]
@@ -184,7 +177,6 @@ class HomeController @Inject constructor(
             "Unknown Location"
         }
     }
-
     private fun getWeatherDay(): String {
         val format = SimpleDateFormat("EEEE, MMMM dd", Locale.getDefault())
         return format.format(Date())

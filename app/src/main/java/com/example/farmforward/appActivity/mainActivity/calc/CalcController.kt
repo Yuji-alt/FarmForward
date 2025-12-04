@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.staticData.CropRepository
-import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.example.farmforward.database.viewModel.CropViewModel
+import com.example.farmforward.utils.otherUtils.NetworkUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -32,7 +32,6 @@ class CalcController @Inject constructor(
     fun onViewCreated() {
         cropRepository.loadData()
         val cropNames = cropRepository.getAllCropNames()
-
         view?.setCropAdapter(cropNames)
         view?.setFactorAdapters(
             soilOptions = listOf("Poor", "Medium", "Fertile"),
@@ -67,7 +66,6 @@ class CalcController @Inject constructor(
 
         viewModel?.cropToEdit = null
         view?.setButtonText("Calculate & Save")
-
         view?.showToast("Calculation cleared/cancelled.", isError = false)
     }
 

@@ -1,8 +1,7 @@
 package com.example.farmforward.appActivity.mainActivity
 
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager // You can remove this import if you remove the method below
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
 
 interface MainView {

@@ -6,12 +6,14 @@
     android:minHeight="0dp"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    android:paddingTop="3dp"
-    android:paddingBottom="3dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:layout_margin="5dp"
     android:textSize="16dp"
     android:textColor="@color/kombuGreen"
     android:background="@drawable/selector_dropdown_item"
     android:ellipsize="end"
     android:includeFontPadding="false"
     android:gravity="center_vertical"
-    android:singleLine="true" />
+    android:singleLine="true"
+    />

@@ -26,4 +26,4 @@ interface CropDetailsView {
     fun showMapButton(isVisible: Boolean)
     fun showHarvestButton(isVisible: Boolean)
     fun showHarvestDatePicker(minHarvestDate: Long, onDateSelected: (Long) -> Unit)
-}
+    fun setLocation(region: String, locality: String)}

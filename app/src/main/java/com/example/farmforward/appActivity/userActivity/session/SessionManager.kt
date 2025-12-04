@@ -67,11 +67,14 @@ class SessionManager @Inject constructor(
     fun clearSession() {
         prefs.edit().clear().apply()
     }
-    fun saveDarkMode(isDark: Boolean) {
-        prefs.edit().putBoolean(KEY_DARK_MODE, isDark).apply()
+    fun createLoginSession(userId: Int, username: String, email: String) {
+        saveSession(userId, username, email)
     }
-
-    fun isDarkMode(): Boolean {
-        return prefs.getBoolean(KEY_DARK_MODE, false)
+    fun getUserDetails(): HashMap<String, String> {
+        val user = HashMap<String, String>()
+        // Use "name" as the key to match your SettingsFragment logic
+        user["name"] = prefs.getString(KEY_USERNAME, null) ?: ""
+        user["email"] = prefs.getString(KEY_EMAIL, null) ?: ""
+        return user
     }
 }

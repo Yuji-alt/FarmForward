@@ -12,15 +12,15 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -29,7 +29,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.calc.CalcFragment
 import com.example.farmforward.appActivity.mainActivity.garden.GardenFragment
@@ -44,7 +43,9 @@ import com.example.farmforward.appActivity.mainActivity.otherFragment.Settings.S
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.viewModel.CropViewModel
-import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
+import com.example.farmforward.utils.notificationsUtils.CropWorker
+import com.example.farmforward.utils.notificationsUtils.WeatherWorker
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
@@ -68,6 +69,8 @@ class MainActivity : AppCompatActivity(), MainView {
     private val orderedTabs = listOf(
         R.id.nav_home, R.id.nav_garden, R.id.nav_calc, R.id.nav_growth, R.id.nav_map
     )
+    private var onLocationSettingsSuccess: (() -> Unit)? = null
+    private var onLocationSettingsFailure: (() -> Unit)? = null
     companion object {
         const val NAV_CROP_DETAILS = 10001
         const val NAV_GROWTH_CROP_DETAILS = 10002
@@ -75,9 +78,26 @@ class MainActivity : AppCompatActivity(), MainView {
         const val NAV_HARVEST = 10004
         const val NAV_WEATHER = 10005
         const val NAV_SETTINGS = 10006
+        const val NAV_HELP = 10007
+        const val NAV_CONTACT = 10008
+        const val NAV_TERMS = 10009
+        const val NAV_PRIVACY = 10010
+
     }
 
     private var currentMenuId: Int = R.id.nav_home
+    private val locationSettingsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            onLocationSettingsSuccess?.invoke()
+        } else {
+            onLocationSettingsFailure?.invoke()
+        }
+        // Cleanup
+        onLocationSettingsSuccess = null
+        onLocationSettingsFailure = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,7 +124,7 @@ class MainActivity : AppCompatActivity(), MainView {
         map.setOnClickListener { controller.onNavigationItemClicked(R.id.nav_map) }
         calc.setOnClickListener { controller.onNavigationItemClicked(R.id.nav_calc) }
         growth.setOnClickListener { controller.onNavigationItemClicked(R.id.nav_growth) }
-        btnSaved.setOnClickListener { controller.onSavedClicked() }
+        btnSaved.setOnClickListener { controller.onSavedAndSyncClicked() }
         btnSignOut.setOnClickListener { controller.onSignOutClicked() }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -145,7 +165,16 @@ class MainActivity : AppCompatActivity(), MainView {
             controller.onNavigationItemClicked(NAV_WEATHER)
             closeDrawer()
         }
-        setupDailyNotifications()
+        findViewById<LinearLayout>(R.id.btn_help)?.setOnClickListener {
+            controller.onNavigationItemClicked(NAV_HELP)
+            closeDrawer()
+        }
+
+        findViewById<LinearLayout>(R.id.btn_contacts)?.setOnClickListener {
+            controller.onNavigationItemClicked(NAV_CONTACT)
+            closeDrawer()
+        }
+        setupSmartNotifications()
         controller.onViewCreated()
     }
 
@@ -173,13 +202,14 @@ class MainActivity : AppCompatActivity(), MainView {
         val snackbar = Snackbar.make(rootView, message, Snackbar.LENGTH_LONG)
         val snackbarView = snackbar.view
         val params = snackbarView.layoutParams as FrameLayout.LayoutParams
-        params.gravity = Gravity.TOP
+        params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         val insets = ViewCompat.getRootWindowInsets(rootView)
-        val statusBarHeight = insets?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
-        val bufferMargin = 10.dpToPx(context).toInt()
-        params.topMargin = statusBarHeight + bufferMargin
+        val navBarHeight = insets?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: 0
+        val bufferMargin = 20.dpToPx(context).toInt()
+        params.bottomMargin = navBarHeight + bufferMargin
         params.leftMargin = 20.dpToPx(context).toInt()
         params.rightMargin = 20.dpToPx(context).toInt()
+
         snackbarView.layoutParams = params
         snackbarView.backgroundTintList = null
         val borderDrawable = GradientDrawable()
@@ -195,17 +225,45 @@ class MainActivity : AppCompatActivity(), MainView {
         snackbar.setAction("OK") { snackbar.dismiss() }
         snackbar.show()
     }
-    private fun setupDailyNotifications() {
-        val workRequest = PeriodicWorkRequestBuilder<DailyCheckWorker>(1, TimeUnit.DAYS)
-            .setInitialDelay(1, TimeUnit.MINUTES)
+
+    private fun setupSmartNotifications() {
+        val workManager = androidx.work.WorkManager.getInstance(this)
+
+        val weatherRequest = PeriodicWorkRequestBuilder<WeatherWorker>(3, TimeUnit.HOURS)
+            .setInitialDelay(1, TimeUnit.HOURS)
             .build()
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "FarmDailyCheck",
+        workManager.enqueueUniquePeriodicWork(
+            "WeatherWorker",
             ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
+            weatherRequest
+        )
+
+        val cropRequest = PeriodicWorkRequestBuilder<CropWorker>(24, TimeUnit.HOURS)
+            .setInitialDelay(15, TimeUnit.MINUTES)
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            "CropWorker",
+           ExistingPeriodicWorkPolicy.KEEP,
+            cropRequest
         )
     }
+    fun launchLocationSettings(
+        exception: ResolvableApiException,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        this.onLocationSettingsSuccess = onSuccess
+        this.onLocationSettingsFailure = onFailure
+        try {
+            val intentSenderRequest = IntentSenderRequest.Builder(exception.resolution).build()
+            locationSettingsLauncher.launch(intentSenderRequest)
+        } catch (e: Exception) {
+            onFailure()
+        }
+    }
+
     private fun Int.dpToPx(context: Context): Float {
         return this * context.resources.displayMetrics.density
     }
@@ -260,9 +318,13 @@ class MainActivity : AppCompatActivity(), MainView {
 
         val isOpeningDetails = newMenuId == NAV_CROP_DETAILS || newMenuId == NAV_GROWTH_CROP_DETAILS
                 || newMenuId == NAV_PROFILE || newMenuId == NAV_HARVEST || newMenuId == NAV_WEATHER || newMenuId == NAV_SETTINGS
+                || newMenuId == NAV_TERMS || newMenuId == NAV_PRIVACY || newMenuId == NAV_HELP || newMenuId == NAV_CONTACT
+
 
         val isClosingDetails = currentMenuId == NAV_CROP_DETAILS || currentMenuId == NAV_GROWTH_CROP_DETAILS
                 || currentMenuId == NAV_PROFILE || currentMenuId == NAV_HARVEST || currentMenuId == NAV_WEATHER || currentMenuId == NAV_SETTINGS
+                || currentMenuId == NAV_TERMS || currentMenuId == NAV_PRIVACY || currentMenuId == NAV_HELP || currentMenuId == NAV_CONTACT
+
 
 
         if (isOpeningDetails) {
@@ -323,6 +385,26 @@ class MainActivity : AppCompatActivity(), MainView {
             NAV_HARVEST -> GardenToolsFragment.newInstance("HARVEST")
             NAV_WEATHER -> GardenToolsFragment.newInstance("WEATHER")
             NAV_SETTINGS -> SettingsFragment()
+            NAV_HELP -> com.example.farmforward.appActivity.mainActivity.otherFragment.TextContentFragment.newInstance(
+                getString(R.string.title_help),
+                getString(R.string.content_help),
+                R.id.nav_home
+            )
+            NAV_CONTACT -> com.example.farmforward.appActivity.mainActivity.otherFragment.TextContentFragment.newInstance(
+                getString(R.string.title_contact),
+                getString(R.string.content_contact),
+                R.id.nav_home // <--- Back to Home
+            )
+            NAV_TERMS -> com.example.farmforward.appActivity.mainActivity.otherFragment.TextContentFragment.newInstance(
+                getString(R.string.title_terms),
+                getString(R.string.content_terms),
+                NAV_SETTINGS
+            )
+            NAV_PRIVACY -> com.example.farmforward.appActivity.mainActivity.otherFragment.TextContentFragment.newInstance(
+                getString(R.string.title_privacy),
+                getString(R.string.content_privacy),
+                NAV_SETTINGS
+            )
             else -> HomeFragment()
         }
     }

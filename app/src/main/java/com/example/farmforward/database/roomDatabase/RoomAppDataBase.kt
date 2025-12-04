@@ -8,7 +8,7 @@ import com.example.farmforward.database.CropEntity
 
 @Database(
         entities = [User::class, CropEntity::class],
-        version = 11,
+        version = 12,
         exportSchema = false
     )
     abstract class AppDatabase : RoomDatabase() {

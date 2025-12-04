@@ -35,7 +35,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".utils.loadingUtils.LoadingActivity" />
+        <activity
+            android:name=".utils.loadingUtils.LoadingActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
         <activity
             android:name=".appActivity.userActivity.signUp.SignUpActivity"
             android:windowSoftInputMode="adjustResize"

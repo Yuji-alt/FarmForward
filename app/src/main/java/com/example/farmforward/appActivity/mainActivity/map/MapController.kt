@@ -1,16 +1,12 @@
 package com.example.farmforward.appActivity.mainActivity.map
 
-import android.location.Location
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
-import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.CropEntity
+import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.viewModel.CropViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import javax.inject.Inject
 
 class MapController @Inject constructor(
@@ -44,6 +40,9 @@ class MapController @Inject constructor(
 
     fun onSearchQueryChanged(query: String) {
         currentSearchQuery = query
+        processCrops()
+    }
+    fun forceRefreshCrops() {
         processCrops()
     }
 

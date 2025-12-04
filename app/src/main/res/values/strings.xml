@@ -67,5 +67,99 @@
     <string name="profile">Profile</string>
     <string name="calculator">Calculator</string>
     <string name="harvest_history">Harvest History</string>
-    <string name="terms_conditions"><![CDATA[Terms & Conditions]]></string>
+    <string name="terms_conditions">Terms &amp; Conditions</string> <string name="title_terms">Terms &amp; Conditions</string>
+    <string name="content_terms"><![CDATA[<b>Last Updated: December 2, 2025</b><br/><br/>
+<b>1. Introduction</b><br/>
+Welcome to FarmForward. By downloading, accessing, or using this mobile application, you agree to be bound by these Terms & Conditions.<br/>
+If you do not agree with any part of these Terms, please stop using the app immediately.<br/><br/>
+FarmForward is a crop management system designed to help users monitor farm activities, track crop stages, and estimate yields.<br/><br/>
+<b>2. Definitions</b><br/>
+For clarity in these Terms, the following words have the meanings given:<br/>
+• <b>“App”</b> — FarmForward mobile application.<br/>
+• <b>“User”</b> — any person who installs, accesses, or uses the app.<br/>
+• <b>“Personal Information”</b> — data such as name, email, location, or any identifying information.<br/>
+• <b>“Farm Data”</b> — crop information such as soil type, planting date, irrigation level, and farm characteristics.<br/><br/>
+<b>3. Eligibility</b><br/>
+To use this app, you must be at least 13 years old, provide accurate information, and use the app for lawful purposes.<br/><br/>
+<b>4. User Account</b><br/>
+Certain features require name, email, and location. You are responsible for maintaining the confidentiality of your account.<br/><br/>
+<b>5. Permissions Required</b><br/>
+FarmForward may request access to Location (for region identification), Storage, and Internet Access.<br/><br/>
+<b>6. Use of the Application</b><br/>
+You agree to use the app only for agricultural purposes and input accurate data. You must not reverse-engineer or misuse the app.<br/><br/>
+<b>7. No Professional Guarantee</b><br/>
+The app does NOT guarantee actual crop yields and does NOT replace professional agronomists. It is a supplementary decision tool only.<br/><br/>
+<b>8. Intellectual Property</b><br/>
+All components (name, logo, algorithms) are the exclusive property of the Developers.<br/><br/>
+<b>9. Data Handling & Privacy</b><br/>
+Your use is governed by our Privacy Policy. Personal data may be collected and stored locally or in the cloud.<br/><br/>
+<b>10. Limitation of Liability</b><br/>
+The Developers are not liable for inaccurate predictions, data loss, or technical issues. You use the app at your own risk.<br/><br/>
+<b>11. Modifications</b><br/>
+We reserve the right to modify features or these Terms at any time.<br/><br/>
+<b>12. Governing Law</b><br/>
+These Terms shall be governed by the laws of the Philippines.<br/><br/>
+<b>13. Contact Information</b><br/>
+For inquiries, please go to the contact section.]]></string>
+
+    <string name="title_privacy">Privacy Policy</string>
+    <string name="content_privacy"><![CDATA[<b>Last Updated: December 2, 2025</b><br/><br/>
+<b>1. Introduction</b><br/>
+FarmForward is committed to protecting your personal information. This Privacy Policy explains what data we collect and how we use it.<br/><br/>
+<b>2. Information We Collect</b><br/>
+<b>Personal Information:</b> Full Name, Email Address, Location Information.<br/>
+<b>Farm Data:</b> Crop type, Soil type, Planting date, Irrigation level, Farm characteristics.<br/><br/>
+<b>3. How We Use Your Information</b><br/>
+We use data to create your profile, calculate yield predictions, determine growth stages, and improve app accuracy.<br/><br/>
+<b>4. How We Store Your Information</b><br/>
+Personal info may be stored in the app’s secure database. Farm data is stored locally or in the cloud (if syncing is enabled).<br/><br/>
+<b>5. Data Sharing</b><br/>
+We do NOT sell, rent, or trade personal information. We only share if required by law or with your explicit permission.<br/><br/>
+<b>6. Location Data</b><br/>
+Used to identify your farm’s region and improve yield prediction accuracy.<br/><br/>
+<b>7. Data Security</b><br/>
+We implement safeguards including encrypted communication and secure database handling.<br/><br/>
+<b>8. Children\'s Privacy</b><br/>
+FarmForward is not intended for children under 13.<br/><br/>
+<b>9. Your Rights</b><br/>
+You have the right to access, update, or delete your data, and withdraw location permissions.<br/><br/>
+<b>10. Changes</b><br/>
+We may update this policy from time to time.]]></string>
+
+    <string name="title_help">Help &amp; Support</string>
+    <string name="content_help"><![CDATA[<b>FREQUENTLY ASKED QUESTIONS</b><br/><br/>
+<b>1. What is FarmForward?</b><br/>
+FarmForward is a crop management app that helps farmers monitor crop growth and estimate yield using basic farm information.<br/><br/>
+<b>2. Do I need an internet connection?</b><br/>
+Most features work offline. However, cloud-sync features may require a connection.<br/><br/>
+<b>3. How do I add a crop?</b><br/>
+Go to the Dashboard, tap Add Crop, and enter details like crop type, soil type, and planting date.<br/><br/>
+<b>4. Why is my predicted yield changing?</b><br/>
+Yield predictions update whenever you modify details like soil type, irrigation, or planting density.<br/><br/>
+<b>5. Why is my stage not updating?</b><br/>
+Ensure the planting date is correct. Stages update automatically as days progress based on the crop variety.<br/><br/>
+<b>6. Who do I contact for help?</b><br/>
+Please refer to the Contact Details section in the app.]]></string>
+
+    <string name="title_contact">Contact Details</string>
+    <string name="content_contact"><![CDATA[<b>General Inquiries</b><br/>
+Email: farm.forward@gmail.com<br/>
+FB: FarmForward<br/>
+IG: Farm.Forward<br/><br/>
+<b>Team Management</b><br/>
+<b>Project Manager:</b> Mr. Joshua Marl G. Sara<br/>
+Email: joshuamarl.sara@cvsu.edu.ph<br/>
+Contact: +63 993 684 6485<br/><br/>
+<b>System Analyst:</b> Ms. Genevieve Y. Gamay<br/>
+Email: genevieve.gamay@cvsu.edu.ph<br/>
+Contact: +63 927 225 8451<br/><br/>
+<b>Developer:</b> Mr. Carl Lowell B. Dela Peña<br/>
+Email: carllowell.delapeña@cvsu.edu.ph<br/>
+Contact: +63 991 215 5367<br/><br/>
+<b>Assistant Dev:</b> Mr. Alcris S. Amulong<br/>
+Email: alcris.amulong@cvsu.edu.ph<br/>
+Contact: +63 994 989 9227<br/><br/>
+<b>Tester:</b> Ms. Princess Trisha M. Carias<br/>
+Email: princesstrisha.carias@cvsu.edu.ph<br/>
+Contact: +63 966 014 6881]]></string>
 </resources>

@@ -2,27 +2,17 @@ package com.example.farmforward.database.staticData
 
 import android.content.Context
 import android.util.Log
+import com.example.farmforward.database.dataclass.CropData
+import com.example.farmforward.database.dataclass.FactorData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.find
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
 
-// Data Models
-data class CropData(
-    val name: String,
-    val baseYield: Double,
-    val minDays: Int,
-    val maxDays: Int,
-    val category: String
-)
-
-data class FactorData(
-    val category: String,
-    val factorType: String,
-    val option: String,
-    val effect: Double
-)
 
 @Singleton
 class CropRepository @Inject constructor(
@@ -32,7 +22,7 @@ class CropRepository @Inject constructor(
     private var factorsList: List<FactorData> = emptyList()
 
     fun loadData() {
-        if (cropsList.isNotEmpty()) return // Already loaded
+        if (cropsList.isNotEmpty()) return
 
         cropsList = parseCropsCsv()
         factorsList = parseFactorsCsv()

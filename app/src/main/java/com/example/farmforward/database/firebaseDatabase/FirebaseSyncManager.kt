@@ -15,11 +15,9 @@ import javax.inject.Inject
 class FirebaseSyncManager @Inject constructor(
     private val userDao: RoomUserDao,
     private val cropDao: RoomCropDao,
-    private val firebaseUserRepo: FirebaseUserRepository,
     private val session: SessionManager,
     private val firestore: FirebaseFirestore
 ) {
-
     suspend fun syncUsers() {
         try {
             val currentUsername = session.getUserName()
@@ -53,7 +51,6 @@ class FirebaseSyncManager @Inject constructor(
             e.printStackTrace()
         }
     }
-
     suspend fun syncCrops() = withContext(Dispatchers.IO) {
         val userId = session.getUserId() ?: return@withContext
 
@@ -63,7 +60,6 @@ class FirebaseSyncManager @Inject constructor(
                 .collection("crops")
                 .get()
                 .await()
-
             val firebaseCrops = snapshot.toObjects(CropEntity::class.java)
             val localCrops = cropDao.getAllCropsIncludeDeleted(userId)
             val getCropKey: (CropEntity) -> String = { it.firestoreId }
@@ -72,11 +68,9 @@ class FirebaseSyncManager @Inject constructor(
             val localMap = localCrops.associateBy(getCropKey)
 
             val allCropKeys = firebaseMap.keys union localMap.keys
-
             for (key in allCropKeys) {
                 val firebaseItem = firebaseMap[key]
                 val localItem = localMap[key]
-
                 when {
                     firebaseItem != null && localItem == null -> {
                         val syncedItem = firebaseItem.copy(isSynced = 1)
@@ -117,8 +111,8 @@ class FirebaseSyncManager @Inject constructor(
                     .document(crop.firestoreId)
                     .delete()
                     .await()
+
                 cropDao.deleteCropById(crop.id)
-                firestore.collection("...").document(crop.firestoreId).delete().await()
                 Log.d("SyncCrops", "Deleted crop permanently: ${crop.cropName}")
             } else {
                 val uploadData = crop.copy(isSynced = 1)

@@ -42,17 +42,18 @@
                 android:elevation="4dp">
 
                 <!-- CROP NAME -->
+
+                <!-- CROP IMAGE -->
                 <TextView
                     android:id="@+id/tvUsername"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="UserName"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
                     android:textColor="@color/kombuGreen"
-                    android:gravity="center" />
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
 
-                <!-- CROP IMAGE -->
                 <ImageView
                     android:id="@+id/imgCrop"
                     android:layout_width="150dp"
@@ -71,7 +72,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Email: user_email"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/kombuGreen"
                     android:layout_marginTop="20dp" />
@@ -81,7 +82,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Estimated Harvest: December 25"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textColor="@color/kombuGreen"
                     android:layout_marginTop="10dp"
                     android:textStyle="bold" />
@@ -92,7 +93,7 @@
                     android:layout_height="wrap_content"
                     android:text="Growth Stage: Vegetative"
                     android:textColor="@color/kombuGreen"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_marginTop="10dp" />
 
@@ -101,8 +102,8 @@
                     android:id="@+id/tvFavorite"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Estimated Harvest: December 25"
-                    android:textSize="16sp"
+                    android:text="Frequently crop: Rice"
+                    android:textSize="20sp"
                     android:textColor="@color/kombuGreen"
                     android:layout_marginTop="10dp"
                     android:textStyle="bold" />

@@ -39,7 +39,6 @@ class WeatherRepository @Inject constructor(
     }
 
     fun loadCachedData() {
-        // If memory is already set, do nothing
         if (cachedForecasts != null) return
 
         val jsonForecasts = prefs.getString(KEY_FORECAST, null)
@@ -50,5 +49,12 @@ class WeatherRepository @Inject constructor(
             val type = object : TypeToken<List<ForecastItem>>() {}.type
             cachedForecasts = gson.fromJson(jsonForecasts, type)
         }
+    }
+    fun getLatestForecastCondition(): String {
+        loadCachedData() // Ensure data is loaded
+        val items = cachedForecasts
+        if (items.isNullOrEmpty()) return "Unknown"
+
+        return items[0].weather.firstOrNull()?.main ?: "Unknown"
     }
 }

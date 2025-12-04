@@ -60,11 +60,19 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    sourceSets {
+        getByName("main") {
+            assets {
+                srcDirs("src\\main\\assets", "src\\main\\assets\\2")
+            }
+        }
+    }
 }
 
 dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation(libs.androidx.hilt.common)
 
     //room
     val room_version = "2.8.1"

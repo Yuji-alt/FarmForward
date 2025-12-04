@@ -26,7 +26,7 @@
             android:scaleType="centerCrop"
             android:background="@drawable/rounded_box"
             android:clipToOutline="true"
-            android:padding="8dp"
+            android:padding="10dp"
             android:layout_marginBottom="8dp" />
 
         <!-- CROP NAME -->
@@ -39,7 +39,8 @@
             android:textSize="16sp"
             android:maxLines="1"
             android:ellipsize="end"
-            android:textColor="@color/kombuGreen" />
+            android:textColor="@color/kombuGreen"
+            android:fontFamily="@font/roboto"/>
 
         <!-- STATUS -->
         <TextView
@@ -47,9 +48,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Growing"
-            android:textSize="12sp"
+            android:maxLines="1"
+            android:textSize="10sp"
             android:textColor="@color/kombuGreen"
-            android:layout_marginTop="3dp" />
+            android:layout_marginTop="3dp"
+            android:fontFamily="@font/noto_sans"/>
 
     </LinearLayout>
 </FrameLayout>

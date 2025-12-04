@@ -1,6 +1,5 @@
 package com.example.farmforward.appActivity.mainActivity.calc
 
-import android.widget.Toast
 import com.example.farmforward.database.CropEntity
 
 interface CalcView {

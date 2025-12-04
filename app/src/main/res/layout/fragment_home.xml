@@ -24,7 +24,7 @@
                 android:layout_height="match_parent"
                 android:padding="4dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/farmforward_logo"
+                android:src="@drawable/app_logo"
                 android:visibility="visible" />
 
             <EditText
@@ -66,7 +66,6 @@
         android:layout_height="2dp"
         android:background="@color/kombuGreen"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
         android:alpha="5" />
 
     <HorizontalScrollView
@@ -102,19 +101,20 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Today's Forecast"
+            android:fontFamily="@font/roboto"
             android:textColor="@color/kombuGreen"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="20sp"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/locationText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:fontFamily="@font/roboto"
             android:text="Location"
             android:textColor="@color/kombuGreen"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <!-- WEATHER CONTENT (REDUCED SIZE) -->
@@ -157,9 +157,10 @@
             android:id="@+id/active_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto"
             android:text="Active Crops"
             android:textColor="@color/kombuGreen"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 

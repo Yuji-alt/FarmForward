@@ -17,7 +17,6 @@ class DailyCheckWorker(context: Context, params: WorkerParameters) : CoroutineWo
                 return Result.failure()
             }
         }
-
         return try {
             val database = AppDatabase.getDatabase(applicationContext)
             val cropDao = database.cropDao()

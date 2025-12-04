@@ -1,16 +1,14 @@
-package com.example.farmforward.appActivity.mainActivity.otherFragment
+package com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails
 
 import androidx.lifecycle.LifecycleOwner
 import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
-import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails.CropDetailsView
 import com.example.farmforward.database.CropEntity
+import com.example.farmforward.database.viewModel.CropViewModel
+import com.example.farmforward.utils.CropImageHelper
 import com.example.farmforward.utils.otherUtils.RetrofitClient
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
 import com.example.farmforward.utils.weatherUtils.WeatherResponse
-import com.example.farmforward.database.viewModel.CropViewModel
-import com.example.farmforward.utils.CropImageHelper
-import com.google.android.gms.maps.model.LatLng
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -42,7 +40,8 @@ class CropDetailsController @Inject constructor() {
     fun onViewOnMapClicked(viewModel: CropViewModel) {
         val currentCrop = viewModel.cropData.value
         if (currentCrop != null && currentCrop.latitude != 0.0) {
-            viewModel.mapFocusLocation = LatLng(currentCrop.latitude, currentCrop.longitude)
+            viewModel.cropToFocus = currentCrop
+            viewModel.isMapPickerMode = false
             view?.navigateToMap(currentCrop)
         }
     }
@@ -67,6 +66,7 @@ class CropDetailsController @Inject constructor() {
                 view?.setIrrigation(crop.irrigationLevel ?: "N/A")
                 view?.setDensity(crop.plantDensity ?: "N/A")
                 view?.setFertilizer(crop.fertilizerUsed ?: "N/A")
+                view?.setLocation(crop.region, crop.locality)
 
                 if (crop.latitude != 0.0 && crop.longitude != 0.0) {
                     view?.showMapButton(true)

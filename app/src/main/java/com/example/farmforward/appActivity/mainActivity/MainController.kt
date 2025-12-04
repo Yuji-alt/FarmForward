@@ -9,10 +9,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
+import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager // Import this
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.viewModel.CropViewModel
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
+import com.google.android.gms.location.SettingsClient
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +28,8 @@ import javax.inject.Inject
 class MainController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val session: SessionManager,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val syncManager: FirebaseSyncManager
 ) {
     private var view: MainView? = null
 
@@ -33,6 +39,29 @@ class MainController @Inject constructor(
     fun bindView(view: MainView) {
         this.view = view
     }
+    fun ensureLocationSettings(activity: AppCompatActivity, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val client: SettingsClient = LocationServices.getSettingsClient(activity)
+        val task = client.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+            onSuccess()
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    (view as? MainActivity)?.launchLocationSettings(exception, onSuccess, onFailure)
+                } catch (sendEx: Exception) {
+                    onFailure()
+                }
+            } else {
+                onFailure()
+            }
+        }
+    }
+
     fun onViewCreated() {
         if (FirebaseApp.getApps(context).isEmpty()) {
             FirebaseApp.initializeApp(context)
@@ -41,45 +70,71 @@ class MainController @Inject constructor(
             view?.navigateToLogin()
             return
         }
-
         view?.switchFragment(R.id.nav_home)
     }
+
     fun onNavigationItemClicked(menuId: Int) {
         if (menuId == currentMenuId) return
 
         currentMenuId = menuId
         view?.switchFragment(menuId)
     }
+
     fun onBackClicked(viewModel: CropViewModel) {
         val targetId = if (viewModel.lastSourceId != 0) viewModel.lastSourceId else R.id.nav_home
-
         onNavigationItemClicked(targetId)
     }
-    fun onSavedClicked() {
-        session.logout()
+
+    fun onSavedAndSyncClicked() {
         view?.closeDrawer()
-        view?.showToast("Logged out. Offline data is saved.", isError = false)
-        view?.navigateToLogin()
+        view?.showToast("Syncing data to cloud...", isError = false)
+        view?.getScope()?.launch(Dispatchers.IO) {
+            syncManager.syncUsers()
+            syncManager.syncCrops()
+            session.clearSession()
+            withContext(Dispatchers.Main) {
+                view?.showToast("Data saved & Logged out!", isError = false)
+                view?.navigateToLogin()
+            }
+        }
     }
+
     fun onSignOutClicked() {
         view?.closeDrawer()
         view?.getScope()?.launch(Dispatchers.IO) {
             val userId = session.getUserId() ?: -1
-            val unsyncedCount = db.cropDao().getUnsyncedCrops(userId).size
+            val unsyncedList = db.cropDao().getUnsyncedCrops(userId)
+            val count = unsyncedList.size
 
             withContext(Dispatchers.Main) {
-                if (unsyncedCount > 0) {
-                    view?.showUnsyncedDataWarning(unsyncedCount)
+                if (count > 0) {
+                    view?.showUnsyncedDataWarning(count)
                 } else {
                     view?.showSignOutDialog()
                 }
             }
         }
     }
-
     fun onSignOutConfirmed() {
+        view?.closeDrawer()
+        view?.showToast("Syncing data before logout...", isError = false)
+
         view?.getScope()?.launch(Dispatchers.IO) {
-            db.clearAllTables()
+            val userId = session.getUserId() ?: -1
+
+            // 1. ADDED: Try to Sync first (Safety Backup)
+            try {
+                syncManager.syncUsers()
+                syncManager.syncCrops()
+            } catch (e: Exception) {
+                // If sync fails (e.g., no internet), we just continue to logout.
+                // We don't want to trap the user if they really want to sign out.
+            }
+
+            // 2. Delete local data (Clean Slate for next user)
+            db.cropDao().deleteAllCropsForUser(userId)
+
+            // 3. Clear Session and Navigate
             session.clearSession()
             withContext(Dispatchers.Main) {
                 view?.navigateToLogin()
@@ -119,7 +174,6 @@ class MainController @Inject constructor(
             onLocation(0.0, 0.0)
             return
         }
-
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
         try {
             fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
@@ -152,7 +206,6 @@ class MainController @Inject constructor(
             onDenied()
         }
     }
-
     fun openAppSettings(activity: AppCompatActivity) {
         val intent = android.content.Intent(
             android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -161,6 +214,7 @@ class MainController @Inject constructor(
         intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         activity.startActivity(intent)
     }
+
     fun onDestroy() {
         view = null
     }

@@ -5,7 +5,6 @@ import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.otherFragment.GrowthCropDetails.GrowthCropDetailsView
 import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.CropImageHelper
-import com.google.android.gms.maps.model.LatLng
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -56,6 +55,7 @@ class GrowthCropDetailsController @Inject constructor() {
                 percent < 20 -> "Germination" to "The seed has sprouted and is establishing roots."
                 percent < 50 -> "Vegetative" to "The plant is growing leaves and stems rapidly."
                 percent < 80 -> "Flowering/Fruiting" to "Flowers or fruit are beginning to form."
+                percent < 100 -> "Ready to Harvest" to "Fully grown and ready for harvest."
                 else -> "Maturation" to "The crop is ripening and nearly ready for harvest."
             }
 
@@ -68,10 +68,12 @@ class GrowthCropDetailsController @Inject constructor() {
         }
     }
 
+
     fun onViewOnMapClicked(viewModel: CropViewModel) {
         val currentCrop = viewModel.cropData.value
         if (currentCrop != null && currentCrop.latitude != 0.0) {
-            viewModel.mapFocusLocation = LatLng(currentCrop.latitude, currentCrop.longitude)
+            viewModel.cropToFocus = currentCrop
+            viewModel.isMapPickerMode = false
             view?.navigateToMap(currentCrop)
         }
     }

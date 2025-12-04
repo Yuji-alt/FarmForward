@@ -11,9 +11,9 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -44,7 +44,7 @@ class GardenFragment : Fragment(), GardenView {
     private lateinit var searchInput: EditText
     private lateinit var menuButton: ImageButton
     private lateinit var searchButton: ImageButton
-    private lateinit var appLogo: ImageView
+    private lateinit var appLogo: TextView
     private var isSearchOpen = false
 
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
@@ -66,8 +66,7 @@ class GardenFragment : Fragment(), GardenView {
         searchInput = view.findViewById(R.id.search_input)
         searchButton = view.findViewById(R.id.search_button)
         menuButton = view.findViewById(R.id.menu_button)
-        appLogo = view.findViewById(R.id.app_logo)
-
+        appLogo = view.findViewById(R.id.app_logo_text)
         controller.bindView(this)
         controller.setupObserver(viewLifecycleOwner)
 

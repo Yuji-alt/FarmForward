@@ -25,5 +25,7 @@ data class CropEntity(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val isDeleted: Int = 0,
-    val harvestedDate: Long? = null
+    val harvestedDate: Long? = null,
+    val region: String = "",
+    val locality: String = ""
 )

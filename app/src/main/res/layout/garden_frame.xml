@@ -22,7 +22,7 @@
         android:layout_height="match_parent"
         android:src="@drawable/agricultwo"
         android:scaleType="centerCrop"
-        android:padding="8dp"
+        android:padding="10dp"
         android:background="@drawable/rounded_box"
         android:clipToOutline="true"/>
 
@@ -41,7 +41,8 @@
             tools:text="Corn"
             android:textStyle="bold"
             android:textSize="16sp"
-            android:textColor="@color/kombuGreen" />
+            android:textColor="@color/kombuGreen"
+            android:fontFamily="@font/noto_sans"/>
 
         <TextView
             android:id="@+id/tvStatus"
@@ -50,7 +51,8 @@
             tools:text="Status:"
             android:textSize="13sp"
             android:textColor="@color/kombuGreen"
-            android:layout_marginTop="4dp" />
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/noto_sans"/>
     </LinearLayout>
 </LinearLayout>
 

@@ -3,22 +3,28 @@ package com.example.farmforward.appActivity.userActivity.login
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.location.Geocoder
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.widget.*
+import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ScrollView
+import android.widget.Switch
+import android.widget.TextView
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
@@ -29,31 +35,28 @@ import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
 import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.example.farmforward.utils.otherUtils.RetrofitClient
+import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import retrofit2.awaitResponse
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
-import androidx.appcompat.app.AlertDialog
-import android.text.InputType
-import android.view.LayoutInflater
-import androidx.activity.result.IntentSenderRequest
-import androidx.core.view.ViewCompat
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.Priority
-import com.google.android.gms.tasks.CancellationTokenSource
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.math.max
 
@@ -87,7 +90,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
         super.onCreate(savedInstanceState)
 
         if (session.isLoggedIn()) {
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, com.example.farmforward.utils.loadingUtils.LoadingActivity::class.java))
             finish()
             return
         }
@@ -97,30 +100,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val rootLayout = findViewById<ScrollView>(R.id.rootLayout)
-
-        ViewCompat.setOnApplyWindowInsetsListener(rootLayout) { view, insets ->
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val bottomPadding = max(imeInsets.bottom, systemBars.bottom)
-            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, bottomPadding)
-
-            val isKeyboardVisible = imeInsets.bottom > 0
-            if (isKeyboardVisible) {
-                val focusedView = currentFocus
-                if (focusedView != null) {
-                    view.post {
-                        val rect = Rect()
-                        focusedView.getDrawingRect(rect)
-                        rootLayout.offsetDescendantRectToMyCoords(focusedView, rect)
-                        val scrollY = rect.top - 100
-                        rootLayout.smoothScrollTo(0, scrollY)
-                    }
-                }
-            }
-
-            insets
-        }
-
+        rootLayout.handleKeyboardVisibility()
         usernameInput = findViewById(R.id.userName)
         passwordInput = findViewById(R.id.userPassword)
         logInButton = findViewById(R.id.logIn)
@@ -235,9 +215,10 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
                     updateUi(30, "Syncing User Profile...")
                     syncManager.syncUsers()
-
                     updateUi(50, "Downloading Crop Data...")
                     syncManager.syncCrops()
+                    updateUi(70, "Checking Location & Weather...")
+                    fetchWeatherSync()
 
                 } else {
                     updateUi(40, "Offline Mode: Using local data...")
@@ -287,6 +268,11 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
             if (location == null) {
                 Log.e("LoginActivity", "Weather skipped: Could not determine current location.")
+                return
+            }
+            val isLocationEnabled = ensureLocationOn()
+            if (!isLocationEnabled) {
+                Log.d("LoginActivity", "User refused to turn on location.")
                 return
             }
 
