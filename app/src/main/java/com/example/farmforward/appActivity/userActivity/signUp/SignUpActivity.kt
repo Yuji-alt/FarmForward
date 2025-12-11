@@ -2,7 +2,6 @@ package com.example.farmforward.appActivity.userActivity.signUp
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
@@ -15,50 +14,45 @@ import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
+import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
 import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlin.math.max
 
 @AndroidEntryPoint
 class SignUpActivity : AppCompatActivity(), SignUpView {
 
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // Dependencies & Variables
+    // ---------------------------------------------------------------------------------------------
     @Inject lateinit var controller: SignUpController
 
-    // -------------------------------------------------------------------------
-    // UI Elements
-    // -------------------------------------------------------------------------
     private lateinit var emailInput: EditText
     private lateinit var usernameInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var confirmPasswordInput: EditText
     private lateinit var signUpButton: Button
     private lateinit var backButton: ImageButton
+    private var loadingDialog: LoadingDialogFragment? = null
 
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
     // Lifecycle Methods
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.signupview)
 
-        // 1. Setup Controller
         controller.bindView(this)
 
-        // 2. Setup Window/System UI
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         val rootLayout = findViewById<ScrollView>(R.id.rootLayout)
-        rootLayout.handleKeyboardVisibility() // Safe Extension Function
+        rootLayout.handleKeyboardVisibility()
 
-        // 3. Initialize Views & Listeners
         initViews()
         setupListeners()
     }
@@ -68,9 +62,9 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
         super.onDestroy()
     }
 
-    // -------------------------------------------------------------------------
-    // Setup & Initialization
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // Initialization & Setup
+    // ---------------------------------------------------------------------------------------------
     private fun initViews() {
         emailInput = findViewById(R.id.email_input)
         usernameInput = findViewById(R.id.user_name_input)
@@ -95,9 +89,35 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // View Interface Implementation
-    // -------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // Loading State Handling
+    // ---------------------------------------------------------------------------------------------
+    override fun showLoading() {
+        loadingDialog = LoadingDialogFragment()
+        loadingDialog?.isCancelable = false
+        loadingDialog?.show(supportFragmentManager, "SignUpLoading")
+    }
+
+    override fun updateLoading(progress: Int, message: String) {
+        runOnUiThread {
+            if (loadingDialog?.isAdded == true) {
+                loadingDialog?.updateProgress(progress, message)
+            }
+        }
+    }
+
+    override fun hideLoading() {
+        runOnUiThread {
+            if (loadingDialog?.isAdded == true) {
+                loadingDialog?.dismiss()
+            }
+            loadingDialog = null
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Navigation & UI Feedback
+    // ---------------------------------------------------------------------------------------------
     override fun setSignUpButtonEnabled(isEnabled: Boolean) {
         signUpButton.isEnabled = isEnabled
         signUpButton.alpha = if (isEnabled) 1.0f else 0.5f
@@ -116,14 +136,12 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
         val snackbarView = snackbar.view
         val params = snackbarView.layoutParams as FrameLayout.LayoutParams
 
-        // Positioning
         params.gravity = Gravity.TOP
         params.topMargin = 60.dpToPx(context).toInt()
         params.leftMargin = 20.dpToPx(context).toInt()
         params.rightMargin = 20.dpToPx(context).toInt()
         snackbarView.layoutParams = params
 
-        // Styling
         snackbarView.backgroundTintList = null
         val borderDrawable = GradientDrawable()
         borderDrawable.shape = GradientDrawable.RECTANGLE
@@ -143,9 +161,6 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
         snackbar.show()
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
     private fun Int.dpToPx(context: Context): Float {
         return this * context.resources.displayMetrics.density
     }

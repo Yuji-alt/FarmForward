@@ -1,49 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bone"
-    android:fillViewport="true"
-    >
-
-    <ImageButton
-        android:id="@+id/btn_close_nav"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:tint="@color/kombuGreen"
-        android:src="@android:drawable/ic_menu_revert"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Back"
-        android:padding="8dp"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/kombuGreen"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:alpha="5" />
+    android:orientation="vertical"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="start"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <ImageButton
+            android:id="@+id/btn_close_nav"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:tint="@color/kombuGreen"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="8dp"/>
 
         <TextView
             android:id="@+id/tvAddLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Harvested or Weather"
-            android:textSize="16sp"
+            android:text="Harvest History"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="@color/kombuGreen"
+            android:fontFamily="@font/roboto"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/kombuGreen"
+        android:alpha="0.5"
+        android:layout_marginBottom="8dp"/>
 
     <ScrollView
         android:id="@+id/scrollWeatherOrHarvest"
@@ -51,13 +49,36 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fillViewport="true"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:scrollbars="none"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false">
 
         <LinearLayout
-            android:id="@+id/cropListContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:orientation="vertical"
+            android:paddingBottom="100dp">
+
+            <LinearLayout
+                android:id="@+id/cropListContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No records found."
+                android:textColor="@color/kombuGreen"
+                android:alpha="0.6"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:paddingTop="50dp"
+                android:visibility="gone"
+                android:fontFamily="@font/noto_sans"/>
+
+        </LinearLayout>
     </ScrollView>
+
 </LinearLayout>

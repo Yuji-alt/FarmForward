@@ -1,272 +1,273 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bone"
-    android:fillViewport="true"
-    android:padding="10dp">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <ImageButton
-            android:id="@+id/btn_close_nav"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:tint="@color/kombuGreen"
-            android:src="@android:drawable/ic_menu_revert"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:padding="8dp"/>
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingBottom="100dp">
+
+            <ImageButton
+                android:id="@+id/btn_close_nav"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:tint="@color/kombuGreen"
+                android:src="@android:drawable/ic_menu_revert"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:layout_marginBottom="4dp"/>
 
             <TextView
                 android:id="@+id/tvCropName"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
                 android:background="@drawable/input_bg"
-                tools:text="RICE"
-                android:padding="8dp"
+                tools:text="CROP NAME"
+                android:padding="12dp"
                 android:textAlignment="center"
                 android:textColor="@color/kombuGreen"
-                android:textSize="30sp"
+                android:textSize="26sp"
                 android:textStyle="bold"
-                android:fontFamily="@font/roboto"/>
-        </LinearLayout>
+                android:fontFamily="@font/roboto"
+                android:layout_marginBottom="4dp"/>
 
-        <ImageView
-            android:id="@+id/etDescription"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/rounded_box"
-            android:clipToOutline="true"
-            android:padding="30dp"
-            android:gravity="top|start"
-            android:src="@drawable/agricultwo" />
+            <ImageView
+                android:id="@+id/etDescription"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/rounded_box"
+                android:clipToOutline="true"
+                android:padding="20dp"
+                android:src="@drawable/agricultwo"
+                android:layout_marginBottom="4dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:id="@+id/tvEdit"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/edit_crop"
-                android:textStyle="bold"
-                android:textColor="@color/kombuGreen"
-                android:drawablePadding="8dp"
-                app:backgroundTint="@color/kombuGreen"
-                app:tint="@color/tan"
-                android:textSize="14sp"
-                android:padding="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:id="@+id/tvEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/edit_crop"
+                    android:textStyle="bold"
+                    android:textColor="@color/kombuGreen"
+                    android:drawablePadding="8dp"
+                    android:textSize="14sp"
+                    android:padding="8dp"
+                    android:fontFamily="@font/noto_sans"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:alpha="0.5"
+                    android:layout_marginHorizontal="8dp"/>
+
+                <TextView
+                    android:id="@+id/tvDelete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/delete"
+                    android:textStyle="bold"
+                    android:textColor="@color/kombuGreen"
+                    android:drawablePadding="8dp"
+                    android:textSize="14sp"
+                    android:padding="8dp"
+                    android:fontFamily="@font/noto_sans"/>
+            </LinearLayout>
+            <TableLayout
+                android:id="@+id/tableCropInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/border"
+                android:padding="0dp"
+                android:stretchColumns="*"
+                android:shrinkColumns="*">
+
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Area" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvArea" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Soil Type" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Irrigation" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Density" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Fertilizer" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Weather" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Region" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+
+            </TableLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_box_display_leftside"
+                    android:gravity="center"
+                    android:padding="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DATE PLANTED"
+                        android:textColor="@color/kombuGreen"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        android:fontFamily="@font/noto_sans"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_box_display_rightside"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_calendar"
+                        app:tint="@color/bone" />
+                    <TextView
+                        android:id="@+id/plantedDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/date"
+                        android:textColor="@color/bone"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/noto_sans"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_box_display_leftside"
+                    android:gravity="center"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/estimated_harvest_yield"
+                        android:textColor="@color/kombuGreen"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        android:fontFamily="@font/noto_sans"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="10sp"
+                        app:autoSizeMaxTextSize="16sp"
+                        app:autoSizeStepGranularity="1sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_box_display_rightside"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_growth"
+                        app:tint="@color/bone" />
+                    <TextView
+                        android:id="@+id/harvestYield"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="---"
+                        android:textColor="@color/bone"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/noto_sans"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnHarvest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Harvest"
+                android:backgroundTint="@color/kombuGreen"
+                android:textColor="@color/bone"
+                android:paddingVertical="12dp"
+                android:textSize="18sp"
+                android:layout_marginBottom="12dp"
                 android:fontFamily="@font/noto_sans"/>
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/tvDelete"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/btnViewOnMap"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/delete"
-                android:textStyle="bold"
-                android:textColor="@color/kombuGreen"
-                android:drawablePadding="8dp"
-                app:backgroundTint="@color/kombuGreen"
-                app:tint="@color/tan"
-                android:textSize="14sp"
-                android:padding="8dp"
+                android:text="Show Location on Map"
+                android:backgroundTint="@color/kombuGreen"
+                android:paddingVertical="12dp"
+                android:textSize="18sp"
+                android:textColor="@color/bone"
                 android:fontFamily="@font/noto_sans"/>
+
         </LinearLayout>
-
-        <TableLayout
-            android:id="@+id/tableCropInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/border"
-            android:padding="8dp"
-            android:stretchColumns="1">
-
-            <TableRow>
-                <TextView style="@style/LabelText" android:text="Area" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-                <TextView android:id="@+id/tvArea" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-            </TableRow>
-            <TableRow>
-                <TextView style="@style/LabelText" android:text="Soil Type" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
-                <TextView android:id="@+id/tvSoilType" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-            </TableRow>
-            <TableRow>
-                <TextView style="@style/LabelText" android:text="Irrigation Level" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
-                <TextView android:id="@+id/tvIrrigation" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-            </TableRow>
-            <TableRow>
-                <TextView style="@style/LabelText" android:text="Planting Density" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
-                <TextView android:id="@+id/tvDensity" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-            </TableRow>
-            <TableRow>
-                <TextView style="@style/LabelText" android:text="Fertilizer Used" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
-                <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-            </TableRow>
-            <TableRow>
-                <TextView style="@style/LabelText" android:text="Weather Condition" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:maxLines="1"/>
-                <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:maxLines="1" android:textColor="@color/kombuGreen" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-            </TableRow>
-            <TableRow>
-
-                <TextView
-                    style="@style/LabelText"
-                    android:background="@drawable/border"
-                    android:fontFamily="@font/noto_sans"
-                    android:textSize="16sp"
-                    android:text="Region" />
-
-                <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:textColor="@color/kombuGreen" android:background="@drawable/border"  android:maxLines="1" android:fontFamily="@font/noto_sans" android:textSize="16sp"/>
-            </TableRow>
-        </TableLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@drawable/bg_box_display_leftside"
-                android:gravity="center_vertical"
-                android:padding="12dp"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="DATE PLANTED"
-                    android:textColor="@color/kombuGreen"
-                    android:textSize="20sp"
-                    android:maxLines="1"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/noto_sans"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/bg_box_display_rightside"
-                android:gravity="center_vertical"
-                android:padding="12dp">
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_calendar"
-                    app:tint="@color/bone" />
-                <TextView
-                    android:id="@+id/plantedDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/date"
-                    android:textColor="@color/bone"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/noto_sans"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/bg_box_display_leftside"
-                android:gravity="center_vertical"
-                android:padding="12dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/estimated_harvest_yield"
-                    android:textColor="@color/kombuGreen"
-                    android:textSize="20sp"
-                    android:maxLines="1"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/noto_sans"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/bg_box_display_rightside"
-                android:gravity="center_vertical"
-                android:padding="12dp">
-                <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_growth"
-                    app:tint="@color/bone" />
-                <TextView
-                    android:id="@+id/harvestYield"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="---"
-                    android:textColor="@color/bone"
-                    android:textStyle="bold"
-                    android:textSize="20sp"
-                    android:fontFamily="@font/noto_sans"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/btnHarvest"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Harvest"
-            android:backgroundTint="@color/kombuGreen"
-            android:textColor="@color/bone"
-            android:textSize="20sp"
-            android:fontFamily="@font/noto_sans"/>
-        <Button
-            android:id="@+id/btnViewOnMap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Show Location on Map"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="@color/kombuGreen"
-            android:textSize="20sp"
-            android:textColor="@color/bone"
-            android:fontFamily="@font/noto_sans"/>
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

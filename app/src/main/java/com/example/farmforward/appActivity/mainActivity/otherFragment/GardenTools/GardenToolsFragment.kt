@@ -28,13 +28,17 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class GardenToolsFragment : Fragment() {
 
+    // ---------------------------------------------------------------------------------------------
+    // Dependencies & Variables
+    // ---------------------------------------------------------------------------------------------
     @Inject lateinit var db: AppDatabase
     @Inject lateinit var session: SessionManager
     @Inject lateinit var weatherRepository: WeatherRepository
 
     private var mode: String = "HARVEST"
-    private lateinit var cropListContainer: LinearLayout // Renamed for clarity
+    private lateinit var cropListContainer: LinearLayout
     private lateinit var titleLabel: TextView
+    private var tvEmptyState: TextView? = null
 
     companion object {
         fun newInstance(mode: String): GardenToolsFragment {
@@ -46,6 +50,9 @@ class GardenToolsFragment : Fragment() {
         }
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Lifecycle Methods
+    // ---------------------------------------------------------------------------------------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mode = arguments?.getString("MODE") ?: "HARVEST"
@@ -59,10 +66,10 @@ class GardenToolsFragment : Fragment() {
 
         cropListContainer = view.findViewById(R.id.cropListContainer)
         titleLabel = view.findViewById(R.id.tvAddLabel)
+        tvEmptyState = view.findViewById(R.id.tvEmptyState)
         val btnBack = view.findViewById<ImageButton>(R.id.btn_close_nav)
 
         btnBack.setOnClickListener {
-            // Using the new Profile back logic or just default home
             (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_home)
         }
 
@@ -77,6 +84,9 @@ class GardenToolsFragment : Fragment() {
         return view
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Data Loading Logic
+    // ---------------------------------------------------------------------------------------------
     private fun loadHarvestHistory(inflater: LayoutInflater) {
         lifecycleScope.launch(Dispatchers.IO) {
             val userId = session.getUserId() ?: -1
@@ -86,25 +96,26 @@ class GardenToolsFragment : Fragment() {
                 cropListContainer.removeAllViews()
 
                 if (harvestedCrops.isEmpty()) {
-                    showEmptyState("No harvested crops yet.")
-                }
+                    toggleEmptyState(true, "No harvested crops yet.")
+                } else {
+                    toggleEmptyState(false)
+                    for (crop in harvestedCrops) {
+                        val itemView = inflater.inflate(R.layout.garden_frame, cropListContainer, false)
 
-                for (crop in harvestedCrops) {
-                    val itemView = inflater.inflate(R.layout.garden_frame, cropListContainer, false)
+                        val tvName = itemView.findViewById<TextView>(R.id.tvCropName)
+                        val tvStatus = itemView.findViewById<TextView>(R.id.tvStatus)
+                        val img = itemView.findViewById<ImageView>(R.id.imgCrop)
 
-                    val tvName = itemView.findViewById<TextView>(R.id.tvCropName)
-                    val tvStatus = itemView.findViewById<TextView>(R.id.tvStatus)
-                    val img = itemView.findViewById<ImageView>(R.id.imgCrop)
+                        tvName.text = crop.cropName
+                        val date = Date(crop.harvestedDate ?: System.currentTimeMillis())
+                        val format = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                        tvStatus.text = "Harvested: ${format.format(date)}"
+                        img.setImageResource(CropImageHelper.getImageRes(crop.cropName))
+                        val color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.moss_green)
+                        img.setColorFilter(color)
 
-                    tvName.text = crop.cropName
-                    val date = Date(crop.harvestedDate ?: System.currentTimeMillis())
-                    val format = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                    tvStatus.text = "Harvested: ${format.format(date)}"
-                    img.setImageResource(CropImageHelper.getImageRes(crop.cropName))
-                    val color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.moss_green)
-                    img.setColorFilter(color)
-
-                    addToContainer(itemView)
+                        addToContainer(itemView)
+                    }
                 }
             }
         }
@@ -115,10 +126,12 @@ class GardenToolsFragment : Fragment() {
         val forecasts = weatherRepository.cachedForecasts
 
         if (forecasts.isNullOrEmpty()) {
-            showEmptyState("Weather data not available.\nPlease sync at Home.")
+            toggleEmptyState(true, "Weather data not available.\nPlease sync at Home.")
+            cropListContainer.removeAllViews()
             return
         }
 
+        toggleEmptyState(false)
         cropListContainer.removeAllViews()
         val dateFormat = SimpleDateFormat("EEE, MMM dd h:mm a", Locale.getDefault())
 
@@ -149,7 +162,6 @@ class GardenToolsFragment : Fragment() {
                     iconRes = R.drawable.thunder_storm
                     iconColorRes = R.color.cafenoir
                 }
-
                 mainWeather.contains("Clear", ignoreCase = true) -> {
                     iconRes = R.drawable.clear_sky
                     iconColorRes = R.color.cafenoir
@@ -169,6 +181,9 @@ class GardenToolsFragment : Fragment() {
         }
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // UI Helper Methods
+    // ---------------------------------------------------------------------------------------------
     private fun addToContainer(view: View) {
         val params = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -179,11 +194,14 @@ class GardenToolsFragment : Fragment() {
         cropListContainer.addView(view)
     }
 
-    private fun showEmptyState(message: String) {
-        val emptyView = TextView(context)
-        emptyView.text = message
-        emptyView.textSize = 18f
-        emptyView.setPadding(30, 50, 30, 50)
-        cropListContainer.addView(emptyView)
+    private fun toggleEmptyState(isEmpty: Boolean, message: String = "") {
+        if (isEmpty) {
+            tvEmptyState?.text = message
+            tvEmptyState?.visibility = View.VISIBLE
+            cropListContainer.visibility = View.GONE
+        } else {
+            tvEmptyState?.visibility = View.GONE
+            cropListContainer.visibility = View.VISIBLE
+        }
     }
 }

@@ -1,9 +1,10 @@
-package com.example.farmforward.appActivity.mainActivity.otherFragment
+package com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,13 +16,20 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.farmforward.BuildConfig
+import com.example.farmforward.utils.weatherUtils.WeatherCache
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
-import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails.CropDetailsController
-import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails.CropDetailsView
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel
+import com.example.farmforward.utils.otherUtils.NetworkUtils
+import com.example.farmforward.utils.otherUtils.RetrofitClient
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.awaitResponse
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -31,6 +39,7 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     @Inject lateinit var controller: CropDetailsController
     private lateinit var cropViewModel: CropViewModel
 
+    // UI Elements
     private lateinit var tvCropName: TextView
     private lateinit var tvArea: TextView
     private lateinit var plantedDate: TextView
@@ -42,9 +51,15 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     private lateinit var tvFertilizer: TextView
     private lateinit var tvWeather: TextView
     private lateinit var tvRegion: TextView
-
     private lateinit var btnViewOnMap: Button
     private lateinit var btnHarvest: Button
+
+    // Cache State
+    private var cachedRegion: String = ""
+    private var cachedLocality: String = ""
+    private var isLocationPinned: Boolean = false
+    private var currentCropLat: Double? = null
+    private var currentCropLon: Double? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,7 +72,6 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         val tvEdit = view.findViewById<TextView>(R.id.tvEdit)
         val tvDelete = view.findViewById<TextView>(R.id.tvDelete)
         val btnCloseNav = view.findViewById<ImageButton>(R.id.btn_close_nav)
-
         tvCropName = view.findViewById(R.id.tvCropName)
         tvArea = view.findViewById(R.id.tvArea)
         plantedDate = view.findViewById(R.id.plantedDate)
@@ -68,29 +82,17 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         tvDensity = view.findViewById(R.id.tvDensity)
         tvFertilizer = view.findViewById(R.id.tvFertilizer)
         tvWeather = view.findViewById(R.id.tvWeather)
-
         tvRegion = view.findViewById(R.id.tvRegion)
-
         btnViewOnMap = view.findViewById(R.id.btnViewOnMap)
         btnHarvest = view.findViewById(R.id.btnHarvest)
 
         btnCloseNav.setOnClickListener {
             (activity as? MainActivity)?.controller?.onBackClicked(cropViewModel)
         }
+        tvEdit.setOnClickListener { controller.onEditClicked(cropViewModel) }
+        tvDelete.setOnClickListener { controller.onDeleteClicked(cropViewModel) }
+        btnHarvest.setOnClickListener { controller.onHarvestClicked(cropViewModel) }
 
-        tvEdit.setOnClickListener {
-            controller.onEditClicked(cropViewModel)
-        }
-
-        btnViewOnMap.setOnClickListener {
-            controller.onViewOnMapClicked(cropViewModel)
-        }
-        tvDelete.setOnClickListener {
-            controller.onDeleteClicked(cropViewModel)
-        }
-        btnHarvest.setOnClickListener {
-            controller.onHarvestClicked(cropViewModel)
-        }
         showEmptyState()
 
         return view
@@ -99,10 +101,60 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         controller.bindView(this)
+
         controller.setupObserver(viewLifecycleOwner, cropViewModel)
+
+        cropViewModel.cropData.observe(viewLifecycleOwner) { crop ->
+            if (crop != null) {
+                if (crop.latitude != 0.0 && crop.longitude != 0.0) {
+                    currentCropLat = crop.latitude
+                    currentCropLon = crop.longitude
+                }
+            }
+        }
     }
 
+    override fun setLocation(region: String, locality: String) {
+        cachedRegion = region
+        cachedLocality = locality
+        updateLocationTextDisplay()
+    }
 
+    override fun showMapButton(isVisible: Boolean) {
+        btnViewOnMap.visibility = View.VISIBLE
+        isLocationPinned = isVisible
+
+        if (isVisible) {
+            btnViewOnMap.text = "Show Location on Map"
+            btnViewOnMap.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.kombuGreen)
+            btnViewOnMap.setOnClickListener { controller.onViewOnMapClicked(cropViewModel) }
+        } else {
+            btnViewOnMap.text = "Add Location"
+            btnViewOnMap.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.kombuGreen)
+            btnViewOnMap.setOnClickListener { controller.onEditClicked(cropViewModel) }
+        }
+        updateLocationTextDisplay()
+    }
+
+    private fun updateLocationTextDisplay() {
+        val hasText = cachedRegion.isNotEmpty() || cachedLocality.isNotEmpty()
+        if (hasText) {
+            val regionDisplay = if (cachedRegion.isEmpty()) "Unknown Region" else cachedRegion
+            if (cachedLocality.isNotEmpty()) {
+                tvRegion.text = "$regionDisplay - $cachedLocality"
+            } else {
+                tvRegion.text = regionDisplay
+            }
+        } else {
+            if (isLocationPinned) {
+                tvRegion.text = "Pinned Location"
+            } else {
+                tvRegion.text = "Location Not Set"
+            }
+        }
+    }
+
+    // --- Standard Methods ---
     override fun showHarvestDatePicker(minHarvestDate: Long, onDateSelected: (Long) -> Unit) {
         val calendar = Calendar.getInstance()
         val datePickerDialog = DatePickerDialog(
@@ -110,12 +162,10 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
             { _, year, month, dayOfMonth ->
                 val selectedCalendar = Calendar.getInstance()
                 selectedCalendar.set(year, month, dayOfMonth)
-                val selectedDate = selectedCalendar.timeInMillis
-
-                if (selectedDate < minHarvestDate) {
+                if (selectedCalendar.timeInMillis < minHarvestDate) {
                     showError("Cannot harvest before estimated date.")
                 } else {
-                    onDateSelected(selectedDate)
+                    onDateSelected(selectedCalendar.timeInMillis)
                 }
             },
             calendar.get(Calendar.YEAR),
@@ -126,8 +176,8 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         datePickerDialog.show()
     }
 
-    fun showError(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    override fun showError(message: String) {
+        (activity as? MainActivity)?.showToast(message, isError = true)
     }
 
     override fun setCropName(name: String) { tvCropName.text = name }
@@ -138,17 +188,10 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     override fun setIrrigation(irrigation: String) { tvIrrigation.text = irrigation }
     override fun setDensity(density: String) { tvDensity.text = density }
     override fun setFertilizer(fertilizer: String) { tvFertilizer.text = fertilizer }
+
     override fun setWeather(weather: String) { tvWeather.text = weather }
+
     override fun setCropImage(resourceId: Int) { imgCrop.setImageResource(resourceId) }
-
-
-    override fun setLocation(region: String, locality: String) {
-        if (locality.isNotEmpty()) {
-            tvRegion.text = "$region - $locality"
-        } else {
-            tvRegion.text = region
-        }
-    }
 
     override fun navigateToEdit(crop: CropEntity) {
         (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
@@ -163,8 +206,7 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     }
 
     override fun setCropImageTint(colorRes: Int) {
-        val color = ContextCompat.getColor(requireContext(), colorRes)
-        imgCrop.setColorFilter(color)
+        imgCrop.setColorFilter(ContextCompat.getColor(requireContext(), colorRes))
     }
 
     override fun showEmptyState() {
@@ -175,23 +217,19 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     }
 
     override fun showDeleteConfirmation(message: String, onConfirm: () -> Unit) {
-        AlertDialog.Builder(requireContext())
+        val builder = AlertDialog.Builder(requireContext())
             .setTitle("Delete Crop")
             .setMessage(message)
-            .setPositiveButton("Delete") { _, _ ->
-                // This triggers the Controller's logic
-                onConfirm()
-            }
+            .setPositiveButton("Delete") { _, _ -> onConfirm() }
             .setNegativeButton("Cancel", null)
-            .show()
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
+        dialog.show()
     }
 
     override fun showHarvestButton(isVisible: Boolean) {
         btnHarvest.visibility = if (isVisible) View.VISIBLE else View.GONE
-    }
-
-    override fun showMapButton(isVisible: Boolean) {
-        btnViewOnMap.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     override fun navigateToGarden() {

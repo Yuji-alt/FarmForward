@@ -137,25 +137,32 @@ class HomeController @Inject constructor(
         checkLocationAndRefreshIfNeeded()
     }
 
-    // --- MODIFIED FUNCTION ---
     private fun fetchWeatherForecast(lat: Double, lon: Double, locationName: String) {
         lastWeatherFetchTime = System.currentTimeMillis()
         val apiKey = BuildConfig.WEATHER_API_KEY
+        scopeOwner?.launch(Dispatchers.IO) {
+            try {
+                val response = RetrofitClient.instance.getForecastByCoordinates(lat, lon, apiKey)
 
-        RetrofitClient.instance.getForecastByCoordinates(lat, lon, apiKey)
-            .enqueue(object : Callback<WeatherResponse> {
-                override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-                    if (response.isSuccessful) {
-                        val allForecasts = response.body()?.list ?: return
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val allForecasts = response.body()!!.list
                         val now = System.currentTimeMillis()
+
                         val futureForecasts = allForecasts.filter { item ->
                             val itemTime = item.dt * 1000L
                             itemTime >= (now - 3600000)
                         }
 
                         val displayList = futureForecasts.take(9)
-                        weatherRepository.saveWeatherData(displayList, locationName, getWeatherDay())
 
+                        weatherRepository.saveWeatherData(
+                            displayList,
+                            locationName,
+                            getWeatherDay(),
+                            lat,
+                            lon
+                        )
                         view?.showWeatherContainer(true)
                         view?.setLocationText(locationName)
                         view?.setWeatherDateText(getWeatherDay())
@@ -164,11 +171,13 @@ class HomeController @Inject constructor(
                         displayCachedData()
                     }
                 }
-
-                override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
                     displayCachedData()
                 }
-            })
+            }
+        }
     }
 
     private fun getLocationName(lat: Double, lon: Double): String {

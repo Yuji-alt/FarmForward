@@ -1,6 +1,7 @@
 package com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewModelScope
 import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
 import com.example.farmforward.database.CropEntity
@@ -9,6 +10,9 @@ import com.example.farmforward.utils.CropImageHelper
 import com.example.farmforward.utils.otherUtils.RetrofitClient
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
 import com.example.farmforward.utils.weatherUtils.WeatherResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -81,24 +85,30 @@ class CropDetailsController @Inject constructor() {
     fun onHarvestClicked(viewModel: CropViewModel) {
         val currentCrop = viewModel.cropData.value ?: return
         val minDate = currentCrop.mindate ?: 0L
-
-        view?.showHarvestDatePicker(minDate) { selectedDate ->
-            viewModel.harvestCrop(currentCrop, selectedDate)
+        val today = System.currentTimeMillis()
+        if (today >= minDate) {
+            viewModel.harvestCrop(currentCrop, today)
             view?.navigateToGarden()
+        } else {
+            val dateStr = dateFormat.format(Date(minDate))
+            view?.showError("Crop not ready. Estimated harvest date: $dateStr")
         }
     }
 
     private fun fetchWeatherForCrop(crop: CropEntity, viewModel: CropViewModel) {
         if (crop.latitude != 0.0 && crop.longitude != 0.0) {
             val cachedData = viewModel.getCachedWeather(crop.latitude, crop.longitude)
+
             if (cachedData != null) {
                 displayWeatherFromResponse(cachedData, isCached = true)
             } else {
                 view?.setWeather("Loading local weather...")
                 val apiKey = BuildConfig.WEATHER_API_KEY
-                RetrofitClient.instance.getForecastByCoordinates(crop.latitude, crop.longitude, apiKey)
-                    .enqueue(object : Callback<WeatherResponse> {
-                        override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+                viewModel.viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        val response = RetrofitClient.instance.getForecastByCoordinates(crop.latitude, crop.longitude, apiKey)
+
+                        withContext(Dispatchers.Main) {
                             if (response.isSuccessful && response.body() != null) {
                                 viewModel.cacheWeather(crop.latitude, crop.longitude, response.body()!!)
                                 displayWeatherFromResponse(response.body()!!, isCached = false)
@@ -106,10 +116,13 @@ class CropDetailsController @Inject constructor() {
                                 updateCurrentDeviceWeather()
                             }
                         }
-                        override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        withContext(Dispatchers.Main) {
                             updateCurrentDeviceWeather()
                         }
-                    })
+                    }
+                }
             }
         } else {
             updateCurrentDeviceWeather()
@@ -145,7 +158,7 @@ class CropDetailsController @Inject constructor() {
                 val condition = closest.weather.firstOrNull()?.main ?: "Unknown"
                 val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
                 val timeString = timeFormat.format(Date(closest.dt * 1000))
-                view?.setWeather("$condition (Device Loc) @ $timeString")
+                view?.setWeather("$condition $timeString")
             } else {
                 view?.setWeather("Weather Unavailable")
             }

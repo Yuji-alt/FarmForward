@@ -1,9 +1,12 @@
 package com.example.farmforward.utils.loadingUtils
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.widget.SeekBar
@@ -34,7 +37,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import retrofit2.awaitResponse
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,42 +51,51 @@ class LoadingActivity : AppCompatActivity() {
     private lateinit var seekBar: SeekBar
     private lateinit var statusText: TextView
     private var locationContinuation: CancellableContinuation<Boolean>? = null
+
     private val locationSettingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            Log.d("LoadingActivity", "User enabled location")
             locationContinuation?.resume(true)
         } else {
-            Log.d("LoadingActivity", "User rejected location")
             locationContinuation?.resume(false)
         }
         locationContinuation = null
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_loading)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
         seekBar = findViewById(R.id.loadingSeekBar)
         statusText = findViewById(R.id.tvStatus)
 
         startDataSync()
     }
+
     private fun startDataSync() {
         lifecycleScope.launch(Dispatchers.IO) {
-            updateProgress(10, "Connecting to server...")
+            updateProgress(10, "Checking connection...")
             delay(300)
 
-            try {
-                updateProgress(30, "Syncing User Profile...")
-                syncManager.syncUsers()
+            if (isNetworkAvailable()) {
+                try {
+                    updateProgress(30, "Syncing User Profile...")
+                    syncManager.syncUsers()
 
-                updateProgress(50, "Downloading Crop Data...")
-                syncManager.syncCrops()
-            } catch (e: Exception) {
-                Log.e("LoadingActivity", "Sync failed (Offline): ${e.message}")
+                    updateProgress(50, "Downloading Crop Data...")
+                    syncManager.syncCrops()
+                } catch (e: Exception) {
+                    Log.e("LoadingActivity", "Sync failed (Error): ${e.message}")
+                    updateProgress(50, "Sync Error: Using Local Data...")
+                    delay(500)
+                }
+            } else {
+                Log.d("LoadingActivity", "No Internet: Skipping Sync")
                 updateProgress(50, "Offline Mode: Using Local Data...")
                 delay(800)
             }
+
             updateProgress(70, "Checking Weather...")
             val hasPermission = ContextCompat.checkSelfPermission(
                 this@LoadingActivity,
@@ -95,10 +106,14 @@ class LoadingActivity : AppCompatActivity() {
                 try {
                     val isGpsOn = ensureLocationOn()
                     if (isGpsOn) {
-                        updateProgress(75, "Fetching Local Weather...")
-                        fetchWeatherSync()
+                        if (isNetworkAvailable()) {
+                            updateProgress(75, "Fetching Local Weather...")
+                            fetchWeatherSync()
+                        } else {
+                            updateProgress(75, "Offline: Skipping Weather...")
+                            delay(500)
+                        }
                     } else {
-                        Log.d("LoadingActivity", "Skipping weather: GPS off.")
                         updateProgress(75, "GPS Disabled: Skipping Weather...")
                         delay(500)
                     }
@@ -118,6 +133,20 @@ class LoadingActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 navigateToMain()
             }
+        }
+    }
+
+    // --- HELPER: Network Check ---
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
         }
     }
 
@@ -163,7 +192,7 @@ class LoadingActivity : AppCompatActivity() {
             }
 
             val apiKey = BuildConfig.WEATHER_API_KEY
-            val response = RetrofitClient.instance.getForecastByCoordinates(location.latitude, location.longitude, apiKey).awaitResponse()
+            val response = RetrofitClient.instance.getForecastByCoordinates(location.latitude, location.longitude, apiKey)
 
             if (response.isSuccessful) {
                 val forecasts = response.body()?.list
@@ -174,8 +203,6 @@ class LoadingActivity : AppCompatActivity() {
 
                     weatherRepository.saveWeatherData(upcomingForecasts, locName, dateText)
                 }
-            } else {
-                Log.e("LoadingActivity", "Weather API Error: ${response.code()}")
             }
         } catch (e: Exception) {
             Log.e("LoadingActivity", "Weather Fetch Failed (Offline): ${e.message}")

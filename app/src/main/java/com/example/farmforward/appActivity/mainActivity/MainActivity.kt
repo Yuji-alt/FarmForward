@@ -19,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -36,14 +35,14 @@ import com.example.farmforward.appActivity.mainActivity.growth.GrowthCropDetails
 import com.example.farmforward.appActivity.mainActivity.growth.GrowthFragment
 import com.example.farmforward.appActivity.mainActivity.home.HomeFragment
 import com.example.farmforward.appActivity.mainActivity.map.MapFragment
-import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetailsFragment
+import com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails.CropDetailsFragment
 import com.example.farmforward.appActivity.mainActivity.otherFragment.GardenTools.GardenToolsFragment
 import com.example.farmforward.appActivity.mainActivity.otherFragment.ProfileFragment
 import com.example.farmforward.appActivity.mainActivity.otherFragment.Settings.SettingsFragment
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.viewModel.CropViewModel
-import com.example.farmforward.utils.notificationsUtils.CropWorker
+import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
 import com.example.farmforward.utils.notificationsUtils.WeatherWorker
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.material.snackbar.Snackbar
@@ -85,7 +84,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
     }
 
-    private var currentMenuId: Int = R.id.nav_home
+    private var currentMenuId: Int = -1
     private val locationSettingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
@@ -102,8 +101,8 @@ class MainActivity : AppCompatActivity(), MainView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
+        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         controller.bindView(this)
 
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -176,6 +175,7 @@ class MainActivity : AppCompatActivity(), MainView {
         }
         setupSmartNotifications()
         controller.onViewCreated()
+        handleNotificationIntent(intent)
     }
 
     override fun onDestroy() {
@@ -229,8 +229,13 @@ class MainActivity : AppCompatActivity(), MainView {
     private fun setupSmartNotifications() {
         val workManager = androidx.work.WorkManager.getInstance(this)
 
+        val constraints = androidx.work.Constraints.Builder()
+            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+            .build()
+
         val weatherRequest = PeriodicWorkRequestBuilder<WeatherWorker>(3, TimeUnit.HOURS)
-            .setInitialDelay(1, TimeUnit.HOURS)
+            .setConstraints(constraints)
+            .setInitialDelay(15, TimeUnit.MINUTES)
             .build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -239,17 +244,25 @@ class MainActivity : AppCompatActivity(), MainView {
             weatherRequest
         )
 
-        val cropRequest = PeriodicWorkRequestBuilder<CropWorker>(24, TimeUnit.HOURS)
+        val cropRequest = PeriodicWorkRequestBuilder<DailyCheckWorker>(24, TimeUnit.HOURS)
             .setInitialDelay(15, TimeUnit.MINUTES)
             .build()
 
         workManager.enqueueUniquePeriodicWork(
-            "CropWorker",
+            "DailyCheckWorker",
            ExistingPeriodicWorkPolicy.KEEP,
             cropRequest
         )
     }
-    fun launchLocationSettings(
+    private fun handleNotificationIntent(intent: Intent?) {
+        val targetTab = intent?.getIntExtra("DESTINATION_TAB", -1) ?: -1
+        if (targetTab != -1) {
+            lifecycleScope.launchWhenResumed {
+                controller.onNavigationItemClicked(targetTab)
+            }
+        }
+    }
+    override fun launchLocationSettings(
         exception: ResolvableApiException,
         onSuccess: () -> Unit,
         onFailure: () -> Unit
@@ -285,24 +298,42 @@ class MainActivity : AppCompatActivity(), MainView {
             val icon = item.getChildAt(0) as ImageView
 
             if (item == selected) {
-                icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_selected))
+                icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_unselected))
                 icon.setBackgroundResource(R.drawable.nav_selected_bg)
             } else {
-                icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_unselected))
+                icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_selected))
                 icon.setBackgroundResource(R.drawable.nav_unselected_bg)
             }
         }
     }
-
     override fun showSignOutDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Log Out and Clear Data")
-            .setMessage("Are you sure? This will delete all locally saved crops and data.")
-            .setPositiveButton("Clear All") { _, _ ->
+        val prefs = getSharedPreferences("FarmForwardConfig", Context.MODE_PRIVATE)
+        val keepData = prefs.getBoolean("keep_data_offline", true)
+
+        val title: String
+        val message: String
+        val positiveButtonText: String
+
+        if (keepData) {
+            title = "Log Out"
+            message = "You are about to log out. Your local data will be KEPT on this device for offline use."
+            positiveButtonText = "Log Out"
+        } else {
+            title = "Log Out and Clear Data"
+            message = "Warning: 'Keep Data Offline' is OFF. This will PERMANENTLY DELETE all locally saved crops."
+            positiveButtonText = "Clear All"
+        }
+        val builder = AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(positiveButtonText) { _, _ ->
                 controller.onSignOutConfirmed()
             }
             .setNegativeButton("Cancel", null)
-            .show()
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
+        dialog.show()
     }
 
     override fun openDrawer() = drawerLayout.openDrawer(GravityCompat.END)
@@ -313,51 +344,58 @@ class MainActivity : AppCompatActivity(), MainView {
         controller.onNavigationItemClicked(R.id.nav_growth)
     }
 
+    private val detailFragments = setOf(
+        NAV_CROP_DETAILS, NAV_GROWTH_CROP_DETAILS, NAV_PROFILE,
+        NAV_HARVEST, NAV_WEATHER, NAV_SETTINGS, NAV_TERMS,
+        NAV_PRIVACY, NAV_HELP, NAV_CONTACT
+    )
+
     override fun switchFragment(newMenuId: Int) {
+        // 1. Optimization: Don't do anything if clicking the same tab
+        if (currentMenuId == newMenuId) return
+
         val transaction = supportFragmentManager.beginTransaction()
 
-        val isOpeningDetails = newMenuId == NAV_CROP_DETAILS || newMenuId == NAV_GROWTH_CROP_DETAILS
-                || newMenuId == NAV_PROFILE || newMenuId == NAV_HARVEST || newMenuId == NAV_WEATHER || newMenuId == NAV_SETTINGS
-                || newMenuId == NAV_TERMS || newMenuId == NAV_PRIVACY || newMenuId == NAV_HELP || newMenuId == NAV_CONTACT
+        // 2. Animation Logic (Refactored for clarity)
+        val isOpeningDetail = newMenuId in detailFragments
+        val isClosingDetail = currentMenuId in detailFragments
 
-
-        val isClosingDetails = currentMenuId == NAV_CROP_DETAILS || currentMenuId == NAV_GROWTH_CROP_DETAILS
-                || currentMenuId == NAV_PROFILE || currentMenuId == NAV_HARVEST || currentMenuId == NAV_WEATHER || currentMenuId == NAV_SETTINGS
-                || currentMenuId == NAV_TERMS || currentMenuId == NAV_PRIVACY || currentMenuId == NAV_HELP || currentMenuId == NAV_CONTACT
-
-
-
-        if (isOpeningDetails) {
-            transaction.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit)
-        } else if (isClosingDetails) {
-            transaction.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit)
-        } else {
-            val oldIndex = orderedTabs.indexOf(currentMenuId)
-            val newIndex = orderedTabs.indexOf(newMenuId)
-            val isMovingForward = newIndex > oldIndex
-
-            if (isMovingForward) {
-                transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-            } else {
-                transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+        when {
+            isOpeningDetail || isClosingDetail -> {
+                // Use pop animations for opening/closing details
+                transaction.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit)
+            }
+            else -> {
+                // Use slide animations for main tabs based on order
+                val oldIndex = orderedTabs.indexOf(currentMenuId)
+                val newIndex = orderedTabs.indexOf(newMenuId)
+                if (newIndex > oldIndex) {
+                    transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                } else {
+                    transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+                }
             }
         }
 
-        val currentFragment = fragmentMap[currentMenuId]
-        if (currentFragment != null && currentFragment.isAdded) {
-            transaction.hide(currentFragment)
+        // 3. Hide Current Fragment
+        fragmentMap[currentMenuId]?.let {
+            if (it.isAdded) transaction.hide(it)
         }
 
-        var newFragment = fragmentMap[newMenuId]
+        // 4. Force Refresh Logic (Fragments that should NOT be cached)
+        // If the new fragment is one of these, remove the old instance first
         if (newMenuId == R.id.nav_calc ||
             newMenuId == NAV_CROP_DETAILS ||
             newMenuId == NAV_GROWTH_CROP_DETAILS) {
-            if (newFragment != null) {
-                transaction.remove(newFragment)
+
+            fragmentMap[newMenuId]?.let {
+                transaction.remove(it)
                 fragmentMap.remove(newMenuId)
             }
-            newFragment = null
         }
+
+        // 5. Show or Add New Fragment
+        var newFragment = fragmentMap[newMenuId]
 
         if (newFragment == null) {
             newFragment = getFragmentInstance(newMenuId)
@@ -410,14 +448,17 @@ class MainActivity : AppCompatActivity(), MainView {
     }
 
     override fun showUnsyncedDataWarning(count: Int) {
-        AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
             .setTitle("Unsynced Data Found")
             .setMessage("You have $count items that haven't been uploaded. Logging out will delete them.\n\nContinue?")
             .setPositiveButton("Delete & Logout") { _, _ ->
                 controller.onSignOutConfirmed()
             }
             .setNegativeButton("Cancel", null)
-            .show()
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
+        dialog.show()
     }
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -433,12 +474,15 @@ class MainActivity : AppCompatActivity(), MainView {
                 controller.handlePermissionResult(
                     this,
                     onPermanentlyDenied = {
-                        AlertDialog.Builder(this)
+                        val builder = AlertDialog.Builder(this)
                             .setTitle("Permission Required")
                             .setMessage("Weather features are disabled because location access is permanently denied. Please enable it in Settings.")
                             .setPositiveButton("Settings") { _, _ -> controller.openAppSettings(this) }
                             .setNegativeButton("Cancel") { _, _ -> homeFragment?.onPermissionDenied() }
-                            .show()
+                        val dialog = builder.create()
+
+                        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
+                        dialog.show()
                     },
                     onDenied = {
                         homeFragment?.onPermissionDenied()
@@ -447,5 +491,16 @@ class MainActivity : AppCompatActivity(), MainView {
                 )
             }
         }
+        if (requestCode == 101) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showToast("Notifications enabled!", isError = false)
+            } else {
+                showToast("Weather alerts will not be shown.", isError = true)
+            }
+        }
+    }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.roomDatabase.RoomUserDao
 import com.example.farmforward.database.roomDatabase.User
+import com.example.farmforward.utils.otherUtils.HashUtils
 import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -24,12 +25,19 @@ class LoginController @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) {
+    // ---------------------------------------------------------------------------------------------
+    // Variables & Scope
+    // ---------------------------------------------------------------------------------------------
     private var view: LoginView? = null
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
+    // ---------------------------------------------------------------------------------------------
+    // Lifecycle Methods
+    // ---------------------------------------------------------------------------------------------
     fun bindView(view: LoginView) {
         this.view = view
     }
+
     fun onViewCreated() {
         if (!NetworkUtils.isNetworkAvailable(context)) {
             view?.setOfflineSwitch(true)
@@ -40,9 +48,23 @@ class LoginController @Inject constructor(
             view?.enableSignUpButton(true)
         }
     }
+
+    fun onDestroy() {
+        ioScope.cancel()
+        view = null
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // User Actions (Clicks)
+    // ---------------------------------------------------------------------------------------------
     fun onSignUpClicked() {
         view?.navigateToSignUp()
     }
+
+    fun onForgotPasswordClicked() {
+        view?.showForgotPasswordDialog()
+    }
+
     fun onLoginClicked(identifier: String, password: String, isOffline: Boolean) {
         if (identifier.isEmpty() || password.isEmpty()) {
             view?.showToast("Please fill in all fields", isError = true)
@@ -50,13 +72,12 @@ class LoginController @Inject constructor(
         }
         handleLogin(identifier, password, isOffline)
     }
-    fun onDestroy() {
-        ioScope.cancel()
-        view = null
-    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Login Logic
+    // ---------------------------------------------------------------------------------------------
     private fun handleLogin(identifier: String, password: String, isOfflineMode: Boolean) {
         ioScope.launch {
-            // 1. Offline Check
             if (isOfflineMode || !NetworkUtils.isNetworkAvailable(context)) {
                 checkLocal(identifier, password, isOfflineMode)
                 return@launch
@@ -86,7 +107,7 @@ class LoginController @Inject constructor(
                             id = doc.getLong("id")?.toInt() ?: 0,
                             username = doc.getString("username") ?: "",
                             email = emailToUse ?: "",
-                            password = password
+                            password = ""
                         )
                     }
                 } catch (e: Exception) { e.printStackTrace() }
@@ -99,22 +120,31 @@ class LoginController @Inject constructor(
 
             auth.signInWithEmailAndPassword(emailToUse!!, password)
                 .addOnSuccessListener { authResult ->
-                    ioScope.launch {
+                    val firebaseUser = authResult.user
 
+                    if (firebaseUser != null && !firebaseUser.isEmailVerified) {
+                        auth.signOut()
+                        ioScope.launch(Dispatchers.Main) {
+                            view?.showUnverifiedAccountDialog(emailToUse!!, password)
+                        }
+                        return@addOnSuccessListener
+                    }
+
+                    ioScope.launch {
                         if (localUser == null) {
-                            val firebaseUser = authResult.user
                             if (firebaseUser != null) {
                                 localUser = User(
                                     id = 0,
                                     username = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "Farmer",
                                     email = firebaseUser.email ?: emailToUse!!,
-                                    password = password
+                                    password = ""
                                 )
                             }
                         }
 
                         if (localUser != null) {
-                            val updatedUser = localUser!!.copy(password = password)
+                            val hashedPassword = HashUtils.hashPassword(password)
+                            val updatedUser = localUser!!.copy(password = hashedPassword)
 
                             userDao.registerUser(updatedUser)
 
@@ -138,7 +168,55 @@ class LoginController @Inject constructor(
                 }
         }
     }
-    fun onForgotPasswordClicked() { view?.showForgotPasswordDialog() }
+
+    private fun checkLocal(identifier: String, password: String, isOffline: Boolean) {
+        ioScope.launch {
+            var user: User? = null
+            val isInputEmail = identifier.contains("@")
+            if (isInputEmail) {
+                user = userDao.getUserByEmail(identifier)
+            } else {
+                user = userDao.getUserByUsername(identifier)
+            }
+            val inputHash = HashUtils.hashPassword(password)
+
+            withContext(Dispatchers.Main) {
+                if (user != null && user!!.password == inputHash) {
+                    session.saveSession(user!!.id, user!!.username, user!!.email)
+                    session.saveOfflineMode(isOffline)
+                    view?.showToast("Offline Login Successful!", isError = false)
+                    view?.startLoginSync()
+                } else {
+                    if (user == null) {
+                        view?.showToast("User not found on this device. Login Online first.", isError = true)
+                    } else {
+                        view?.showToast("Incorrect Password for Offline Mode.", isError = true)
+                    }
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Email & Password Helpers
+    // ---------------------------------------------------------------------------------------------
+    fun resendVerificationEmail(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { result ->
+                result.user?.sendEmailVerification()
+                    ?.addOnSuccessListener {
+                        view?.showToast("Verification email sent! Check your inbox.", isError = false)
+                        auth.signOut()
+                    }
+                    ?.addOnFailureListener { e ->
+                        view?.showToast("Failed to send: ${e.message}", isError = true)
+                        auth.signOut()
+                    }
+            }
+            .addOnFailureListener {
+                view?.showToast("Could not access account to send email.", isError = true)
+            }
+    }
 
     fun sendPasswordReset(email: String) {
         if (email.isEmpty()) {
@@ -153,32 +231,5 @@ class LoginController @Inject constructor(
             .addOnFailureListener { e ->
                 view?.showToast(e.localizedMessage ?: "Failed to send reset email", isError = true)
             }
-    }
-
-    private fun checkLocal(identifier: String, password: String, isOffline: Boolean) {
-        ioScope.launch {
-            var user: User? = null
-            val isInputEmail = identifier.contains("@")
-            if (isInputEmail) {
-                user = userDao.getUserByEmail(identifier)
-            } else {
-                user = userDao.getUserByUsername(identifier)
-            }
-
-            withContext(Dispatchers.Main) {
-                if (user != null && user!!.password == password) {
-                    session.saveSession(user!!.id, user!!.username, user!!.email)
-                    session.saveOfflineMode(isOffline)
-                    view?.showToast("Offline Login Successful!", isError = false)
-                    view?.startLoginSync()
-                } else {
-                    if (user == null) {
-                        view?.showToast("User not found on this device. Login Online first.", isError = true)
-                    } else {
-                        view?.showToast("Incorrect Password for Offline Mode.", isError = true)
-                    }
-                }
-            }
-        }
     }
 }

@@ -9,13 +9,13 @@ import com.example.farmforward.R
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.utils.weatherUtils.WeatherResponse
-import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager // Import this
+import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.database.dataclass.CropFormDraft
 import com.google.android.gms.maps.model.LatLng
-import dagger.hilt.android.lifecycle.HiltViewModel // Import this
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject // Import this
+import javax.inject.Inject
 
 @HiltViewModel
 class CropViewModel @Inject constructor(
@@ -27,16 +27,18 @@ class CropViewModel @Inject constructor(
 
     private val _cropData = MutableLiveData<CropEntity?>()
     val cropData: LiveData<CropEntity?> get() = _cropData
+
     private val _pickedLocation = MutableLiveData<LatLng?>()
     val pickedLocation: LiveData<LatLng?> get() = _pickedLocation
+
     var formDraft: CropFormDraft? = null
     var isMapPickerMode = false
     var cropToEdit: CropEntity? = null
     var lastSourceId: Int = R.id.nav_home
+    var tempDate: Long? = null
     private val weatherCache = mutableMapOf<String, WeatherCacheItem>()
     data class WeatherCacheItem(val response: WeatherResponse, val timestamp: Long)
     var cropToFocus: CropEntity? = null
-
 
     fun getCachedWeather(lat: Double, lng: Double): WeatherResponse? {
         val key = "${lat}_${lng}"
@@ -56,6 +58,7 @@ class CropViewModel @Inject constructor(
         val key = "${lat}_${lng}"
         weatherCache[key] = WeatherCacheItem(response, System.currentTimeMillis())
     }
+
     fun viewCropDetails(crop: CropEntity) {
         _cropData.value = crop
     }
@@ -67,11 +70,14 @@ class CropViewModel @Inject constructor(
     fun clearPickedLocation() {
         _pickedLocation.value = null
     }
-
     fun saveNewCrop(
         userId: Int, cropName: String, area: Double, roundedYield: Double, dateToPlant: Long,
         minDateMillis: Long?, maxDateMillis: Long?, soilType: String?, irrigationLevel: String?,
-        plantDensity: String?, fertilizerUsed: String?, isSynced: Int, latitude: Double = 0.0, longitude: Double = 0.0
+        plantDensity: String?, fertilizerUsed: String?, isSynced: Int,
+        latitude: Double = 0.0,
+        longitude: Double = 0.0,
+        region: String = "",
+        locality: String = ""
     ) {
         val newCrop = CropEntity(
             userId = userId,
@@ -88,7 +94,9 @@ class CropViewModel @Inject constructor(
             lastUpdated = System.currentTimeMillis(),
             isSynced = isSynced,
             latitude = latitude,
-            longitude = longitude
+            longitude = longitude,
+            region = region,
+            locality = locality
         )
         viewModelScope.launch(Dispatchers.IO) {
             cropDao.insertCrop(newCrop)
@@ -130,7 +138,6 @@ class CropViewModel @Inject constructor(
             longitude = longitude,
             region = region,
             locality = locality
-
         )
         viewModelScope.launch(Dispatchers.IO) {
             cropDao.updateCrop(updatedCrop)
@@ -138,6 +145,7 @@ class CropViewModel @Inject constructor(
             syncManager.syncCrops()
         }
     }
+
     fun deleteCrop(cropId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             cropDao.softDeleteCrop(cropId)

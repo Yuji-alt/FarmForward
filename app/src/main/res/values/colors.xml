@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="nav_selected">#E5D7C4</color>
-    <color name="nav_unselected">#354024</color>
-    <color name="kombuGreen">#354024</color>
-    <color name="tan">#D9C19C</color>
-    <color name="moss_green">#889063</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
     <color name="bone">#F7EADA</color>
-    <color name="cafenoir">#4C3D19</color>
-    <color name="light_moss">#A6C875</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="kombuGreen">#354A21</color>
+    <color name="tan">#D9C19C</color>
+    <color name="moss_green">#8A9A5B</color>
+    <color name="light_moss">#ADBC98</color>
+    <color name="cafenoir">#4B3621</color>
+    <color name="nav_selected">#354A21</color>
+    <color name="nav_unselected">#768526</color>
+    <color name="nav_color">#768526</color>
 </resources>

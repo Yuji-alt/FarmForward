@@ -1,32 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_margin="8dp"
+    android:minHeight="105dp"
+    android:layout_marginVertical="4dp"
+    android:layout_marginHorizontal="2dp"
     android:elevation="2dp"
     android:background="@drawable/item_card_border"
     android:clickable="true"
     android:focusable="true"
+    android:padding="12dp"
     android:foreground="?attr/selectableItemBackground">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/imgCrop"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:src="@drawable/plus"
-            android:scaleType="centerCrop"
-            android:layout_marginEnd="12dp"
-            android:padding="10dp"
-            android:contentDescription="@string/crop_image"
-            android:clipToOutline="true"
-            app:tint="@color/kombuGreen"/>
-    </LinearLayout>
-</FrameLayout>
+    <View
+        android:id="@+id/heightAnchor"
+        android:layout_width="1dp"
+        android:layout_height="80dp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ImageView
+        android:id="@+id/imgCrop"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/plus"
+        android:contentDescription="@string/crop_image"
+        app:tint="@color/kombuGreen"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/heightAnchor"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add New Crop"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/kombuGreen"
+        android:layout_marginStart="24dp"
+        android:fontFamily="@font/roboto"
+        app:layout_constraintStart_toEndOf="@id/imgCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

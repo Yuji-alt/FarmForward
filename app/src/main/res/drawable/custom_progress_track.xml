@@ -15,7 +15,7 @@
         <scale android:scaleWidth="100%">
             <shape android:shape="rectangle">
                 <corners android:radius="100dp" />
-                <solid android:color="@color/tan" />
+                <solid android:color="@color/kombuGreen" />
                 <stroke
                     android:width="2dp"
                     android:color="@color/kombuGreen" />

@@ -95,7 +95,7 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
-
+    implementation("com.tbuonomo:dotsindicator:5.0")
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 

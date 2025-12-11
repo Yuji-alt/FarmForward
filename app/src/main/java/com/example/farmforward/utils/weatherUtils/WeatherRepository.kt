@@ -17,25 +17,35 @@ class WeatherRepository @Inject constructor(
     private val KEY_LOCATION = "cached_location"
     private val KEY_DATE = "cached_date_text"
 
+    // NEW KEYS
+    private val KEY_LAT = "cached_lat"
+    private val KEY_LON = "cached_lon"
+
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val gson = Gson()
 
     var cachedForecasts: List<ForecastItem>? = null
     var cachedLocationName: String? = null
     var cachedDateText: String? = null
-
-    fun saveWeatherData(forecasts: List<ForecastItem>, location: String, dateText: String) {
+    fun saveWeatherData(forecasts: List<ForecastItem>, location: String, dateText: String, lat: Double? = null, lon: Double? = null) {
         cachedForecasts = forecasts
         cachedLocationName = location
         cachedDateText = dateText
 
         val jsonForecasts = gson.toJson(forecasts)
-        prefs.edit().apply {
-            putString(KEY_FORECAST, jsonForecasts)
-            putString(KEY_LOCATION, location)
-            putString(KEY_DATE, dateText)
-            apply()
+        val editor = prefs.edit()
+
+        editor.putString(KEY_FORECAST, jsonForecasts)
+        editor.putString(KEY_LOCATION, location)
+        editor.putString(KEY_DATE, dateText)
+
+        // Save Coordinates if provided
+        if (lat != null && lon != null) {
+            editor.putString(KEY_LAT, lat.toString())
+            editor.putString(KEY_LON, lon.toString())
         }
+
+        editor.apply()
     }
 
     fun loadCachedData() {
@@ -50,11 +60,22 @@ class WeatherRepository @Inject constructor(
             cachedForecasts = gson.fromJson(jsonForecasts, type)
         }
     }
+
+    // NEW: Function to get saved coordinates
+    fun getSavedCoordinates(): Pair<Double, Double>? {
+        val latStr = prefs.getString(KEY_LAT, null)
+        val lonStr = prefs.getString(KEY_LON, null)
+
+        if (latStr != null && lonStr != null) {
+            return Pair(latStr.toDouble(), lonStr.toDouble())
+        }
+        return null
+    }
+
     fun getLatestForecastCondition(): String {
-        loadCachedData() // Ensure data is loaded
+        loadCachedData()
         val items = cachedForecasts
         if (items.isNullOrEmpty()) return "Unknown"
-
         return items[0].weather.firstOrNull()?.main ?: "Unknown"
     }
 }

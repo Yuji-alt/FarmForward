@@ -22,12 +22,13 @@ class WeatherController(private val context: Context, private val container: Lin
         // Helpers for Date comparison
         val nowCal = Calendar.getInstance()
         val itemCal = Calendar.getInstance()
+        val now = Date()
 
         for (forecast in forecasts) {
             val itemView = inflater.inflate(R.layout.item_weather_forecast, container, false)
 
-            // 1. Bind Views (Including your new ID)
-            val dayLabelText = itemView.findViewById<TextView>(R.id.todayORtom) // NEW
+            // 1. Bind Views
+            val dayLabelText = itemView.findViewById<TextView>(R.id.todayORtom)
             val timeText = itemView.findViewById<TextView>(R.id.timeText)
             val tempText = itemView.findViewById<TextView>(R.id.tempText)
             val descText = itemView.findViewById<TextView>(R.id.descText)
@@ -39,13 +40,20 @@ class WeatherController(private val context: Context, private val container: Lin
             val date = Date(forecast.dt * 1000)
             val time = outputFormat.format(date)
 
-            // 3. Logic: Today vs Tomorrow
+            // 3. Logic: Today vs Yesterday vs Tomorrow
             itemCal.time = date
+
+            // Check if strictly "Today" (Same Year and Day)
             val isToday = nowCal.get(Calendar.DAY_OF_YEAR) == itemCal.get(Calendar.DAY_OF_YEAR) &&
                     nowCal.get(Calendar.YEAR) == itemCal.get(Calendar.YEAR)
 
-            // 4. Set Texts
-            dayLabelText.text = if (isToday) "Today" else "Tom"
+            // 4. Set Texts with new Logic
+            dayLabelText.text = when {
+                isToday -> "Today"
+                date.before(now) -> "Yesterday"
+                else -> "Tom"
+            }
+
             timeText.text = time
             tempText.text = "${temp.toInt()}°C"
             descText.text = desc

@@ -53,7 +53,6 @@
             android:paddingVertical="14dp"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -70,7 +69,6 @@
             android:paddingVertical="14dp"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -87,7 +85,6 @@
             android:paddingVertical="14dp"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -113,6 +110,30 @@
             android:paddingBottom="8dp" />
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingVertical="10dp"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Keep Data Offline"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_keep_offline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:thumbTint="@color/bone"
+                app:trackTint="@color/kombuGreen"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btn_clear_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -120,7 +141,6 @@
             android:paddingVertical="14dp"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -144,9 +164,8 @@
             android:textStyle="bold"
             android:textColor="@color/kombuGreen"
             android:paddingBottom="8dp" />
-
         <LinearLayout
-            android:id="@+id/btn_version"
+            android:id="@+id/btn_tutorial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
@@ -157,15 +176,29 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="App Tutorial"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="14dp"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Version"
                 android:textSize="18sp"
                 android:textColor="@color/kombuGreen" />
-
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -183,7 +216,6 @@
             android:paddingVertical="14dp"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -200,7 +232,6 @@
             android:paddingVertical="14dp"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

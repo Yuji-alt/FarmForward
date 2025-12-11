@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
+import com.example.farmforward.appActivity.mainActivity.otherFragment.GrowthCropDetails.GrowthCropDetailsController
 import com.example.farmforward.appActivity.mainActivity.otherFragment.GrowthCropDetails.GrowthCropDetailsView
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel

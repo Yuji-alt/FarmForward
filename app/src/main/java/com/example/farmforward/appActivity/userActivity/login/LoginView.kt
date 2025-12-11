@@ -8,4 +8,5 @@ interface LoginView {
     fun setOfflineSwitch(isChecked: Boolean)
     fun enableSignUpButton(isEnabled: Boolean)
     fun showForgotPasswordDialog()
+    fun showUnverifiedAccountDialog(email: String, password: String)
 }

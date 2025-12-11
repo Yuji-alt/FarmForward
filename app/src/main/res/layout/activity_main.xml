@@ -1,363 +1,380 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:background="@color/bone">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <FrameLayout
             android:id="@+id/fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_above="@id/bottom_nav"/>
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
         <include
             android:id="@+id/bottom_nav"
             layout="@layout/custom_bottom_nav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-    <LinearLayout
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
         android:id="@+id/nav_view"
-        android:layout_width="250dp"
+        android:layout_width="260dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:orientation="vertical"
         android:background="@drawable/bg_menu"
-       >
-
-        <ImageButton
-            android:id="@+id/btn_close_nav"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_revert"
-            android:background="?attr/selectableItemBackgroundBorderless" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/kombuGreen"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:alpha="5" />
-
-        <TextView
-            android:text="@string/account"
-            android:paddingStart="10dp"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/kombuGreen"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/btn_profile_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_profile"
-                app:tint="@color/kombuGreen"
-                android:contentDescription="@null" />
+            <ImageButton
+                android:id="@+id/btn_close_nav"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="16dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_revert"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Close Menu"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/kombuGreen"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:alpha="0.5" />
+
             <TextView
-                android:id="@+id/profile"
-                android:text="@string/profile"
+                android:text="@string/account"
+                android:paddingStart="20dp"
                 android:textStyle="bold"
                 android:textSize="18sp"
                 android:textColor="@color/kombuGreen"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp" />
-        </LinearLayout>
+                android:layout_marginBottom="4dp"/>
 
-        <LinearLayout
-            android:id="@+id/btn_settings_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
+            <LinearLayout
+                android:id="@+id/btn_profile_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_setting"
-                app:tint="@color/kombuGreen"
-                android:contentDescription="@null" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_profile"
+                    app:tint="@color/kombuGreen"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:id="@+id/profile"
+                    android:text="@string/profile"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_settings_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_setting"
+                    app:tint="@color/kombuGreen"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:id="@+id/settings"
+                    android:text="@string/settings"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:alpha="0.3"
+                android:background="@color/kombuGreen" />
+
             <TextView
-                android:id="@+id/settings"
-                android:text="@string/settings"
+                android:text="Garden Tools"
                 android:textStyle="bold"
                 android:textSize="18sp"
                 android:textColor="@color/kombuGreen"
-                android:layout_width="wrap_content"
+                android:paddingStart="20dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp" />
-        </LinearLayout>
+                android:layout_marginBottom="4dp"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:alpha="3"
-            android:background="@color/kombuGreen" />
+            <LinearLayout
+                android:id="@+id/btn_my_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
 
-        <TextView
-            android:text="Garden Tools"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/kombuGreen"
-            android:paddingTop="10dp"
-            android:paddingStart="10dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"/>
-        <LinearLayout
-            android:id="@+id/btn_my_profile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_garden"
+                    app:tint="@color/kombuGreen"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:id="@+id/myGarden"
+                    android:text="My Garden"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_garden"
-                app:tint="@color/kombuGreen"
-                android:contentDescription="@null" />
+            <LinearLayout
+                android:id="@+id/btn_calculator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_calc"
+                    app:tint="@color/kombuGreen"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:text="@string/calculator"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_harvest_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_plant"
+                    app:tint="@color/kombuGreen" />
+                <TextView
+                    android:text="@string/harvest_history"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_weather"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/broken_clouds"
+                    app:tint="@color/kombuGreen" />
+
+                <TextView
+                    android:id="@+id/calculator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Weather &amp; Forecast"
+                    android:textColor="@color/kombuGreen"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/kombuGreen"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:alpha="0.3" />
+
             <TextView
-                android:id="@+id/myGarden"
-                android:text="My Garden"
+                android:text="Support"
                 android:textStyle="bold"
                 android:textSize="18sp"
                 android:textColor="@color/kombuGreen"
-                android:layout_width="wrap_content"
+                android:paddingStart="20dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp" />
-        </LinearLayout>
+                android:layout_marginBottom="4dp"/>
 
-        <LinearLayout
-            android:id="@+id/btn_calculator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
+            <LinearLayout
+                android:id="@+id/btn_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_calc"
-                app:tint="@color/kombuGreen"
-                android:contentDescription="@null" />
-            <TextView
-                android:text="@string/calculator"
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_help"
+                    app:tint="@color/kombuGreen"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:text="Help / FAQS"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_contacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                android:paddingVertical="8dp"
+                android:paddingStart="20dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_contact"
+                    app:tint="@color/kombuGreen"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:id="@+id/contacts"
+                    android:text="Contacts"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/kombuGreen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/kombuGreen"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:alpha="0.3" />
+
+            <Button
+                android:id="@+id/signOut"
+                android:text="@string/sign_out"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/kombuGreen"
-                android:layout_width="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/tan"
+                android:backgroundTint="@color/kombuGreen"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp" />
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/btn_harvest_history"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
+                android:clickable="true"/>
 
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="24dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_plant"
-                app:tint="@color/kombuGreen" />
-            <TextView
-                android:text="@string/harvest_history"
+            <Button
+                android:id="@+id/Saved"
+                android:text="@string/save"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/kombuGreen"
-                android:layout_width="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/tan"
+                android:backgroundTint="@color/kombuGreen"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp" />
+                android:clickable="true"/>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/btn_weather"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@null"
-                android:src="@drawable/broken_clouds"
-                app:tint="@color/kombuGreen" />
-
-            <TextView
-                android:id="@+id/calculator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
-                android:text="Weather &amp; Forecast"
-                android:textColor="@color/kombuGreen"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/kombuGreen"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:alpha="3" />
-        <TextView
-            android:text="Support"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/kombuGreen"
-            android:paddingTop="10dp"
-            android:paddingStart="10dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"/>
-        <LinearLayout
-            android:id="@+id/btn_help"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_help"
-                app:tint="@color/kombuGreen"
-                android:contentDescription="@null" />
-            <TextView
-                android:text="Help / FAQS"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/kombuGreen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/btn_contacts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="10dp"
-            android:paddingStart="20dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_contact"
-                app:tint="@color/kombuGreen"
-                android:contentDescription="@null" />
-            <TextView
-                android:id="@+id/contacts"
-                android:text="Contacts"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/kombuGreen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/kombuGreen"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:alpha="3" />
-
-
-        <Button
-            android:id="@+id/signOut"
-            android:text="@string/sign_out"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/tan"
-            android:backgroundTint="@color/kombuGreen"
-            android:layout_margin="10dp"
-            android:layout_gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"/>
-        <Button
-            android:id="@+id/Saved"
-            android:text="@string/save"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/tan"
-            android:backgroundTint="@color/kombuGreen"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"/>
-    </LinearLayout>
+    </ScrollView>
 </androidx.drawerlayout.widget.DrawerLayout>

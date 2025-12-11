@@ -7,11 +7,15 @@ import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
-import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager // Import this
+import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.viewModel.CropViewModel
+import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
+import com.example.farmforward.utils.notificationsUtils.WeatherWorker
+import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -32,13 +36,16 @@ class MainController @Inject constructor(
     private val syncManager: FirebaseSyncManager
 ) {
     private var view: MainView? = null
-
-    private var currentMenuId: Int = R.id.nav_home
+    private var scope: LifecycleCoroutineScope? = null
+    private var currentMenuId: Int = -1
     val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
     fun bindView(view: MainView) {
         this.view = view
+        this.scope = view.getScope()
     }
+
+    // --- CHECK GPS SETTINGS (Helper) ---
     fun ensureLocationSettings(activity: AppCompatActivity, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
@@ -52,7 +59,7 @@ class MainController @Inject constructor(
         task.addOnFailureListener { exception ->
             if (exception is ResolvableApiException) {
                 try {
-                    (view as? MainActivity)?.launchLocationSettings(exception, onSuccess, onFailure)
+                    view?.launchLocationSettings(exception, onSuccess, onFailure)
                 } catch (sendEx: Exception) {
                     onFailure()
                 }
@@ -60,6 +67,101 @@ class MainController @Inject constructor(
                 onFailure()
             }
         }
+    }
+
+    // --- CHECK PERMISSIONS ---
+    fun checkAndRequestLocationPermission(
+        activity: AppCompatActivity,
+        onPermissionGranted: () -> Unit,
+        onPermissionDenied: () -> Unit
+    ) {
+        when {
+            hasLocationPermission() -> {
+                onPermissionGranted()
+            }
+            else -> {
+                requestSystemPermission(activity)
+            }
+        }
+    }
+
+    // --- FETCH LOCATION (Now checks GPS too) ---
+    fun fetchCurrentLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
+        // 1. Check Permissions
+        if (!hasLocationPermission()) {
+            view?.showToast("Location permission required", isError = true)
+            onLocation(0.0, 0.0)
+            return
+        }
+
+        // 2. Check GPS Settings (ensureLocationSettings)
+        ensureLocationSettings(activity,
+            onSuccess = {
+                // 3. Get Coordinates
+                try {
+                    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+                    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                        .addOnSuccessListener { location: Location? ->
+                            if (location != null) {
+                                onLocation(location.latitude, location.longitude)
+                            } else {
+                                view?.showToast("Unable to get location", isError = true)
+                                onLocation(0.0, 0.0)
+                            }
+                        }
+                        .addOnFailureListener {
+                            view?.showToast("Error getting location", isError = true)
+                            onLocation(0.0, 0.0)
+                        }
+                } catch (e: SecurityException) {
+                    view?.showToast("Location permission denied", isError = true)
+                    onLocation(0.0, 0.0)
+                }
+            },
+            onFailure = {
+                view?.showToast("GPS is required to get location.", isError = true)
+                onLocation(0.0, 0.0)
+            }
+        )
+    }
+
+    // ... (Helpers & Navigation) ...
+
+    fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestSystemPermission(activity: AppCompatActivity) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            LOCATION_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    fun handlePermissionResult(
+        activity: AppCompatActivity,
+        onPermanentlyDenied: () -> Unit,
+        onDenied: () -> Unit
+    ) {
+        if (hasLocationPermission()) return
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            onPermanentlyDenied()
+        } else {
+            onDenied()
+        }
+    }
+
+    fun openAppSettings(activity: AppCompatActivity) {
+        val intent = android.content.Intent(
+            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            android.net.Uri.fromParts("package", activity.packageName, null)
+        )
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        activity.startActivity(intent)
     }
 
     fun onViewCreated() {
@@ -75,7 +177,6 @@ class MainController @Inject constructor(
 
     fun onNavigationItemClicked(menuId: Int) {
         if (menuId == currentMenuId) return
-
         currentMenuId = menuId
         view?.switchFragment(menuId)
     }
@@ -86,26 +187,55 @@ class MainController @Inject constructor(
     }
 
     fun onSavedAndSyncClicked() {
-        view?.closeDrawer()
-        view?.showToast("Syncing data to cloud...", isError = false)
-        view?.getScope()?.launch(Dispatchers.IO) {
-            syncManager.syncUsers()
-            syncManager.syncCrops()
-            session.clearSession()
-            withContext(Dispatchers.Main) {
-                view?.showToast("Data saved & Logged out!", isError = false)
-                view?.navigateToLogin()
+        if (!NetworkUtils.isNetworkAvailable(context)) {
+            view?.showToast("Offline: Data saved locally.", isError = false)
+            return
+        }
+
+        // Show Loading via Dialog
+        val loadingDialog = com.example.farmforward.utils.loadingUtils.LoadingDialogFragment()
+        loadingDialog.isCancelable = false
+
+        val fragmentManager = view?.getFragManager()
+        if (fragmentManager != null) {
+            loadingDialog.show(fragmentManager, "SyncLoading")
+        }
+
+        scope?.launch(Dispatchers.IO) {
+            fun updateProgress(progress: Int, message: String) {
+                launch(Dispatchers.Main) {
+                    if (loadingDialog.isAdded) loadingDialog.updateProgress(progress, message)
+                }
+            }
+
+            try {
+                updateProgress(20, "Syncing Profile...")
+                syncManager.syncUsers()
+                updateProgress(60, "Syncing Crops...")
+                syncManager.syncCrops()
+                updateProgress(100, "Done!")
+                kotlinx.coroutines.delay(500)
+
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                    view?.showToast("Cloud Sync Complete!", isError = false)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                    view?.showToast("Sync warning: ${e.message}", isError = true)
+                }
             }
         }
     }
 
     fun onSignOutClicked() {
         view?.closeDrawer()
-        view?.getScope()?.launch(Dispatchers.IO) {
+        scope?.launch(Dispatchers.IO) {
             val userId = session.getUserId() ?: -1
             val unsyncedList = db.cropDao().getUnsyncedCrops(userId)
             val count = unsyncedList.size
-
             withContext(Dispatchers.Main) {
                 if (count > 0) {
                     view?.showUnsyncedDataWarning(count)
@@ -115,104 +245,23 @@ class MainController @Inject constructor(
             }
         }
     }
+
     fun onSignOutConfirmed() {
-        view?.closeDrawer()
-        view?.showToast("Syncing data before logout...", isError = false)
-
-        view?.getScope()?.launch(Dispatchers.IO) {
-            val userId = session.getUserId() ?: -1
-
-            // 1. ADDED: Try to Sync first (Safety Backup)
-            try {
-                syncManager.syncUsers()
-                syncManager.syncCrops()
-            } catch (e: Exception) {
-                // If sync fails (e.g., no internet), we just continue to logout.
-                // We don't want to trap the user if they really want to sign out.
+        scope?.launch(Dispatchers.IO) {
+            val prefs = context.getSharedPreferences("FarmForwardConfig", Context.MODE_PRIVATE)
+            val keepData = prefs.getBoolean("keep_data_offline", true) // Default TRUE
+            if (keepData) {
+                withContext(Dispatchers.Main) {
+                    view?.showToast("Offline Data Kept on Device", isError = false)
+                }
+            } else {
+                db.clearAllTables() // Wipe only if switch is OFF
             }
-
-            // 2. Delete local data (Clean Slate for next user)
-            db.cropDao().deleteAllCropsForUser(userId)
-
-            // 3. Clear Session and Navigate
             session.clearSession()
             withContext(Dispatchers.Main) {
                 view?.navigateToLogin()
             }
         }
-    }
-    fun hasLocationPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-    fun checkAndRequestLocationPermission(
-        activity: AppCompatActivity,
-        onPermissionGranted: () -> Unit,
-        onPermissionDenied: () -> Unit
-    ) {
-        when {
-            hasLocationPermission() -> {
-                onPermissionGranted()
-            }
-            else -> {
-                requestSystemPermission(activity)
-            }
-        }
-    }
-    fun requestSystemPermission(activity: AppCompatActivity) {
-        ActivityCompat.requestPermissions(
-            activity,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-            LOCATION_PERMISSION_REQUEST_CODE
-        )
-    }
-    fun fetchCurrentLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
-        if (!hasLocationPermission()) {
-            view?.showToast("Location permission required", isError = true)
-            onLocation(0.0, 0.0)
-            return
-        }
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
-        try {
-            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        onLocation(location.latitude, location.longitude)
-                    } else {
-                        view?.showToast("Unable to get location", isError = true)
-                        onLocation(0.0, 0.0)
-                    }
-                }
-                .addOnFailureListener {
-                    view?.showToast("Error getting location", isError = true)
-                    onLocation(0.0, 0.0)
-                }
-        } catch (e: SecurityException) {
-            view?.showToast("Location permission denied", isError = true)
-            onLocation(0.0, 0.0)
-        }
-    }
-    fun handlePermissionResult(
-        activity: AppCompatActivity,
-        onPermanentlyDenied: () -> Unit,
-        onDenied: () -> Unit
-    ) {
-        if (hasLocationPermission()) return
-        if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            onPermanentlyDenied()
-        } else {
-            onDenied()
-        }
-    }
-    fun openAppSettings(activity: AppCompatActivity) {
-        val intent = android.content.Intent(
-            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            android.net.Uri.fromParts("package", activity.packageName, null)
-        )
-        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-        activity.startActivity(intent)
     }
 
     fun onDestroy() {

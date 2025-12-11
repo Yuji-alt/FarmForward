@@ -2,6 +2,7 @@ package com.example.farmforward.appActivity.mainActivity.otherFragment.Settings
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -14,7 +15,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
@@ -22,28 +22,29 @@ import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.firebaseDatabase.FirebaseUserRepository
 import com.example.farmforward.database.roomDatabase.AppDatabase
+import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.jvm.java
+import androidx.core.content.edit
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
 
-    // -------------------------------------------------------------------------
-    // Dependencies
-    // -------------------------------------------------------------------------
     @Inject lateinit var session: SessionManager
     @Inject lateinit var db: AppDatabase
     @Inject lateinit var firebaseUserRepo: FirebaseUserRepository
     @Inject lateinit var firestore: FirebaseFirestore
 
-    // -------------------------------------------------------------------------
-    // Lifecycle Methods
-    // -------------------------------------------------------------------------
+    private var loadingDialog: LoadingDialogFragment? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,113 +56,105 @@ class SettingsFragment : Fragment() {
             (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_home)
         }
 
-        setupClickListeners(view)
+        val switchOffline = view.findViewById<MaterialSwitch>(R.id.switch_keep_offline)
+        val prefs = requireContext().getSharedPreferences("FarmForwardPrefs", Context.MODE_PRIVATE)
 
+        // Load state (Default TRUE)
+        switchOffline.isChecked = prefs.getBoolean("keep_data_offline", true)
+
+        switchOffline.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit { putBoolean("keep_data_offline", isChecked) }
+            if (isChecked) showToast("Data will be kept on device after logout.")
+            else showToast("Data will be cleared on logout.")
+        }
+
+        setupClickListeners(view)
         return view
     }
 
-    // -------------------------------------------------------------------------
-    // Setup & Listeners
-    // -------------------------------------------------------------------------
     private fun setupClickListeners(view: View) {
         val mainActivity = activity as? MainActivity ?: return
 
         view.findViewById<LinearLayout>(R.id.btn_edit_username).setOnClickListener {
             if (isNetworkAvailable()) showEditUsernameDialog() else showToast("Internet connection required", isError = true)
         }
-
         view.findViewById<LinearLayout>(R.id.btn_change_password).setOnClickListener {
             if (isNetworkAvailable()) showChangePasswordDialog() else showToast("Internet connection required", isError = true)
         }
-
         view.findViewById<LinearLayout>(R.id.btn_delete_account).setOnClickListener {
             if (isNetworkAvailable()) showDeleteAccountDialog() else showToast("Internet connection required", isError = true)
         }
-
         view.findViewById<LinearLayout>(R.id.btn_clear_data).setOnClickListener {
             showClearDataDialog()
         }
-
         view.findViewById<LinearLayout>(R.id.btn_terms).setOnClickListener {
             mainActivity.controller.onNavigationItemClicked(MainActivity.NAV_TERMS)
         }
         view.findViewById<LinearLayout>(R.id.btn_privacy).setOnClickListener {
             mainActivity.controller.onNavigationItemClicked(MainActivity.NAV_PRIVACY)
         }
+        view.findViewById<LinearLayout>(R.id.btn_tutorial).setOnClickListener {
+            val intent = Intent(
+                requireContext(),
+                com.example.farmforward.utils.onBoarding.OnboardingActivity::class.java
+            )
+            intent.putExtra("FROM_SETTINGS", true)
+            startActivity(intent)
+        }
     }
 
-    // -------------------------------------------------------------------------
-    // Dialogs (UI Logic)
-    // -------------------------------------------------------------------------
+    // --- DIALOGS ---
     private fun showEditUsernameDialog() {
         val currentName = session.getUserDetails()["name"] ?: ""
-
-        // Setup Container
-        val container = LinearLayout(context)
-        container.orientation = LinearLayout.VERTICAL
-        val padding = dpToPx(20)
-        container.setPadding(padding, padding, padding, padding)
-
-        // Setup Input
         val input = EditText(context).apply {
             hint = "Enter new username"
             setText(currentName)
             setBackgroundResource(R.drawable.dialog_input)
             setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
         }
-
-        container.addView(input)
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dpToPx(20), dpToPx(20), dpToPx(20), dpToPx(20))
+            addView(input)
+        }
 
         val builder = AlertDialog.Builder(context)
             .setTitle("Edit Username")
             .setView(container)
             .setPositiveButton("Save") { _, _ ->
                 val newName = input.text.toString().trim()
-                if (newName.isNotEmpty()) {
-                    updateUsername(newName)
-                } else {
-                    showToast("Username cannot be empty", isError = true)
-                }
+                if (newName.isNotEmpty()) updateUsername(newName)
+                else showToast("Username cannot be empty", isError = true)
             }
             .setNegativeButton("Cancel", null)
+
         val dialog = builder.create()
+
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
-
-        val color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kombuGreen)
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(color)
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(color)
     }
 
     private fun showChangePasswordDialog() {
-        // Setup Container
-        val layout = LinearLayout(context)
-        layout.orientation = LinearLayout.VERTICAL
-        val padding = dpToPx(20)
-        layout.setPadding(padding, padding, padding, padding)
-
-        // Setup Old Password Input
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.dialog_input)
+            setPadding(dpToPx(20), dpToPx(20), dpToPx(20), dpToPx(20))
+        }
         val oldPass = EditText(context).apply {
             hint = "Old Password"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             setBackgroundResource(R.drawable.dialog_input)
             setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
         }
-
-        // Setup New Password Input
         val newPass = EditText(context).apply {
             hint = "New Password"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             setBackgroundResource(R.drawable.dialog_input)
             setPadding(dpToPx(12), dpToPx(12), dpToPx(12), dpToPx(12))
         }
-
-        // Add Margins
         val params = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-        params.setMargins(0, 0, 0, dpToPx(16))
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { setMargins(0, 0, 0, dpToPx(16)) }
         oldPass.layoutParams = params
 
         layout.addView(oldPass)
@@ -173,142 +166,145 @@ class SettingsFragment : Fragment() {
             .setPositiveButton("Update") { _, _ ->
                 val oldP = oldPass.text.toString()
                 val newP = newPass.text.toString()
-
-                if (newP.length >= 6) {
-                    verifyAndUpdatePassword(oldP, newP)
-                } else {
-                    showToast("New password must be at least 6 chars", isError = true)
-                }
+                if (newP.length >= 6) verifyAndUpdatePassword(oldP, newP)
+                else showToast("New password must be at least 6 chars", isError = true)
             }
             .setNegativeButton("Cancel", null)
         val dialog = builder.create()
+
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
-
-        val color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kombuGreen)
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(color)
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(color)
     }
 
     private fun showDeleteAccountDialog() {
         val builder = AlertDialog.Builder(context)
             .setTitle("Delete Account")
-            .setMessage("Are you sure? This will delete your account permanently from the cloud and this device.")
-            .setPositiveButton("DELETE") { _, _ ->
-                performDeleteAccount()
-            }
+            .setMessage("Are you sure? This will delete your account permanently.")
+            .setPositiveButton("DELETE") { _, _ -> performDeleteAccount() }
             .setNegativeButton("Cancel", null)
+
         val dialog = builder.create()
+
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
-
-        val color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kombuGreen)
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(color)
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(color)
     }
 
     private fun showClearDataDialog() {
-        val builder = AlertDialog.Builder(context)
+        val builder =  AlertDialog.Builder(context)
             .setTitle("Clear All App Data")
-            .setMessage("This will delete all local data and log you out. Cloud data remains safe.")
-            .setPositiveButton("Delete") { _, _ ->
-                performClearData()
-            }
+            .setMessage("This will delete all local data and log you out.")
+            .setPositiveButton("Delete") { _, _ -> performClearData() }
             .setNegativeButton("Cancel", null)
         val dialog = builder.create()
+
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
 
-        val color = androidx.core.content.ContextCompat.getColor(requireContext(), R.color.kombuGreen)
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(color)
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(color)
     }
 
-    // -------------------------------------------------------------------------
-    // Backend / Database Operations
-    // -------------------------------------------------------------------------
+    // --- LOADING HELPER ---
+    private fun showLoading() {
+        loadingDialog = LoadingDialogFragment()
+        loadingDialog?.isCancelable = false
+        loadingDialog?.show(parentFragmentManager, "SettingsLoading")
+    }
+    private fun updateLoading(progress: Int, message: String) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (loadingDialog?.isAdded == true) {
+                loadingDialog?.updateProgress(progress, message)
+            }
+        }
+    }
+
+    private fun hideLoading() {
+        if (loadingDialog?.isAdded == true) {
+            loadingDialog?.dismiss()
+        }
+        loadingDialog = null
+    }
+
+    // --- LOGIC WITH LOADING ---
     private fun updateUsername(newName: String) {
+        showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
+            updateLoading(10, "Checking availability...")
+            delay(500)
+
             val userId = session.getUserId() ?: -1
             val currentUsername = session.getUserName() ?: ""
 
-            if (userId == -1) return@launch
-            if (newName.equals(currentUsername, ignoreCase = true)) {
-                withContext(Dispatchers.Main) {
-                    showToast("That is already your username.", isError = true)
-                }
-                return@launch
-            }
-            if (isNetworkAvailable()) {
-                try {
-                    val snapshot = firestore.collection("users")
-                        .whereEqualTo("username", newName)
-                        .get()
-                        .await()
-
-                    if (!snapshot.isEmpty) {
-                        withContext(Dispatchers.Main) {
-                            showToast("Username '$newName' is already taken.", isError = true)
-                        }
-                        return@launch
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    withContext(Dispatchers.Main) {
-                        showToast("Error checking availability. Try again.", isError = true)
-                    }
-                    return@launch
-                }
-            } else {
-                val localCount = db.userDao().checkUserExists(newName)
-                if (localCount > 0) {
-                    withContext(Dispatchers.Main) {
-                        showToast("Username '$newName' exists on this device.", isError = true)
-                    }
-                    return@launch
-                }
-            }
             try {
+                // Check Firestore
+                val userDoc = firestore.collection("users").document(newName).get().await()
+
+                if (userDoc.exists()) {
+                    withContext(Dispatchers.Main) {
+                        hideLoading()
+                        showToast("Username '$newName' is already taken.", isError = true)
+                    }
+                    return@launch
+                }
+
+                updateLoading(50, "Updating profile...")
                 db.userDao().updateUsername(userId, newName)
 
                 val email = session.getUserDetails()["email"] ?: ""
                 session.createLoginSession(userId, newName, email)
+
                 val user = db.userDao().getUserById(userId)
                 if (user != null) {
+                    updateLoading(80, "Syncing to cloud...")
                     firebaseUserRepo.updateUsername(currentUsername, user)
                 }
+
+                updateLoading(100, "Done!")
+                delay(300)
+
                 withContext(Dispatchers.Main) {
+                    hideLoading()
                     showToast("Username updated to $newName", isError = false)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    showToast("Local update success, but Cloud sync failed.", isError = true)
+                    hideLoading()
+                    showToast("Error: ${e.message}", isError = true)
                 }
             }
         }
     }
 
     private fun verifyAndUpdatePassword(oldPass: String, newPass: String) {
+        showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
+            updateLoading(20, "Verifying credentials...")
             val userId = session.getUserId() ?: -1
             val user = db.userDao().getUserById(userId)
             val email = session.getUserDetails()["email"] ?: ""
 
             if (user != null && user.password == oldPass) {
                 try {
+                    updateLoading(50, "Updating secure cloud...")
                     firebaseUserRepo.updatePassword(email, oldPass, newPass)
+
+                    updateLoading(80, "Updating local database...")
                     db.userDao().updatePassword(userId, newPass)
+
+                    updateLoading(100, "Success!")
+                    delay(300)
+
                     withContext(Dispatchers.Main) {
+                        hideLoading()
                         showToast("Password changed securely!", isError = false)
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
+                        hideLoading()
                         showToast("Failed: ${e.message}", isError = true)
                     }
                 }
             } else {
                 withContext(Dispatchers.Main) {
+                    hideLoading()
                     showToast("Incorrect old password", isError = true)
                 }
             }
@@ -316,48 +312,57 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performDeleteAccount() {
+        showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
+            updateLoading(10, "Preparing deletion...")
             val userId = session.getUserId() ?: -1
             val currentUsername = session.getUserName() ?: ""
 
             if (userId != -1) {
-                // 1. Delete from Firebase
-                if (currentUsername.isNotEmpty()) {
-                    try {
+                try {
+                    if (currentUsername.isNotEmpty()) {
+                        updateLoading(40, "Deleting cloud data...")
                         firebaseUserRepo.deleteUser(currentUsername)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
                     }
-                }
+                    updateLoading(70, "Wiping local data...")
+                    db.cropDao().deleteAllCropsForUser(userId)
+                    val user = db.userDao().getUserById(userId)
+                    if (user != null) db.userDao().delete(user)
+                    session.clearSession()
 
-                // 2. Delete Local Data
-                db.cropDao().deleteAllCropsForUser(userId)
-                val user = db.userDao().getUserById(userId)
-                if (user != null) {
-                    db.userDao().delete(user)
-                }
-                session.clearSession()
+                    updateLoading(100, "Goodbye.")
+                    delay(500)
 
-                withContext(Dispatchers.Main) {
-                    (activity as? MainActivity)?.navigateToLogin()
+                    withContext(Dispatchers.Main) {
+                        hideLoading()
+                        (activity as? MainActivity)?.navigateToLogin()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        hideLoading()
+                        showToast("Deletion Failed: ${e.message}", isError = true)
+                    }
                 }
             }
         }
     }
 
     private fun performClearData() {
+        // Local only, no internet loading needed usually, but consistent UX is nice
+        showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
+            updateLoading(50, "Clearing tables...")
             db.clearAllTables()
             session.clearSession()
+            updateLoading(100, "Done.")
+            delay(300)
             withContext(Dispatchers.Main) {
+                hideLoading()
                 (activity as? MainActivity)?.navigateToLogin()
             }
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers (Toast, Network, Dimensions)
-    // -------------------------------------------------------------------------
     private fun showToast(message: String, isError: Boolean = false) {
         (activity as? MainActivity)?.showToast(message, isError)
     }
@@ -366,20 +371,10 @@ class SettingsFragment : Fragment() {
         val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-
-        return when {
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            else -> false
-        }
+        return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private fun dpToPx(dp: Int): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp.toFloat(),
-            resources.displayMetrics
-        ).toInt()
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), resources.displayMetrics).toInt()
     }
 }

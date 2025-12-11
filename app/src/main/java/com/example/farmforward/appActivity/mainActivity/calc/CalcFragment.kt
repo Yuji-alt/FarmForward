@@ -111,7 +111,9 @@ class CalcFragment : Fragment(), CalcView {
                 (activity as? MainActivity)?.showToast("Map location requires Internet.", isError = true)
             }
         }
-
+        if (cropViewModel.tempDate != null) {
+            selectedDateMillis = cropViewModel.tempDate!!
+        }
         cropViewModel.pickedLocation.observe(viewLifecycleOwner) { latLng ->
             if (latLng != null) {
                 if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
@@ -254,17 +256,19 @@ class CalcFragment : Fragment(), CalcView {
         inputWeather.hint = "Weather Condition"
         inputWeather.text = null
     }
-
     private fun fetchSpecificWeather(lat: Double, lng: Double) {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             inputWeather.setText("Offline / Unavailable")
             return
         }
         inputWeather.setText("Loading...")
-        val apiKey = BuildConfig.WEATHER_API_KEY
-        RetrofitClient.instance.getForecastByCoordinates(lat, lng, apiKey)
-            .enqueue(object : Callback<WeatherResponse> {
-                override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val apiKey = BuildConfig.WEATHER_API_KEY
+                val response = RetrofitClient.instance.getForecastByCoordinates(lat, lng, apiKey)
+                withContext(Dispatchers.Main) {
+                    if (!isAdded) return@withContext
+
                     if (response.isSuccessful && response.body() != null) {
                         val forecast = response.body()!!.list.firstOrNull()
                         if (forecast != null) {
@@ -279,10 +283,13 @@ class CalcFragment : Fragment(), CalcView {
                         inputWeather.setText("Weather Error")
                     }
                 }
-                override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                    inputWeather.setText("Network Error")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    if (isAdded) inputWeather.setText("Network Error")
                 }
-            })
+            }
+        }
     }
 
     override fun preFillForm(crop: CropEntity) {
@@ -415,6 +422,8 @@ class CalcFragment : Fragment(), CalcView {
         selectedLat = 0.0
         selectedLng = 0.0
         cropViewModel.clearDraft()
+        cropViewModel.tempDate = null
+        selectedDateMillis = System.currentTimeMillis()
     }
 
     private fun hideKeyboard(view: View) {
@@ -535,6 +544,7 @@ class CalcFragment : Fragment(), CalcView {
             lng = selectedLng
         )
         cropViewModel.formDraft = draft
+        cropViewModel.tempDate = selectedDateMillis
     }
 
     private fun restoreFormState(draft: CropFormDraft) {
@@ -550,6 +560,17 @@ class CalcFragment : Fragment(), CalcView {
             selectedLng = draft.lng
             inputRegion.setText(getAddressName(selectedLat, selectedLng))
             fetchSpecificWeather(selectedLat, selectedLng)
+        }
+        if (cropViewModel.tempDate != null) {
+            selectedDateMillis = cropViewModel.tempDate!!
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = selectedDateMillis
+            val calendarGrid = view?.findViewById<GridLayout>(R.id.calendarGrid)
+            val tvMonthYear = view?.findViewById<TextView>(R.id.tvMonthYear)
+            if (calendarGrid != null && tvMonthYear != null) {
+                updateCalendar(calendar, calendarGrid, tvMonthYear, requireContext())
+            }
+            cropViewModel.tempDate = null
         }
     }
 

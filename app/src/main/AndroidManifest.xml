@@ -51,6 +51,8 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
+        <activity android:name=".utils.onBoarding.OnboardingActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>

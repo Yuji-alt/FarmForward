@@ -1,113 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fillViewport="true"
     android:orientation="vertical"
-    android:background="@color/bone"
-    android:padding="12dp">
+    android:background="@color/bone">
 
-    <!-- SCROLLABLE CONTENT -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <ImageButton
+            android:id="@+id/btn_back_profile"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="@color/kombuGreen"
+            android:contentDescription="Back"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="My Profile"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/kombuGreen"
+            android:fontFamily="@font/roboto"
+            android:gravity="center"/>
+
+        <View android:layout_width="48dp" android:layout_height="48dp"/>
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="24dp">
 
-            <!-- BACK BUTTON -->
-            <ImageButton
-                android:id="@+id/btn_back_profile"
+            <FrameLayout
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="16dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="false"
+                    android:focusable="false"
+                    app:cardCornerRadius="60dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <ImageView
+                        android:id="@+id/imgProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_profile"
+                        android:scaleType="centerCrop"
+                        app:tint="@color/kombuGreen"/>
+                </androidx.cardview.widget.CardView>
+
+                <ImageView
+                    android:id="@+id/btnEditProfilePic"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/rounded_box"
+                    android:backgroundTint="@color/kombuGreen"
+                    android:src="@android:drawable/ic_menu_camera"
+                    android:padding="6dp"
+                    app:tint="@color/bone"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:elevation="10dp" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
-                android:padding="8dp"
-                android:src="@android:drawable/ic_menu_revert"
-                app:tint="@color/kombuGreen" />
+                android:text="Username"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/kombuGreen"
+                android:layout_marginBottom="4dp"/>
 
-            <!-- MAIN INFO CARD -->
+            <TextView
+                android:id="@+id/tvEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="email@example.com"
+                android:textSize="16sp"
+                android:textColor="@color/kombuGreen"
+                android:alpha="0.8"
+                android:layout_marginBottom="32dp"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/input_bg"
                 android:padding="20dp"
-                android:layout_marginTop="16dp"
-                android:elevation="4dp">
+                android:elevation="2dp">
 
-                <!-- CROP NAME -->
-
-                <!-- CROP IMAGE -->
-                <TextView
-                    android:id="@+id/tvUsername"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="UserName"
-                    android:textColor="@color/kombuGreen"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="8dp">
 
-                <ImageView
-                    android:id="@+id/imgCrop"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="20dp"
-                    android:src="@drawable/agricultwo"
-                    android:background="@drawable/rounded_box"
-                    android:clipToOutline="true"
-                    android:scaleType="centerCrop" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_plant"
+                        app:tint="@color/kombuGreen"
+                        android:layout_marginEnd="12dp"
+                        android:contentDescription="Active Plants Icon"/>
 
+                    <TextView
+                        android:id="@+id/tvActiveplants"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Active Plants: 0"
+                        android:textSize="18sp"
+                        android:textColor="@color/kombuGreen"/>
+                </LinearLayout>
 
-                <!-- DATE PLANTED -->
-                <TextView
-                    android:id="@+id/tvDatePlanted"
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/kombuGreen"
+                    android:alpha="0.2"
+                    android:layout_marginVertical="8dp"/>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Email: user_email"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/kombuGreen"
-                    android:layout_marginTop="20dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="8dp">
 
-                <TextView
-                    android:id="@+id/tvActiveplants"
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_garden"
+                        app:tint="@color/kombuGreen"
+                        android:layout_marginEnd="12dp"
+                        android:contentDescription="Harvest Icon"/>
+
+                    <TextView
+                        android:id="@+id/yvHarvestedCrops"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Harvests: 0"
+                        android:textSize="18sp"
+                        android:textColor="@color/kombuGreen"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/kombuGreen"
+                    android:alpha="0.2"
+                    android:layout_marginVertical="8dp"/>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Estimated Harvest: December 25"
-                    android:textSize="20sp"
-                    android:textColor="@color/kombuGreen"
-                    android:layout_marginTop="10dp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="8dp">
 
-                <TextView
-                    android:id="@+id/yvHarvestedCrops"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Growth Stage: Vegetative"
-                    android:textColor="@color/kombuGreen"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_circle"
+                        app:tint="@color/kombuGreen"
+                        android:layout_marginEnd="12dp"
+                        android:contentDescription="Favorite Icon"/>
 
-                <!-- DESCRIPTION -->
-                <TextView
-                    android:id="@+id/tvFavorite"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Frequently crop: Rice"
-                    android:textSize="20sp"
-                    android:textColor="@color/kombuGreen"
-                    android:layout_marginTop="10dp"
-                    android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvFavorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Frequent Crop: None"
+                        android:textSize="18sp"
+                        android:textColor="@color/kombuGreen"/>
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

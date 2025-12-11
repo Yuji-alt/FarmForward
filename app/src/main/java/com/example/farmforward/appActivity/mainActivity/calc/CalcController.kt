@@ -1,15 +1,20 @@
 package com.example.farmforward.appActivity.mainActivity.calc
 
 import android.content.Context
+import android.location.Geocoder
+import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.staticData.CropRepository
 import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.otherUtils.NetworkUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -41,6 +46,7 @@ class CalcController @Inject constructor(
         )
         onFragmentVisible()
     }
+
     fun onFragmentVisible() {
         if (viewModel?.formDraft != null) {
             if (viewModel?.cropToEdit != null) {
@@ -55,15 +61,13 @@ class CalcController @Inject constructor(
             val crop = viewModel!!.cropToEdit!!
             view?.preFillForm(crop)
             view?.setButtonText("Update Calculation")
-        }
-        else {
+        } else {
             view?.setButtonText("Calculate & Save")
         }
     }
 
     fun onCancelClicked() {
         view?.clearAllInputs()
-
         viewModel?.cropToEdit = null
         view?.setButtonText("Calculate & Save")
         view?.showToast("Calculation cleared/cancelled.", isError = false)
@@ -110,7 +114,9 @@ class CalcController @Inject constructor(
         val irrigationEffect = cropRepository.getFactorEffect(category, "Irrigation Level", irrSel)
         val densityEffect = cropRepository.getFactorEffect(category, "Planting Density", denSel)
         val fertilizerEffect = cropRepository.getFactorEffect(category, "Fertilizer Used", fertSel)
+
         val weatherEffect = 0.0
+
         val baseYieldPerSqm = cropData.baseYield / 10000.0
         val totalEffectPercent =
             soilEffect + irrigationEffect + densityEffect + fertilizerEffect + weatherEffect
@@ -126,7 +132,6 @@ class CalcController @Inject constructor(
         cal.time = plantedDate
         cal.add(Calendar.DAY_OF_YEAR, cropData.maxDays)
         val maxHarvestDate = cal.time
-
         val userId = sessionManager.getUserId() ?: -1
         if (userId == -1) {
             view?.showToast("Error: User session not found.", isError = false)
@@ -134,8 +139,26 @@ class CalcController @Inject constructor(
         }
         val isOnline = NetworkUtils.isNetworkAvailable(context)
         val syncStatus = if (isOnline) 1 else 0
+
         view?.getCurrentLocation { lat, lng ->
-            scope?.launch {
+            scope?.launch(Dispatchers.IO) {
+
+                var regionName = ""
+                var localityName = ""
+                try {
+                    if (lat != 0.0 && lng != 0.0) {
+                        val geocoder = Geocoder(context, Locale.getDefault())
+                        @Suppress("DEPRECATION")
+                        val addresses = geocoder.getFromLocation(lat, lng, 1)
+                        if (!addresses.isNullOrEmpty()) {
+                            val address = addresses[0]
+                            regionName = address.adminArea ?: ""
+                            localityName = address.locality ?: ""
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("CalcController", "Geocoding failed: ${e.message}")
+                }
                 if (viewModel?.cropToEdit != null) {
                     viewModel?.updateCrop(
                         originalCrop = viewModel!!.cropToEdit!!,
@@ -150,7 +173,9 @@ class CalcController @Inject constructor(
                         fertilizerUsed = fertSel,
                         isSynced = syncStatus,
                         latitude = lat,
-                        longitude = lng
+                        longitude = lng,
+                        region = regionName,
+                        locality = localityName
                     )
                     viewModel?.cropToEdit = null
 
@@ -169,11 +194,16 @@ class CalcController @Inject constructor(
                         fertilizerUsed = fertSel,
                         isSynced = syncStatus,
                         latitude = lat,
-                        longitude = lng
+                        longitude = lng,
+                        region = regionName,
+                        locality = localityName
                     )
                 }
-                view?.clearAllInputs()
-                view?.navigateToLoading(isOnline)
+
+                withContext(Dispatchers.Main) {
+                    view?.clearAllInputs()
+                    view?.navigateToLoading(isOnline)
+                }
             }
         }
     }

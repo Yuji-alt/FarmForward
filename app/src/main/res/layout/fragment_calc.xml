@@ -1,286 +1,332 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/bone"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:id="@+id/header_content"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/search_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/app_logo_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/roboto"
+                android:gravity="center_vertical"
+                android:padding="4dp"
+                android:text="Calculator"
+                android:textColor="@color/kombuGreen"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <EditText
+                android:id="@+id/search_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/search_border"
+                android:hint="@string/search_crops"
+                android:inputType="text"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="16sp"
+                android:textColor="@color/kombuGreen"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_search"
+            app:tint="@color/kombuGreen"
+            app:layout_constraintEnd_toStartOf="@+id/menu_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <ImageButton
+            android:id="@+id/menu_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_settings"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/kombuGreen"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/kombuGreen"
+        android:alpha="0.5" />
 
     <ScrollView
         android:id="@+id/rootLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bone"
         android:fillViewport="true"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        android:paddingBottom="80dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:paddingBottom="16dp">
 
             <LinearLayout
                 android:id="@+id/calendarContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:padding="16dp">
 
                 <LinearLayout
-                    android:paddingStart="16dp"
-                    android:paddingTop="16dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="0dp"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="50dp">
-                        <TextView
-                            android:id="@+id/app_logo_text"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:fontFamily="@font/roboto"
-                            android:gravity="start"
-                            android:padding="4dp"
-                            android:text="Calculator"
-                            android:textColor="@color/kombuGreen"
-                            android:textSize="30sp"
-                            android:textStyle="bold"
-                            android:visibility="visible" />
-                        <EditText
-                            android:id="@+id/search_input"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/search_border"
-                            android:hint="@string/search_crops"
-                            android:inputType="text"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"
-                            android:textSize="16sp"
-                            android:textColor="@color/kombuGreen"
-                            android:visibility="gone" />
-                    </FrameLayout>
-                    <View android:layout_width="40dp" android:layout_height="40dp" android:layout_marginStart="10dp" />
                     <ImageButton
-                        android:id="@+id/menu_button"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@android:color/transparent"
-                        android:padding="12dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_settings"
+                        android:id="@+id/btnPrevMonth"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_arrow_left"
+                        app:tint="@color/kombuGreen" />
+
+                    <TextView
+                        android:id="@+id/tvMonthYear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:text="@string/month_year"
+                        android:textColor="@color/kombuGreen"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btnNextMonth"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_arrow_right"
                         app:tint="@color/kombuGreen" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="@color/kombuGreen"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:alpha="5" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <GridLayout
+                    android:id="@+id/calendarGrid"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="16dp">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-                        <ImageButton
-                            android:id="@+id/btnPrevMonth"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@null"
-                            android:src="@drawable/ic_arrow_left"
-                            app:tint="@color/kombuGreen" />
-                        <TextView
-                            android:id="@+id/tvMonthYear"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp"
-                            android:text="@string/month_year"
-                            android:textColor="@color/kombuGreen"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-                        <ImageButton
-                            android:id="@+id/btnNextMonth"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@null"
-                            android:src="@drawable/ic_arrow_right"
-                            app:tint="@color/kombuGreen" />
-                    </LinearLayout>
-                    <GridLayout
-                        android:id="@+id/calendarGrid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:columnCount="7"
-                        android:useDefaultMargins="true"
-                        android:padding="4dp" />
-                </LinearLayout>
+                    android:layout_gravity="center"
+                    android:columnCount="7"
+                    android:useDefaultMargins="true"
+                    android:padding="4dp" />
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/kombuGreen"
+                android:alpha="0.5"
+                android:layout_marginBottom="8dp"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1" />
-
+                android:layout_weight="1"/>
 
             <LinearLayout
                 android:id="@+id/inputContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/bone"
                 android:orientation="vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="22dp">
+                android:paddingHorizontal="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/inputCrop"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/input_bg"
+                        android:hint="@string/crop"
+                        android:padding="12dp"
+                        android:textColorHint="@color/kombuGreen"
+                        android:inputType="text"
+                        android:minHeight="48dp"
+                        android:layout_marginEnd="8dp"/>
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/input_bg"
                         android:orientation="horizontal"
-                        android:weightSum="2">
-                        <AutoCompleteTextView
-                            android:id="@+id/inputCrop"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/input_bg"
-                            android:hint="@string/crop"
-                            android:padding="8dp"
-                            android:textColorHint="@color/moss_green"
-                            android:dropDownHeight="wrap_content"/>
-                        <View android:layout_width="8dp" android:layout_height="0dp" />
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:layout_marginStart="8dp">
+
                         <AutoCompleteTextView
                             android:id="@+id/inputArea"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:background="@drawable/input_bg"
+                            android:background="@null"
                             android:hint="@string/area"
-                            android:padding="8dp"
-                            android:inputType="number"
-                            android:textColorHint="@color/moss_green"/>
-                    </LinearLayout>
+                            android:padding="12dp"
+                            android:inputType="numberDecimal"
+                            android:textColorHint="@color/kombuGreen"/>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
-                        <AutoCompleteTextView
-                            android:id="@+id/inputSoilType"
-                            android:layout_width="0dp"
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/input_bg"
-                            android:hint="@string/soil_type"
-                            android:padding="8dp"
-                            android:focusable="false"
-                            android:textColorHint="@color/moss_green"/>
-                        <View android:layout_width="8dp" android:layout_height="0dp" />
-                        <AutoCompleteTextView
-                            android:id="@+id/inputIrrigationLevel"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/input_bg"
-                            android:hint="@string/irrigation_level"
-                            android:padding="8dp"
-                            android:focusable="false"
-                            android:textColorHint="@color/moss_green"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
-                        <AutoCompleteTextView
-                            android:id="@+id/inputPlantDensity"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/input_bg"
-                            android:hint="@string/planting_density"
-                            android:padding="8dp"
-                            android:focusable="false"
-                            android:textColorHint="@color/moss_green"/>
-                        <View android:layout_width="8dp" android:layout_height="0dp" />
-                        <AutoCompleteTextView
-                            android:id="@+id/inputFertilizerUsed"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/input_bg"
-                            android:hint="@string/fertilizer_used"
-                            android:padding="8dp"
-                            android:focusable="false"
-                            android:textColorHint="@color/moss_green"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
-                        <EditText
-                            android:id="@+id/inputWeather"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/weather"
-                            android:hint="@string/weather_condition"
-                            android:padding="8dp"
-                            android:focusable="false"
-                            android:textColorHint="@color/moss_green"/>
-                        <View android:layout_width="8dp" android:layout_height="0dp" />
-                        <EditText
-                            android:id="@+id/inputRegion"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/input_bg"
-                            android:hint="@string/add_specific_location"
-                            android:padding="8dp"
-                            android:focusable="false"
-                            android:textColorHint="@color/moss_green"/>
+                            android:text="m²"
+                            android:textColor="@color/kombuGreen"
+                            android:paddingEnd="12dp"
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
                     </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:baselineAligned="false">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/inputSoilType"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/input_bg"
+                        android:hint="@string/soil_type"
+                        android:padding="12dp"
+                        android:minHeight="48dp"
+                        android:focusable="false"
+                        android:textColorHint="@color/kombuGreen"
+                        android:layout_marginEnd="8dp"/>
+
+                    <AutoCompleteTextView
+                        android:id="@+id/inputIrrigationLevel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/input_bg"
+                        android:hint="@string/irrigation_level"
+                        android:padding="12dp"
+                        android:minHeight="48dp"
+                        android:focusable="false"
+                        android:textColorHint="@color/kombuGreen"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/inputPlantDensity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/input_bg"
+                        android:hint="@string/planting_density"
+                        android:padding="12dp"
+                        android:minHeight="48dp"
+                        android:focusable="false"
+                        android:textColorHint="@color/kombuGreen"
+                        android:layout_marginEnd="8dp"/>
+
+                    <AutoCompleteTextView
+                        android:id="@+id/inputFertilizerUsed"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/input_bg"
+                        android:hint="@string/fertilizer_used"
+                        android:padding="12dp"
+                        android:minHeight="48dp"
+                        android:focusable="false"
+                        android:textColorHint="@color/kombuGreen"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <EditText
+                        android:id="@+id/inputWeather"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/weather"
+                        android:hint="@string/weather_condition"
+                        android:padding="12dp"
+                        android:minHeight="48dp"
+                        android:focusable="false"
+                        android:textColorHint="@color/kombuGreen"
+                        android:layout_marginEnd="8dp"/>
+
+                    <EditText
+                        android:id="@+id/inputRegion"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/input_bg"
+                        android:hint="@string/add_specific_location"
+                        android:padding="12dp"
+                        android:minHeight="48dp"
+                        android:focusable="false"
+                        android:textColorHint="@color/kombuGreen"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
                     <Button
                         android:id="@+id/btnCalculate"
                         android:layout_width="0dp"
@@ -288,8 +334,10 @@
                         android:layout_weight="1"
                         android:backgroundTint="@color/kombuGreen"
                         android:text="@string/calculate"
-                        android:textColor="@color/bone" />
-                    <View android:layout_width="8dp" android:layout_height="0dp" />
+                        android:textColor="@color/bone"
+                        android:paddingVertical="12dp"
+                        android:layout_marginEnd="8dp"/>
+
                     <Button
                         android:id="@+id/btnCancel"
                         android:layout_width="0dp"
@@ -299,10 +347,11 @@
                         android:text="@string/cancel"
                         android:textColor="@color/kombuGreen"
                         app:strokeColor="@color/kombuGreen"
-                        app:strokeWidth="1dp" />
+                        app:strokeWidth="1dp"
+                        android:paddingVertical="12dp"
+                        android:layout_marginStart="8dp"/>
                 </LinearLayout>
-
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-</RelativeLayout>
+</LinearLayout>
