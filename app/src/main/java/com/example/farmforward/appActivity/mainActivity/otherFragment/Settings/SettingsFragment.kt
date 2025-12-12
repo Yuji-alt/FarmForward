@@ -14,12 +14,13 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
+import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.database.firebaseDatabase.FirebaseUserRepository
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
@@ -32,8 +33,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.jvm.java
-import androidx.core.content.edit
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
@@ -42,6 +41,8 @@ class SettingsFragment : Fragment() {
     @Inject lateinit var db: AppDatabase
     @Inject lateinit var firebaseUserRepo: FirebaseUserRepository
     @Inject lateinit var firestore: FirebaseFirestore
+
+    @Inject lateinit var syncManager: FirebaseSyncManager
 
     private var loadingDialog: LoadingDialogFragment? = null
 
@@ -59,7 +60,6 @@ class SettingsFragment : Fragment() {
         val switchOffline = view.findViewById<MaterialSwitch>(R.id.switch_keep_offline)
         val prefs = requireContext().getSharedPreferences("FarmForwardPrefs", Context.MODE_PRIVATE)
 
-        // Load state (Default TRUE)
         switchOffline.isChecked = prefs.getBoolean("keep_data_offline", true)
 
         switchOffline.setOnCheckedChangeListener { _, isChecked ->
@@ -129,7 +129,6 @@ class SettingsFragment : Fragment() {
             .setNegativeButton("Cancel", null)
 
         val dialog = builder.create()
-
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
     }
@@ -156,10 +155,8 @@ class SettingsFragment : Fragment() {
             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply { setMargins(0, 0, 0, dpToPx(16)) }
         oldPass.layoutParams = params
-
         layout.addView(oldPass)
         layout.addView(newPass)
-
         val builder = AlertDialog.Builder(context)
             .setTitle("Change Password")
             .setView(layout)
@@ -171,24 +168,19 @@ class SettingsFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
         val dialog = builder.create()
-
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
     }
-
     private fun showDeleteAccountDialog() {
         val builder = AlertDialog.Builder(context)
             .setTitle("Delete Account")
             .setMessage("Are you sure? This will delete your account permanently.")
             .setPositiveButton("DELETE") { _, _ -> performDeleteAccount() }
             .setNegativeButton("Cancel", null)
-
         val dialog = builder.create()
-
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
     }
-
     private fun showClearDataDialog() {
         val builder =  AlertDialog.Builder(context)
             .setTitle("Clear All App Data")
@@ -196,13 +188,10 @@ class SettingsFragment : Fragment() {
             .setPositiveButton("Delete") { _, _ -> performClearData() }
             .setNegativeButton("Cancel", null)
         val dialog = builder.create()
-
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
-
     }
 
-    // --- LOADING HELPER ---
     private fun showLoading() {
         loadingDialog = LoadingDialogFragment()
         loadingDialog?.isCancelable = false
@@ -215,7 +204,6 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
     private fun hideLoading() {
         if (loadingDialog?.isAdded == true) {
             loadingDialog?.dismiss()
@@ -223,7 +211,7 @@ class SettingsFragment : Fragment() {
         loadingDialog = null
     }
 
-    // --- LOGIC WITH LOADING ---
+    // --- UPDATED USERNAME LOGIC ---
     private fun updateUsername(newName: String) {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
@@ -231,38 +219,41 @@ class SettingsFragment : Fragment() {
             delay(500)
 
             val userId = session.getUserId() ?: -1
-            val currentUsername = session.getUserName() ?: ""
+            val currentDocId = session.getUserName()?.lowercase() ?: ""
+            val newDocId = newName.lowercase()
 
             try {
-                // Check Firestore
-                val userDoc = firestore.collection("users").document(newName).get().await()
+                if (newDocId != currentDocId) {
+                    // Changing Identity (e.g. Yuji -> Goku)
+                    val userDoc = firestore.collection("users").document(newDocId).get().await()
+                    if (userDoc.exists()) {
+                        withContext(Dispatchers.Main) {
+                            hideLoading()
+                            showToast("Username '$newName' is already taken.", isError = true)
+                        }
+                        return@launch
+                    }
+                    updateLoading(50, "Migrating profile...")
+                    performFullMigration(userId, currentDocId, newName)
+                }
+                else {
+                    // Case Change Only (e.g. yuji -> Yuji) - Simple Field Update
+                    updateLoading(50, "Updating display name...")
+                    db.userDao().updateUsername(userId, newName)
+                    val email = session.getUserDetails()["email"] ?: ""
+                    session.createLoginSession(userId, newName, email)
 
-                if (userDoc.exists()) {
+                    // No document move needed, just field update
+                    firestore.collection("users").document(currentDocId)
+                        .update("username", newName)
+                        .await()
+
+                    updateLoading(100, "Done!")
+                    delay(300)
                     withContext(Dispatchers.Main) {
                         hideLoading()
-                        showToast("Username '$newName' is already taken.", isError = true)
+                        showToast("Display name updated to $newName", isError = false)
                     }
-                    return@launch
-                }
-
-                updateLoading(50, "Updating profile...")
-                db.userDao().updateUsername(userId, newName)
-
-                val email = session.getUserDetails()["email"] ?: ""
-                session.createLoginSession(userId, newName, email)
-
-                val user = db.userDao().getUserById(userId)
-                if (user != null) {
-                    updateLoading(80, "Syncing to cloud...")
-                    firebaseUserRepo.updateUsername(currentUsername, user)
-                }
-
-                updateLoading(100, "Done!")
-                delay(300)
-
-                withContext(Dispatchers.Main) {
-                    hideLoading()
-                    showToast("Username updated to $newName", isError = false)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -273,6 +264,41 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private suspend fun performFullMigration(userId: Int, currentDocId: String, newName: String) {
+        // 1. Update Local
+        db.userDao().updateUsername(userId, newName)
+
+        // 2. Update Session
+        val email = session.getUserDetails()["email"] ?: ""
+        session.createLoginSession(userId, newName, email)
+
+        // 3. Mark crops for re-upload
+        val userCrops = db.cropDao().getCropsForUserList(userId)
+        for (crop in userCrops) {
+            db.cropDao().updateCrop(crop.copy(isSynced = 0))
+        }
+
+        // 4. Migrate Cloud
+
+        val user = db.userDao().getUserById(userId)
+        if (user != null) {
+            firebaseUserRepo.updateUsername(currentDocId, user, newName)
+        }
+
+        // 5. Trigger Sync
+        val explicitNewId = newName.lowercase()
+        updateLoading(80, "Moving crops to new ID...")
+
+        // Wait a moment for Firestore transaction to propagate
+        delay(1000)
+        syncManager.syncCrops(explicitNewId)
+
+        withContext(Dispatchers.Main) {
+            hideLoading()
+            showToast("Username updated to $newName", isError = false)
+        }
+    }
+
     private fun verifyAndUpdatePassword(oldPass: String, newPass: String) {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
@@ -280,18 +306,14 @@ class SettingsFragment : Fragment() {
             val userId = session.getUserId() ?: -1
             val user = db.userDao().getUserById(userId)
             val email = session.getUserDetails()["email"] ?: ""
-
             if (user != null && user.password == oldPass) {
                 try {
                     updateLoading(50, "Updating secure cloud...")
                     firebaseUserRepo.updatePassword(email, oldPass, newPass)
-
                     updateLoading(80, "Updating local database...")
                     db.userDao().updatePassword(userId, newPass)
-
                     updateLoading(100, "Success!")
                     delay(300)
-
                     withContext(Dispatchers.Main) {
                         hideLoading()
                         showToast("Password changed securely!", isError = false)
@@ -310,14 +332,12 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
     private fun performDeleteAccount() {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
             updateLoading(10, "Preparing deletion...")
             val userId = session.getUserId() ?: -1
             val currentUsername = session.getUserName() ?: ""
-
             if (userId != -1) {
                 try {
                     if (currentUsername.isNotEmpty()) {
@@ -329,10 +349,8 @@ class SettingsFragment : Fragment() {
                     val user = db.userDao().getUserById(userId)
                     if (user != null) db.userDao().delete(user)
                     session.clearSession()
-
                     updateLoading(100, "Goodbye.")
                     delay(500)
-
                     withContext(Dispatchers.Main) {
                         hideLoading()
                         (activity as? MainActivity)?.navigateToLogin()
@@ -346,9 +364,7 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
     private fun performClearData() {
-        // Local only, no internet loading needed usually, but consistent UX is nice
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
             updateLoading(50, "Clearing tables...")
@@ -362,18 +378,15 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
     private fun showToast(message: String, isError: Boolean = false) {
         (activity as? MainActivity)?.showToast(message, isError)
     }
-
     private fun isNetworkAvailable(): Boolean {
         val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
         return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
-
     private fun dpToPx(dp: Int): Int {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), resources.displayMetrics).toInt()
     }

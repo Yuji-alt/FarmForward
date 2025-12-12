@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -38,28 +39,67 @@ class MainController @Inject constructor(
     private var view: MainView? = null
     private var scope: LifecycleCoroutineScope? = null
     private var currentMenuId: Int = -1
+    private var hasUserDeniedGps = false
     val LOCATION_PERMISSION_REQUEST_CODE = 1001
+
+    private var isSyncInProgress: Boolean = false
 
     fun bindView(view: MainView) {
         this.view = view
         this.scope = view.getScope()
     }
+    fun setGpsDeniedInSession() {
+        this.hasUserDeniedGps = true
+    }
+    fun setSyncStatus(isInProgress: Boolean) {
+        this.isSyncInProgress = isInProgress
+        scope?.launch(Dispatchers.Main) {
+            view?.setSignOutButtonEnabled(!isInProgress)
+        }
+    }
+    // ---------------------------------------------------------
+
 
     // --- CHECK GPS SETTINGS (Helper) ---
     fun ensureLocationSettings(activity: AppCompatActivity, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val isGpsOn = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        val isNetworkOn = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+        if (isGpsOn || isNetworkOn) {
+            hasUserDeniedGps = false
+            onSuccess()
+            return
+        }
+
+        if (hasUserDeniedGps) {
+            onFailure()
+            return
+        }
+
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
         val client: SettingsClient = LocationServices.getSettingsClient(activity)
         val task = client.checkLocationSettings(builder.build())
 
         task.addOnSuccessListener {
+            hasUserDeniedGps = false
             onSuccess()
         }
 
         task.addOnFailureListener { exception ->
             if (exception is ResolvableApiException) {
                 try {
-                    view?.launchLocationSettings(exception, onSuccess, onFailure)
+                    view?.launchLocationSettings(exception,
+                        onSuccess = {
+                            hasUserDeniedGps = false
+                            onSuccess()
+                        },
+                        onFailure = {
+                            hasUserDeniedGps = true
+                            onFailure()
+                        }
+                    )
                 } catch (sendEx: Exception) {
                     onFailure()
                 }
@@ -119,7 +159,6 @@ class MainController @Inject constructor(
                 }
             },
             onFailure = {
-                view?.showToast("GPS is required to get location.", isError = true)
                 onLocation(0.0, 0.0)
             }
         )
@@ -140,6 +179,26 @@ class MainController @Inject constructor(
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
             LOCATION_PERMISSION_REQUEST_CODE
         )
+    }
+    fun fetchLastKnownLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
+        if (!hasLocationPermission()) {
+            onLocation(0.0, 0.0)
+            return
+        }
+        try {
+            val client = LocationServices.getFusedLocationProviderClient(activity)
+            client.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    onLocation(location.latitude, location.longitude)
+                } else {
+                    fetchCurrentLocation(activity, onLocation)
+                }
+            }.addOnFailureListener {
+                onLocation(0.0, 0.0)
+            }
+        } catch (e: SecurityException) {
+            onLocation(0.0, 0.0)
+        }
     }
 
     fun handlePermissionResult(
@@ -186,7 +245,13 @@ class MainController @Inject constructor(
         onNavigationItemClicked(targetId)
     }
 
+    // --- UPDATED: Saved & Sync Clicked ---
     fun onSavedAndSyncClicked() {
+        if (isSyncInProgress) {
+            view?.showToast("Synchronization is already running.", isError = false)
+            return
+        }
+
         if (!NetworkUtils.isNetworkAvailable(context)) {
             view?.showToast("Offline: Data saved locally.", isError = false)
             return
@@ -200,6 +265,7 @@ class MainController @Inject constructor(
         if (fragmentManager != null) {
             loadingDialog.show(fragmentManager, "SyncLoading")
         }
+        setSyncStatus(true)
 
         scope?.launch(Dispatchers.IO) {
             fun updateProgress(progress: Int, message: String) {
@@ -226,6 +292,8 @@ class MainController @Inject constructor(
                     loadingDialog.dismiss()
                     view?.showToast("Sync warning: ${e.message}", isError = true)
                 }
+            } finally {
+                setSyncStatus(false)
             }
         }
     }
@@ -249,13 +317,13 @@ class MainController @Inject constructor(
     fun onSignOutConfirmed() {
         scope?.launch(Dispatchers.IO) {
             val prefs = context.getSharedPreferences("FarmForwardConfig", Context.MODE_PRIVATE)
-            val keepData = prefs.getBoolean("keep_data_offline", true) // Default TRUE
+            val keepData = prefs.getBoolean("keep_data_offline", true)
             if (keepData) {
                 withContext(Dispatchers.Main) {
                     view?.showToast("Offline Data Kept on Device", isError = false)
                 }
             } else {
-                db.clearAllTables() // Wipe only if switch is OFF
+                db.clearAllTables()
             }
             session.clearSession()
             withContext(Dispatchers.Main) {

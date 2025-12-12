@@ -1,5 +1,6 @@
 package com.example.farmforward.appActivity.mainActivity.otherFragment.GardenTools
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.R
@@ -15,7 +17,14 @@ import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.utils.CropImageHelper
+import com.example.farmforward.utils.weatherUtils.ForecastItem
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
+import com.github.mikephil.charting.charts.LineChart // MPAndroidChart Import
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +46,10 @@ class GardenToolsFragment : Fragment() {
 
     private var mode: String = "HARVEST"
     private lateinit var cropListContainer: LinearLayout
+    private lateinit var graphContainer: LinearLayout
+    private lateinit var locationDisplayContainer: LinearLayout // NEW Container
+    private lateinit var tvLocationName: TextView // NEW TextView
+    private lateinit var temperatureChart: LineChart
     private lateinit var titleLabel: TextView
     private var tvEmptyState: TextView? = null
 
@@ -65,8 +78,13 @@ class GardenToolsFragment : Fragment() {
         val view = inflater.inflate(R.layout.garden_tools, container, false)
 
         cropListContainer = view.findViewById(R.id.cropListContainer)
+        graphContainer = view.findViewById(R.id.graphContainer)
+        temperatureChart = view.findViewById(R.id.temperatureChart)
         titleLabel = view.findViewById(R.id.tvAddLabel)
         tvEmptyState = view.findViewById(R.id.tvEmptyState)
+        locationDisplayContainer = view.findViewById(R.id.locationDisplayContainer)
+        tvLocationName = view.findViewById(R.id.tvLocationName)
+
         val btnBack = view.findViewById<ImageButton>(R.id.btn_close_nav)
 
         btnBack.setOnClickListener {
@@ -75,9 +93,12 @@ class GardenToolsFragment : Fragment() {
 
         if (mode == "HARVEST") {
             titleLabel.text = "Harvest History"
+            graphContainer.visibility = View.GONE
+            locationDisplayContainer.visibility = View.GONE
             loadHarvestHistory(inflater)
         } else {
             titleLabel.text = "Weather Forecast"
+            locationDisplayContainer.visibility = View.VISIBLE
             loadWeather(inflater)
         }
 
@@ -125,12 +146,21 @@ class GardenToolsFragment : Fragment() {
         weatherRepository.loadCachedData()
         val forecasts = weatherRepository.cachedForecasts
 
+        // NEW: Set Location Text from cached data
+        tvLocationName.text = weatherRepository.cachedLocationName ?: "Unknown Location"
+
         if (forecasts.isNullOrEmpty()) {
             toggleEmptyState(true, "Weather data not available.\nPlease sync at Home.")
             cropListContainer.removeAllViews()
+            graphContainer.visibility = View.GONE
             return
         }
 
+        // Show Graph Container and Populate Graph
+        graphContainer.visibility = View.VISIBLE
+        displayWeatherGraph(forecasts)
+
+        // Show List
         toggleEmptyState(false)
         cropListContainer.removeAllViews()
         val dateFormat = SimpleDateFormat("EEE, MMM dd h:mm a", Locale.getDefault())
@@ -180,6 +210,72 @@ class GardenToolsFragment : Fragment() {
             addToContainer(itemView)
         }
     }
+
+    // ---------------------------------------------------------------------------------------------
+    // MPAndroidChart GRAPH
+    // ---------------------------------------------------------------------------------------------
+    private fun displayWeatherGraph(forecasts: List<ForecastItem>) {
+
+        val entries = ArrayList<Entry>()
+        val labels = ArrayList<String>()
+        val timeFormat = SimpleDateFormat("h a", Locale.getDefault())
+
+        // 1. Convert Forecast data into Chart Entries
+        forecasts.forEachIndexed { index, item ->
+            entries.add(Entry(index.toFloat(), item.main.temp.toFloat()))
+            labels.add(timeFormat.format(Date(item.dt * 1000L)))
+        }
+
+        // 2. Setup Dataset (Line Style)
+        val dataSet = LineDataSet(entries, "Temperature (°C)").apply {
+            val primaryColor = ContextCompat.getColor(requireContext(), R.color.kombuGreen)
+
+            color = primaryColor
+            valueTextColor = primaryColor
+            lineWidth = 2.5f
+            circleRadius = 4f
+            setCircleColor(primaryColor)
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            setDrawFilled(true)
+            fillColor = primaryColor
+            fillAlpha = 50
+            valueTextSize = 10f
+        }
+
+        // 3. Apply Data to Chart
+        val lineData = LineData(dataSet)
+        temperatureChart.data = lineData
+
+        // 4. Customize X-Axis (Time Labels)
+        temperatureChart.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter(labels)
+            position = XAxis.XAxisPosition.BOTTOM
+            granularity = 1f
+            setDrawGridLines(false)
+            textColor = ContextCompat.getColor(requireContext(), R.color.kombuGreen)
+            setSpaceMin(0.5f)
+            setSpaceMax(0.5f)
+        }
+
+        // 5. Customize Y-Axis (Temperature)
+        temperatureChart.axisLeft.apply {
+            setDrawGridLines(true)
+            textColor = ContextCompat.getColor(requireContext(), R.color.kombuGreen)
+            val minTemp = entries.minOfOrNull { it.y }?.minus(1f) ?: 0f
+            val maxTemp = entries.maxOfOrNull { it.y }?.plus(1f) ?: 50f
+            axisMinimum = minTemp
+            axisMaximum = maxTemp
+        }
+        temperatureChart.axisRight.isEnabled = false
+
+        // 6. General Chart Settings
+        temperatureChart.description.isEnabled = false
+        temperatureChart.legend.isEnabled = false
+        temperatureChart.setTouchEnabled(true)
+        temperatureChart.animateX(800)
+        temperatureChart.invalidate()
+    }
+
 
     // ---------------------------------------------------------------------------------------------
     // UI Helper Methods

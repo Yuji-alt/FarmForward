@@ -50,7 +50,7 @@ class SessionManager @Inject constructor(
     }
 
     fun getUserName(): String? {
-        return prefs.getString(KEY_USERNAME, "Farmer")
+        return prefs.getString(KEY_USERNAME, "")
     }
 
     fun getUserEmail(): String? {

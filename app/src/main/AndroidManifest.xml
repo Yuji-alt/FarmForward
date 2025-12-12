@@ -23,22 +23,17 @@
         <profileable
             android:shell="true"
             tools:targetApi="29" />
-
         <activity
-            android:name=".appActivity.userActivity.login.LoginActivity"
+            android:name=".utils.loadingUtils.LoadingActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".utils.loadingUtils.LoadingActivity"
-            android:screenOrientation="portrait"
-            android:exported="false" />
+
+        <activity android:name=".appActivity.userActivity.login.LoginActivity" android:exported="false"/>
 
         <activity
             android:name=".appActivity.userActivity.signUp.SignUpActivity"

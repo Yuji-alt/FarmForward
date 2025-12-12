@@ -20,8 +20,8 @@ android {
         applicationId = "com.example.farmforward"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val localPropertiesFile = rootProject.file("local.properties")
@@ -71,11 +71,11 @@ android {
 
 dependencies {
     implementation(libs.firebase.firestore.ktx)
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.androidx.hilt.common)
 
     //room
-    val room_version = "2.8.1"
+    val room_version = "2.8.4"
     implementation("androidx.room:room-runtime:${room_version}")
     ksp("androidx.room:room-compiler:$room_version")
 
@@ -88,6 +88,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
 
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation("com.google.firebase:firebase-config-ktx:21.6.0")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
 
@@ -98,7 +99,7 @@ dependencies {
     implementation("com.tbuonomo:dotsindicator:5.0")
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.google.android.material:material:1.11.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

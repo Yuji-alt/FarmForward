@@ -100,6 +100,8 @@ class CalcFragment : Fragment(), CalcView {
         val btnPrev = view.findViewById<ImageButton>(R.id.btnPrevMonth)
         val btnNext = view.findViewById<ImageButton>(R.id.btnNextMonth)
         val rootScroll = view.findViewById<ScrollView>(R.id.rootLayout)
+
+        rootScroll?.handleKeyboardVisibility()
         rootScroll?.handleKeyboardVisibility()
         setupInputFields()
         setupKeyboardLogic()

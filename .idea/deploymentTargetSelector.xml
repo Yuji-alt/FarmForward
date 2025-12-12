@@ -10,7 +10,7 @@
       </SelectionState>
       <SelectionState runConfigName="FarmForward">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-12-04T06:00:32.699539800Z">
+        <DropdownSelection timestamp="2025-12-12T09:55:26.598193700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=b9d8a52f" />

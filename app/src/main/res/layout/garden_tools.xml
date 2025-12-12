@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bone"
-    android:orientation="vertical"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -43,6 +42,35 @@
         android:alpha="0.5"
         android:layout_marginBottom="8dp"/>
 
+    <LinearLayout
+        android:id="@+id/locationDisplayContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Forecast for:"
+            android:textSize="14sp"
+            android:textColor="@color/kombuGreen"
+            android:fontFamily="@font/roboto"/>
+
+        <TextView
+            android:id="@+id/tvLocationName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading Location..."
+            android:textColor="@color/kombuGreen"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/roboto"/>
+    </LinearLayout>
+
+
     <ScrollView
         android:id="@+id/scrollWeatherOrHarvest"
         android:layout_width="match_parent"
@@ -58,6 +86,24 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="100dp">
+
+            <LinearLayout
+                android:id="@+id/graphContainer"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/item_card_border"
+                android:visibility="gone"
+                android:padding="12dp"
+                android:gravity="center">
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/temperatureChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/cropListContainer"

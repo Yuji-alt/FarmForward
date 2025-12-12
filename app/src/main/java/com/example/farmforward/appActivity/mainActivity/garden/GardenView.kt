@@ -10,7 +10,9 @@ interface GardenView {
     fun navigateToGrowth()
     fun navigateToCalc()
     fun selectCropForGrowth(crop: CropEntity)
-    fun updateDashboardCounts(activeCount: Int, readyToHarvestCount: Int)
-    fun displayActiveCrops(crops: List<CropEntity>)
-    fun displayHarvestedCrops(crops: List<CropEntity>)
+    fun updateCropLists(
+        growingCrops: List<CropEntity>,
+        readyCrops: List<CropEntity>,
+        harvestedCrops: List<CropEntity>
+    )
 }

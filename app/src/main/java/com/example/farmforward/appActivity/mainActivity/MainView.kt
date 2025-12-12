@@ -20,4 +20,5 @@ interface MainView {
     fun switchFragment(newMenuId: Int)
     fun showUnsyncedDataWarning(count: Int)
     fun launchLocationSettings(exception: ResolvableApiException, onSuccess: () -> Unit, onFailure: () -> Unit)
+    fun setSignOutButtonEnabled(isEnabled: Boolean)
 }

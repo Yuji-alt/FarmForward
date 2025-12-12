@@ -17,6 +17,7 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 class CalcController @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -122,7 +123,7 @@ class CalcController @Inject constructor(
             soilEffect + irrigationEffect + densityEffect + fertilizerEffect + weatherEffect
         val adjustedYieldPerSqm = baseYieldPerSqm * (1 + (totalEffectPercent / 100.0))
         val totalYield = adjustedYieldPerSqm * area
-        val roundedYield = (totalYield * 100.0).roundToInt() / 100.0
+        val roundedYield = (totalYield * 100.0).roundToLong() / 100.0
         val plantedDate = Date(selectedDateMillis)
         val cal = Calendar.getInstance()
         cal.time = plantedDate
@@ -138,8 +139,7 @@ class CalcController @Inject constructor(
             return
         }
         val isOnline = NetworkUtils.isNetworkAvailable(context)
-        val syncStatus = if (isOnline) 1 else 0
-
+        val syncStatus = 0
         view?.getCurrentLocation { lat, lng ->
             scope?.launch(Dispatchers.IO) {
 
@@ -199,7 +199,7 @@ class CalcController @Inject constructor(
                         locality = localityName
                     )
                 }
-
+                kotlinx.coroutines.delay(200)
                 withContext(Dispatchers.Main) {
                     view?.clearAllInputs()
                     view?.navigateToLoading(isOnline)

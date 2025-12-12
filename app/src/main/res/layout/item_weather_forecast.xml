@@ -3,12 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="160dp"
+    android:layout_width="200dp"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_margin="6dp"
     android:background="@drawable/item_card_border"
-    android:padding="10dp"
-    android:elevation="2dp">
+    android:padding="16dp"
+    android:elevation="3dp">
 
     <View
         android:layout_width="0dp"
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:text="Today"
         android:textColor="@color/kombuGreen"
-        android:textSize="14sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:fontFamily="@font/noto_sans"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,8 +45,8 @@
 
     <ImageView
         android:id="@+id/weatherIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:scaleType="fitCenter"
         android:src="@drawable/thunder_storm"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,9 +59,9 @@
         android:layout_height="wrap_content"
         android:text="29°C"
         android:textColor="@color/kombuGreen"
-        android:textSize="20sp"
+        android:textSize="32sp"
         android:textStyle="bold"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/noto_sans"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timeText"/>
@@ -72,13 +72,13 @@
         android:layout_height="wrap_content"
         android:text="clear sky"
         android:textColor="@color/kombuGreen"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:maxLines="2"
         android:ellipsize="end"
         android:fontFamily="@font/noto_sans"
         app:layout_constraintTop_toBottomOf="@+id/tempText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="2dp"/>
+        android:layout_marginTop="4dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

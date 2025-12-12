@@ -54,19 +54,16 @@ class SignUpController @Inject constructor(
             return
         }
 
-        // 2. CHECK: Password Match (Must be done before sending data to server)
         if (trimmedPassword != trimmedConfirm) {
             view?.showToast("Passwords do not match", isError = true)
             return
         }
 
-        // 3. CHECK: Password Length
         if (trimmedPassword.length < 6) {
             view?.showToast("Password must be at least 6 characters", isError = true)
             return
         }
 
-        // 4. Network Check
         if (!NetworkUtils.isNetworkAvailable(context)) {
             view?.showToast("Internet connection is required to sign up.", isError = true)
             return
@@ -80,21 +77,15 @@ class SignUpController @Inject constructor(
                 view?.updateLoading(progress, message)
             }
 
-            // --- STEP 1: CHECK EMAIL EXISTENCE ---
             update(10, "Checking email availability...")
             delay(300)
 
             try {
-                // Query Firestore to see if this email is already in the 'users' collection
-                val emailQuery = firestore.collection("users")
-                    .whereEqualTo("email", trimmedEmail)
-                    .get()
-                    .await()
-
-                if (!emailQuery.isEmpty) {
+                val userDoc = firestore.collection("users").document(usernameId).get().await()
+                if (userDoc.exists()) {
                     withContext(Dispatchers.Main) {
                         view?.hideLoading()
-                        view?.showToast("This email is already registered.", isError = true)
+                        view?.showToast("Username '$trimmedUsername' is already taken.", isError = true)
                         view?.setSignUpButtonEnabled(true)
                     }
                     return@launch
@@ -108,10 +99,9 @@ class SignUpController @Inject constructor(
                 return@launch
             }
 
-            // --- STEP 2: CHECK USERNAME AVAILABILITY ---
             update(30, "Checking username availability...")
 
-            // 2A. Local Check
+            // Local Check
             val localExists = userDao.checkUserExists(trimmedUsername)
             if (localExists > 0) {
                 withContext(Dispatchers.Main) {
@@ -122,7 +112,7 @@ class SignUpController @Inject constructor(
                 return@launch
             }
 
-            // 2B. Cloud Check
+            // Cloud Check
             try {
                 val userDoc = firestore.collection("users").document(usernameId).get().await()
                 if (userDoc.exists()) {
@@ -142,7 +132,6 @@ class SignUpController @Inject constructor(
                 return@launch
             }
 
-            // --- STEP 3: CREATE ACCOUNT ---
             update(50, "Creating secure account...")
 
             val hashedPassword = HashUtils.hashPassword(trimmedPassword)
@@ -157,18 +146,16 @@ class SignUpController @Inject constructor(
                 val authResult = auth.createUserWithEmailAndPassword(trimmedEmail, trimmedPassword).await()
                 val firebaseUid = authResult.user?.uid ?: throw Exception("Auth failed")
 
-                // Send Email Verification
                 authResult.user?.sendEmailVerification()
 
                 update(80, "Saving profile data...")
 
-                // Save to Room (Local)
                 userDao.registerUser(newUser)
 
                 val publicProfileMap = hashMapOf(
                     "id" to newUser.id,
                     "firebaseUid" to firebaseUid,
-                    "username" to newUser.username,
+                    "username" to trimmedUsername,
                     "email" to newUser.email,
                     "lastUpdated" to newUser.lastUpdated
                 )
@@ -185,9 +172,7 @@ class SignUpController @Inject constructor(
 
             } catch (e: Exception) {
                 if (auth.currentUser != null) {
-                    try {
-                        auth.currentUser?.delete()
-                    } catch (delEx: Exception) { }
+                    try { auth.currentUser?.delete() } catch (delEx: Exception) { }
                 }
 
                 withContext(Dispatchers.Main) {

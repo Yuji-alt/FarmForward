@@ -1,7 +1,6 @@
 package com.example.farmforward.database.firebaseDatabase
 
 import com.example.farmforward.database.roomDatabase.User
-import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -25,31 +24,23 @@ class FirebaseUserRepository @Inject constructor(
             "email" to user.email,
             "lastUpdated" to user.lastUpdated
         )
-
-        usersRef.document(user.username).set(publicProfileMap).await()
+        usersRef.document(user.username.lowercase()).set(publicProfileMap).await()
     }
 
     suspend fun loginUser(usernameOrEmail: String, password: String): User? {
         var emailToLogin = usernameOrEmail
-
         if (!usernameOrEmail.contains("@")) {
-            val snapshot = usersRef.document(usernameOrEmail).get().await()
-            if (snapshot.exists()) {
-                emailToLogin = snapshot.getString("email") ?: return null
+            val snapshot = usersRef.whereEqualTo("username", usernameOrEmail).get().await()
+            if (!snapshot.isEmpty) {
+                emailToLogin = snapshot.documents[0].getString("email") ?: return null
             } else {
                 return null
             }
         }
-
         return try {
             auth.signInWithEmailAndPassword(emailToLogin, password).await()
-
             val query = usersRef.whereEqualTo("email", emailToLogin).get().await()
-            if (!query.isEmpty) {
-                query.documents[0].toObject(User::class.java)
-            } else {
-                null
-            }
+            if (!query.isEmpty) query.documents[0].toObject(User::class.java) else null
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -58,37 +49,67 @@ class FirebaseUserRepository @Inject constructor(
 
     suspend fun updatePassword(email: String, oldPass: String, newPass: String) {
         val user = auth.currentUser
-
         if (user != null && user.email == email) {
-            val credential = EmailAuthProvider.getCredential(email, oldPass)
-
-            user.reauthenticate(credential).await()
-
             user.updatePassword(newPass).await()
         } else {
             throw Exception("User not logged in or email mismatch")
         }
     }
 
-    suspend fun updateUsername(oldUsername: String, user: User) {
+    // --- FIX: Delete Crops Subcollection Manually ---
+    suspend fun updateUsername(oldDocId: String, user: User, newUsername: String) {
+        val uid = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+
+        // 1. DELETE OLD CROPS (Essential for cleaning up the old name)
+        try {
+            val oldCropsRef = usersRef.document(oldDocId).collection("crops")
+            val snapshot = oldCropsRef.get().await()
+            if (!snapshot.isEmpty) {
+                val batch = firestore.batch()
+                for (doc in snapshot.documents) {
+                    batch.delete(doc.reference)
+                }
+                batch.commit().await()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 2. MIGRATE USER DOC
         val userMap = hashMapOf(
             "id" to user.id,
-            "username" to user.username,
+            "username" to newUsername,
             "email" to user.email,
-            "lastUpdated" to System.currentTimeMillis()
+            "lastUpdated" to System.currentTimeMillis(),
+            "firebaseUid" to uid
         )
 
         firestore.runTransaction { transaction ->
-            val oldDocRef = usersRef.document(oldUsername)
-            val newDocRef = usersRef.document(user.username)
+            val oldDocRef = usersRef.document(oldDocId)
+            val newDocRef = usersRef.document(newUsername.lowercase())
+
             transaction.set(newDocRef, userMap)
-            transaction.delete(oldDocRef)
+
+            if (oldDocId != newUsername.lowercase()) {
+                transaction.delete(oldDocRef)
+            }
         }.await()
     }
 
     suspend fun deleteUser(username: String) {
         try {
-            usersRef.document(username).delete().await()
+            // 1. Delete Crops First
+            val cropsRef = usersRef.document(username.lowercase()).collection("crops")
+            val snapshot = cropsRef.get().await()
+            if (!snapshot.isEmpty) {
+                val batch = firestore.batch()
+                for (doc in snapshot.documents) {
+                    batch.delete(doc.reference)
+                }
+                batch.commit().await()
+            }
+            // 2. Delete User Doc
+            usersRef.document(username.lowercase()).delete().await()
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -25,15 +25,9 @@ class LoginController @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) {
-    // ---------------------------------------------------------------------------------------------
-    // Variables & Scope
-    // ---------------------------------------------------------------------------------------------
     private var view: LoginView? = null
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    // ---------------------------------------------------------------------------------------------
-    // Lifecycle Methods
-    // ---------------------------------------------------------------------------------------------
     fun bindView(view: LoginView) {
         this.view = view
     }
@@ -54,9 +48,6 @@ class LoginController @Inject constructor(
         view = null
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // User Actions (Clicks)
-    // ---------------------------------------------------------------------------------------------
     fun onSignUpClicked() {
         view?.navigateToSignUp()
     }
@@ -73,42 +64,74 @@ class LoginController @Inject constructor(
         handleLogin(identifier, password, isOffline)
     }
 
-    // ---------------------------------------------------------------------------------------------
-    // Login Logic
-    // ---------------------------------------------------------------------------------------------
     private fun handleLogin(identifier: String, password: String, isOfflineMode: Boolean) {
+        // Capture isOfflineMode to a local val to help compiler
+        val useOffline = isOfflineMode
+
         ioScope.launch {
-            if (isOfflineMode || !NetworkUtils.isNetworkAvailable(context)) {
-                checkLocal(identifier, password, isOfflineMode)
+            if (useOffline || !NetworkUtils.isNetworkAvailable(context)) {
+                checkLocal(identifier, password, useOffline)
                 return@launch
             }
 
+            // Use immutable var for the user object to help smart casting
+            var currentUser: User? = null
+
             var emailToUse: String? = null
-            var localUser: User? = null
             val isInputEmail = identifier.contains("@")
 
+            // 1. Check Local DB
             if (isInputEmail) {
-                localUser = userDao.getUserByEmail(identifier)
+                currentUser = userDao.getUserByEmail(identifier)
                 emailToUse = identifier
             } else {
-                localUser = userDao.getUserByUsername(identifier)
-                emailToUse = localUser?.email
+                currentUser = userDao.getUserByUsername(identifier)
+                emailToUse = currentUser?.email
             }
 
-            if (localUser == null) {
+            // 2. If not local, check Firestore
+            if (currentUser == null) {
                 try {
                     val usersRef = firestore.collection("users")
-                    val query = if (isInputEmail) usersRef.whereEqualTo("email", identifier) else usersRef.whereEqualTo("username", identifier)
+                    val query = if (isInputEmail)
+                        usersRef.whereEqualTo("email", identifier)
+                    else
+                        usersRef.whereEqualTo("username", identifier)
+
                     val snapshot = query.get().await()
                     if (!snapshot.isEmpty) {
                         val doc = snapshot.documents[0]
                         emailToUse = doc.getString("email")
-                        localUser = User(
-                            id = doc.getLong("id")?.toInt() ?: 0,
-                            username = doc.getString("username") ?: "",
+                        val prettyName = doc.getString("username") ?: doc.id
+
+                        // We found a user in cloud, so we create a temp object
+                        // If localUser was null, we create it here
+                        currentUser = User(
+                            id = 0,
+                            username = prettyName,
                             email = emailToUse ?: "",
                             password = ""
                         )
+                    }
+                } catch (e: Exception) { e.printStackTrace() }
+            } else {
+                // If local user exists, we might still want to update the pretty name from cloud
+                try {
+                    val usersRef = firestore.collection("users")
+                    // We need to query by email or username to get the doc
+                    val query = if (isInputEmail)
+                        usersRef.whereEqualTo("email", identifier)
+                    else
+                        usersRef.whereEqualTo("username", identifier)
+
+                    val snapshot = query.get().await()
+                    if (!snapshot.isEmpty) {
+                        val doc = snapshot.documents[0]
+                        val prettyName = doc.getString("username") ?: doc.id
+                        // Safe update using .copy()
+                        if (currentUser?.username != prettyName) {
+                            currentUser = currentUser?.copy(username = prettyName)
+                        }
                     }
                 } catch (e: Exception) { e.printStackTrace() }
             }
@@ -131,33 +154,34 @@ class LoginController @Inject constructor(
                     }
 
                     ioScope.launch {
-                        if (localUser == null) {
-                            if (firebaseUser != null) {
-                                localUser = User(
-                                    id = 0,
-                                    username = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "Farmer",
-                                    email = firebaseUser.email ?: emailToUse!!,
-                                    password = ""
-                                )
-                            }
+                        // Fallback: If currentUser is STILL null (rare auth edge case)
+                        if (currentUser == null && firebaseUser != null) {
+                            currentUser = User(
+                                id = 0,
+                                username = firebaseUser.displayName ?: "Farmer",
+                                email = firebaseUser.email ?: emailToUse!!,
+                                password = ""
+                            )
                         }
 
-                        if (localUser != null) {
+                        // Safely unwrap using let
+                        currentUser?.let { userToSave ->
                             val hashedPassword = HashUtils.hashPassword(password)
-                            val updatedUser = localUser!!.copy(password = hashedPassword)
+                            val updatedUser = userToSave.copy(password = hashedPassword)
 
                             userDao.registerUser(updatedUser)
+                            val finalUser = userDao.getUserByEmail(updatedUser.email) ?: updatedUser
 
-                            session.saveSession(updatedUser.id, updatedUser.username, updatedUser.email)
-                            session.saveOfflineMode(isOfflineMode)
+                            session.saveSession(finalUser.id, finalUser.username, finalUser.email)
+                            session.saveOfflineMode(useOffline)
 
                             withContext(Dispatchers.Main) {
                                 view?.showToast("Login successful!", isError = false)
                                 view?.startLoginSync()
                             }
-                        } else {
+                        } ?: run {
                             withContext(Dispatchers.Main) {
-                                view?.showToast("Error: Could not save user data locally.", isError = true)
+                                view?.showToast("Error: User data is missing.", isError = true)
                             }
                         }
                     }
@@ -196,10 +220,6 @@ class LoginController @Inject constructor(
             }
         }
     }
-
-    // ---------------------------------------------------------------------------------------------
-    // Email & Password Helpers
-    // ---------------------------------------------------------------------------------------------
     fun resendVerificationEmail(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->

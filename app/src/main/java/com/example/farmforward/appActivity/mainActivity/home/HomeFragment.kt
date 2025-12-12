@@ -1,7 +1,11 @@
 package com.example.farmforward.appActivity.mainActivity.home
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.location.LocationManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -48,9 +52,17 @@ class HomeFragment : Fragment(), HomeView {
     private lateinit var weatherContainer: LinearLayout
     private lateinit var locationText: TextView
     private lateinit var weatherText: TextView
-    private lateinit var activeCropContainer: LinearLayout
 
     private var isSearchOpen = false
+
+    private val gpsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (LocationManager.PROVIDERS_CHANGED_ACTION == intent?.action) {
+                // GPS state changed! Force a refresh.
+                controller.onViewResumed()
+            }
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Lifecycle Methods
@@ -84,12 +96,29 @@ class HomeFragment : Fragment(), HomeView {
 
     override fun onResume() {
         super.onResume()
+        val filter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+        requireContext().registerReceiver(gpsReceiver, filter)
         controller.onViewResumed()
+    }
+    override fun onPause() {
+        super.onPause()
+        try {
+            requireContext().unregisterReceiver(gpsReceiver)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         controller.onDestroy()
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            controller.onViewResumed()
+        }
     }
 
     private fun initViews(view: View) {
@@ -101,7 +130,6 @@ class HomeFragment : Fragment(), HomeView {
         menuButton = view.findViewById(R.id.menu_button)
         locationText = view.findViewById(R.id.locationText)
         weatherText = view.findViewById(R.id.weather_date)
-        activeCropContainer = view.findViewById(R.id.active_crop_container)
     }
 
     // -------------------------------------------------------------------------
@@ -141,39 +169,7 @@ class HomeFragment : Fragment(), HomeView {
     }
 
     override fun displayActiveStatus(crops: List<CropEntity>) {
-        activeCropContainer.removeAllViews()
-        val inflater = LayoutInflater.from(requireContext())
-
-        for (crop in crops) {
-            val view = inflater.inflate(R.layout.active_status, activeCropContainer, false)
-
-            val tvCropName = view.findViewById<TextView>(R.id.tvCropName)
-            val tvDays = view.findViewById<TextView>(R.id.tvDays)
-            val tvStatus = view.findViewById<TextView>(R.id.tvStatus)
-            val imgCrop = view.findViewById<ImageView>(R.id.imgCrop)
-
-            imgCrop.setImageResource(CropImageHelper.getImageRes(crop.cropName))
-            imgCrop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.moss_green))
-            tvCropName.text = crop.cropName
-
-            val status = calculateStatus(crop)
-            tvDays.text = status.daysText
-            tvStatus.text = status.statusText
-
-            view.setOnClickListener {
-                cropViewModel.viewCropDetails(crop)
-                cropViewModel.lastSourceId = R.id.nav_home
-                (activity as? MainActivity)?.controller?.onNavigationItemClicked(MainActivity.NAV_CROP_DETAILS)
-            }
-            activeCropContainer.addView(view)
-        }
-
-        // Add "Add Crop" button at the end of Active list too
-        val addView = inflater.inflate(R.layout.add_crop, activeCropContainer, false)
-        addView.setOnClickListener {
-            (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
-        }
-        activeCropContainer.addView(addView)
+        // Logic removed as per request to remove Active Crops section
     }
 
     // -------------------------------------------------------------------------
@@ -211,7 +207,6 @@ class HomeFragment : Fragment(), HomeView {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
     }
-
     // -------------------------------------------------------------------------
     // Helpers & Permissions
     // -------------------------------------------------------------------------
@@ -241,33 +236,4 @@ class HomeFragment : Fragment(), HomeView {
 
     fun onPermissionGranted() = controller.onPermissionGranted()
     fun onPermissionDenied() = controller.onPermissionDenied()
-
-    // Status Helper Class
-    data class CropStatus(val daysText: String, val statusText: String, val colorRes: Int)
-
-    private fun calculateStatus(crop: CropEntity): CropStatus {
-        val today = System.currentTimeMillis()
-        if (today < crop.date) {
-            val diff = crop.date - today
-            val days = TimeUnit.MILLISECONDS.toDays(diff) + 1
-            return CropStatus("$days DAYS", "SCHEDULED", android.R.color.holo_blue_dark)
-        }
-
-        val minHarvest = crop.mindate ?: return CropStatus("---", "GROWING", R.color.kombuGreen)
-        val maxHarvest = crop.maxdate ?: 0L
-        if (maxHarvest != 0L && today > maxHarvest) {
-            val diff = today - maxHarvest
-            val days = TimeUnit.MILLISECONDS.toDays(diff)
-            return CropStatus("$days DAYS", "OVERDUE", android.R.color.holo_red_dark)
-        }
-
-        val diff = minHarvest - today
-        val daysDiff = TimeUnit.MILLISECONDS.toDays(diff)
-
-        return when {
-            daysDiff <= 0L -> CropStatus("NOW", "HARVEST", R.color.kombuGreen)
-            daysDiff < 7 -> CropStatus("$daysDiff DAYS", "SOON", android.R.color.holo_orange_dark)
-            else -> CropStatus("$daysDiff DAYS", "GROWING", R.color.kombuGreen)
-        }
-    }
 }

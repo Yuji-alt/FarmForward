@@ -19,6 +19,7 @@ import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
 import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
+import com.example.farmforward.utils.otherUtils.hideSystemUI
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -44,6 +45,7 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
     // ---------------------------------------------------------------------------------------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hideSystemUI()
         setContentView(R.layout.signupview)
 
         controller.bindView(this)

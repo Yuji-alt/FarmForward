@@ -2,6 +2,7 @@ package com.example.farmforward.appActivity.mainActivity.home
 
 import android.content.Context
 import android.location.Geocoder
+import android.provider.SyncStateContract.Helpers.update
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
@@ -40,7 +41,6 @@ class HomeController @Inject constructor(
     private var currentSearchQuery: String = ""
 
     private var lastWeatherFetchTime: Long = 0L
-    private val WEATHER_FETCH_COOLDOWN = 10 * 60 * 1000L
     private val cropsObserver = Observer<List<CropEntity>> { crops ->
         allCrops = crops
         filterAndDisplayCrops(currentSearchQuery)
@@ -58,9 +58,18 @@ class HomeController @Inject constructor(
     }
 
     fun onViewResumed() {
+        val activity = view?.getMainActivity() ?: return
+        val mainController = activity.controller
+
+        // 1. Check Permission First
+        if (!mainController.hasLocationPermission()) {
+            onPermissionDenied()
+            return
+        }
+
+        // 2. Load and Show Cached Data immediately
         weatherRepository.loadCachedData()
         displayCachedData()
-
         checkLocationAndRefreshIfNeeded()
     }
 
@@ -76,8 +85,23 @@ class HomeController @Inject constructor(
     private fun checkLocationAndRefreshIfNeeded() {
         val activity = view?.getMainActivity() ?: return
         val mainController = activity.controller
+
         if (mainController.hasLocationPermission() && NetworkUtils.isNetworkAvailable(context)) {
             mainController.fetchCurrentLocation(activity) { lat, lon ->
+                if (lat == 0.0 && lon == 0.0) {
+                    scopeOwner?.launch(Dispatchers.Main) {
+                        val cachedName = weatherRepository.cachedLocationName
+
+                        if (!cachedName.isNullOrEmpty()) {
+                            view?.setLocationText("$cachedName - Old location(Enable GPS to update)")
+                        } else {
+                            view?.setLocationText("Location Off")
+                            view?.setWeatherDateText("Enable GPS to update")
+                        }
+                    }
+                    return@fetchCurrentLocation
+                }
+
                 scopeOwner?.launch(Dispatchers.IO) {
                     val currentLocality = getLocationName(lat, lon)
                     val cachedLocality = weatherRepository.cachedLocationName ?: ""
@@ -89,7 +113,6 @@ class HomeController @Inject constructor(
                     if (firstForecast != null) {
                         val forecastTimeMillis = firstForecast.dt * 1000L
                         val threeHoursMillis = 3 * 60 * 60 * 1000L
-                        // Refresh if the data is older than 3 hours
                         if (System.currentTimeMillis() > (forecastTimeMillis + threeHoursMillis)) {
                             isForecastExpired = true
                         }
@@ -97,16 +120,18 @@ class HomeController @Inject constructor(
                         isForecastExpired = true
                     }
                     if (locationChanged || isForecastExpired) {
-                        Log.d("HomeController", "Refreshing weather. LocationChanged: $locationChanged, Expired: $isForecastExpired")
+                        Log.d("HomeController", "Refreshing weather. LocationChanged: $locationChanged")
                         withContext(Dispatchers.Main) {
                             view?.setLocationText(currentLocality)
                             view?.setWeatherDateText("Updating...")
                         }
                         fetchWeatherForecast(lat, lon, currentLocality)
-                    } else {
-                        Log.d("HomeController", "Weather is up to date. No refresh needed.")
                     }
                 }
+            }
+        } else {
+            if (!mainController.hasLocationPermission()) {
+                onPermissionDenied()
             }
         }
     }
@@ -117,12 +142,18 @@ class HomeController @Inject constructor(
     }
 
     fun onPermissionGranted() {
-        fetchWeatherByLocation()
+        checkLocationAndRefreshIfNeeded()
     }
+
     fun onPermissionDenied() {
-        view?.setLocationText(context.getString(R.string.permission_needed))
-        view?.setWeatherDateText("---")
+        if (weatherRepository.cachedForecasts.isNullOrEmpty()) {
+            view?.setLocationText("Permission Needed")
+            view?.setWeatherDateText("Tap Settings to enable")
+        } else {
+            displayCachedData()
+        }
     }
+
     private fun filterAndDisplayCrops(query: String) {
         val filteredCrops = if (query.isEmpty()) {
             allCrops
@@ -130,11 +161,6 @@ class HomeController @Inject constructor(
             allCrops.filter { crop -> crop.cropName.contains(query, ignoreCase = true) }
         }
         view?.displayCrops(filteredCrops)
-        val activeCropsOnly = filteredCrops.filter { it.harvestedDate == null }
-        view?.displayActiveStatus(activeCropsOnly)
-    }
-    private fun fetchWeatherByLocation() {
-        checkLocationAndRefreshIfNeeded()
     }
 
     private fun fetchWeatherForecast(lat: Double, lon: Double, locationName: String) {
@@ -148,12 +174,10 @@ class HomeController @Inject constructor(
                     if (response.isSuccessful && response.body() != null) {
                         val allForecasts = response.body()!!.list
                         val now = System.currentTimeMillis()
-
                         val futureForecasts = allForecasts.filter { item ->
                             val itemTime = item.dt * 1000L
                             itemTime >= (now - 3600000)
                         }
-
                         val displayList = futureForecasts.take(9)
 
                         weatherRepository.saveWeatherData(

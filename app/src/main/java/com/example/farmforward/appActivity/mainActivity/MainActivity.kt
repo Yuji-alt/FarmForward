@@ -44,6 +44,7 @@ import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
 import com.example.farmforward.utils.notificationsUtils.WeatherWorker
+import com.example.farmforward.utils.otherUtils.hideSystemUI
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -100,10 +101,14 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hideSystemUI()
         setContentView(R.layout.activity_main)
         window.statusBarColor = ContextCompat.getColor(this, R.color.white)
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         controller.bindView(this)
+        if (intent.getBooleanExtra("GPS_DENIED_SESSION", false)) {
+            controller.setGpsDeniedInSession()
+        }
 
         drawerLayout = findViewById(R.id.drawer_layout)
         home = findViewById(R.id.nav_home)
@@ -306,6 +311,17 @@ class MainActivity : AppCompatActivity(), MainView {
             }
         }
     }
+    override fun setSignOutButtonEnabled(isEnabled: Boolean) {
+        btnSignOut.isEnabled = isEnabled
+        btnSignOut.alpha = if (isEnabled) 1.0f else 0.5f
+
+        btnSaved.isEnabled = isEnabled
+        btnSaved.alpha = if (isEnabled) 1.0f else 0.5f
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.closeDrawer(GravityCompat.END)
+        }
+    }
     override fun showSignOutDialog() {
         val prefs = getSharedPreferences("FarmForwardConfig", Context.MODE_PRIVATE)
         val keepData = prefs.getBoolean("keep_data_offline", true)
@@ -386,7 +402,11 @@ class MainActivity : AppCompatActivity(), MainView {
         // If the new fragment is one of these, remove the old instance first
         if (newMenuId == R.id.nav_calc ||
             newMenuId == NAV_CROP_DETAILS ||
-            newMenuId == NAV_GROWTH_CROP_DETAILS) {
+            newMenuId == NAV_GROWTH_CROP_DETAILS ||
+            newMenuId == NAV_HARVEST ||
+            newMenuId == NAV_WEATHER ||
+            newMenuId == NAV_PROFILE
+           ) {
 
             fragmentMap[newMenuId]?.let {
                 transaction.remove(it)

@@ -42,7 +42,6 @@ class GardenController @Inject constructor(
     }
 
     private fun processCrops() {
-        // 1. Filter by Search Query first
         val filteredList = if (currentSearchQuery.isEmpty()) {
             allCrops
         } else {
@@ -51,18 +50,25 @@ class GardenController @Inject constructor(
 
         val today = System.currentTimeMillis()
 
-        val activeCrops = filteredList.filter { it.harvestedDate == null }
+        // 1. Harvested: Has a harvest date
         val harvestedCrops = filteredList.filter { it.harvestedDate != null }
-        val activeCount = activeCrops.size
 
-        val readyToHarvestCount = activeCrops.count { crop ->
+        // 2. Active (Non-Harvested)
+        val nonHarvested = filteredList.filter { it.harvestedDate == null }
+
+        // 3. Split Active into "Ready" and "Growing"
+        val readyCrops = nonHarvested.filter { crop ->
             val minHarvest = crop.mindate ?: Long.MAX_VALUE
             today >= minHarvest
         }
 
-        view?.updateDashboardCounts(activeCount, readyToHarvestCount)
-        view?.displayActiveCrops(activeCrops)
-        view?.displayHarvestedCrops(harvestedCrops)
+        val growingCrops = nonHarvested.filter { crop ->
+            val minHarvest = crop.mindate ?: Long.MAX_VALUE
+            today < minHarvest
+        }
+
+        // Send all lists to the view
+        view?.updateCropLists(growingCrops, readyCrops, harvestedCrops)
     }
 
     fun onCropClicked(crop: CropEntity) {

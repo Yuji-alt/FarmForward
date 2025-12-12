@@ -1,10 +1,11 @@
 package com.example.farmforward.appActivity.mainActivity.garden
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.CropImageHelper
+import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -33,20 +35,23 @@ import javax.inject.Inject
 class GardenFragment : Fragment(), GardenView {
 
     @Inject lateinit var controller: GardenController
-
-    private lateinit var activeCropContainer: LinearLayout
-    private lateinit var harvestedCropContainer: LinearLayout
-    private lateinit var tvActiveNumber: TextView
-    private lateinit var tvHarvestNumber: TextView
-    private lateinit var btnAdd: ImageButton
     private lateinit var cropViewModel: CropViewModel
 
+    // UI Elements
+    private lateinit var listContainer: LinearLayout
+    private lateinit var tabLayout: TabLayout
+    private lateinit var btnAdd: ImageButton
     private lateinit var searchInput: EditText
     private lateinit var menuButton: ImageButton
     private lateinit var searchButton: ImageButton
     private lateinit var appLogo: TextView
-    private var isSearchOpen = false
 
+    // Data Holders
+    private var growingList: List<CropEntity> = emptyList()
+    private var readyList: List<CropEntity> = emptyList()
+    private var harvestedList: List<CropEntity> = emptyList()
+
+    private var isSearchOpen = false
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
     override fun onCreateView(
@@ -54,42 +59,148 @@ class GardenFragment : Fragment(), GardenView {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_garden, container, false)
-
         cropViewModel = ViewModelProvider(requireActivity())[CropViewModel::class.java]
 
-        activeCropContainer = view.findViewById(R.id.cropListContainer)
-        harvestedCropContainer = view.findViewById(R.id.harvestedCropListContainer)
-        tvActiveNumber = view.findViewById(R.id.tvActiveNumber)
-        tvHarvestNumber = view.findViewById(R.id.tvHarvestNumber)
-        btnAdd = view.findViewById(R.id.btnAdd)
+        initViews(view)
+        setupTabs()
 
-        searchInput = view.findViewById(R.id.search_input)
-        searchButton = view.findViewById(R.id.search_button)
-        menuButton = view.findViewById(R.id.menu_button)
-        appLogo = view.findViewById(R.id.app_logo_text)
         controller.bindView(this)
         controller.setupObserver(viewLifecycleOwner)
 
-        btnAdd.setOnClickListener {
-            controller.onAddClicked()
-        }
-        menuButton.setOnClickListener {
-            (activity as? MainActivity)?.openDrawer()
-        }
-
+        setupListeners()
         setupSearchLogic()
 
         return view
     }
 
-    private fun setupSearchLogic() {
-        searchButton.setOnClickListener {
-            if (isSearchOpen) {
-                closeSearch()
+    private fun initViews(view: View) {
+        listContainer = view.findViewById(R.id.listContainer)
+        tabLayout = view.findViewById(R.id.tabLayout)
+        btnAdd = view.findViewById(R.id.btnAdd)
+        searchInput = view.findViewById(R.id.search_input)
+        searchButton = view.findViewById(R.id.search_button)
+        menuButton = view.findViewById(R.id.menu_button)
+        appLogo = view.findViewById(R.id.app_logo_text)
+    }
+
+    private fun setupListeners() {
+        btnAdd.setOnClickListener { controller.onAddClicked() }
+        menuButton.setOnClickListener { (activity as? MainActivity)?.openDrawer() }
+    }
+
+    private fun setupTabs() {
+        tabLayout.addTab(tabLayout.newTab().setText("Active"))
+        tabLayout.addTab(tabLayout.newTab().setText("Ready"))
+        tabLayout.addTab(tabLayout.newTab().setText("Harvested"))
+
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                refreshList()
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+    }
+
+    // --- Data Update from Controller ---
+    override fun updateCropLists(
+        growing: List<CropEntity>,
+        ready: List<CropEntity>,
+        harvested: List<CropEntity>
+    ) {
+        this.growingList = growing
+        this.readyList = ready
+        this.harvestedList = harvested
+        refreshList()
+    }
+
+    private fun refreshList() {
+        listContainer.removeAllViews()
+        val currentTab = tabLayout.selectedTabPosition
+
+        when (currentTab) {
+            0 -> displayList(growingList, "Your garden is empty.\nTap '+' to plant your first crop! 🌱", isHarvested = false)
+            1 -> displayList(readyList, "No crops are ready to harvest yet.\nKeep taking care of them! 🌾", isHarvested = false)
+            2 -> displayList(harvestedList, "No harvests yet.\nHarvested crops will appear here.", isHarvested = true)
+        }
+    }
+
+    private fun displayList(crops: List<CropEntity>, emptyMessage: String, isHarvested: Boolean) {
+        if (crops.isEmpty()) {
+            showEmptyState(listContainer, emptyMessage)
+            return
+        }
+        listContainer.gravity = Gravity.TOP or Gravity.START
+        val inflater = LayoutInflater.from(requireContext())
+        for (crop in crops) {
+            val layoutId = if (isHarvested) R.layout.garden_frame else R.layout.active_status
+            val itemView = inflater.inflate(layoutId, listContainer, false)
+
+            bindCropItem(itemView, crop, isHarvested)
+            listContainer.addView(itemView)
+        }
+    }
+
+    private fun bindCropItem(itemView: View, crop: CropEntity, isHarvested: Boolean) {
+        val tvCropName = itemView.findViewById<TextView>(R.id.tvCropName)
+        val tvStatus = itemView.findViewById<TextView>(R.id.tvStatus)
+        val imgCrop = itemView.findViewById<ImageView>(R.id.imgCrop)
+
+        imgCrop.setImageResource(CropImageHelper.getImageRes(crop.cropName))
+        imgCrop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.moss_green))
+        tvCropName.text = crop.cropName
+
+        if (isHarvested) {
+            // Logic for Harvested Layout (garden_frame.xml)
+            val dateStr = crop.harvestedDate?.let { dateFormat.format(it) } ?: "N/A"
+            tvStatus.text = "Harvested: $dateStr"
+        } else {
+            // Logic for Active/Ready Layout (active_status.xml)
+            val today = System.currentTimeMillis()
+            val planted = crop.date
+            val minHarvest = crop.mindate ?: 0L
+            val tvDays = itemView.findViewById<TextView>(R.id.tvDays)
+
+            if (today >= minHarvest) {
+                tvStatus.text = "HARVEST NOW"
+                tvDays.text = "READY"
+                tvDays.setTextColor(ContextCompat.getColor(requireContext(), R.color.kombuGreen))
             } else {
-                openSearch()
+                val diff = minHarvest - today
+                val daysLeft = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diff)
+                tvStatus.text = "Growing"
+                tvDays.text = "$daysLeft DAYS"
             }
         }
+
+        itemView.setOnClickListener {
+            controller.onCropClicked(crop)
+        }
+    }
+
+    private fun showEmptyState(container: LinearLayout, message: String) {
+        container.gravity = Gravity.CENTER
+        val emptyTextView = TextView(requireContext())
+        emptyTextView.text = message
+        emptyTextView.textSize = 16f
+        emptyTextView.setTextColor(ContextCompat.getColor(requireContext(), R.color.kombuGreen))
+        emptyTextView.alpha = 0.6f
+        emptyTextView.setTypeface(null, Typeface.ITALIC)
+        emptyTextView.gravity = Gravity.CENTER
+
+        val heightPx = (200 * resources.displayMetrics.density).toInt()
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            heightPx
+        )
+        params.gravity = Gravity.CENTER
+        emptyTextView.layoutParams = params
+        container.addView(emptyTextView)
+    }
+
+    // --- Search Logic (Unchanged) ---
+    private fun setupSearchLogic() {
+        searchButton.setOnClickListener { if (isSearchOpen) closeSearch() else openSearch() }
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -119,87 +230,21 @@ class GardenFragment : Fragment(), GardenView {
         imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
     }
 
-    override fun updateDashboardCounts(activeCount: Int, readyToHarvestCount: Int) {
-        tvActiveNumber.text = activeCount.toString()
-        tvHarvestNumber.text = readyToHarvestCount.toString()
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun displayActiveCrops(crops: List<CropEntity>) {
-        activeCropContainer.removeAllViews()
-        val inflater = LayoutInflater.from(requireContext())
-
-        for (crop in crops) {
-            val itemView = inflater.inflate(R.layout.item_crop_grid, activeCropContainer, false)
-            bindCropItem(itemView, crop, isHarvested = false)
-            activeCropContainer.addView(itemView)
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun displayHarvestedCrops(crops: List<CropEntity>) {
-        harvestedCropContainer.removeAllViews()
-        val inflater = LayoutInflater.from(requireContext())
-
-        for (crop in crops) {
-            val itemView = inflater.inflate(R.layout.garden_frame, harvestedCropContainer, false)
-            bindCropItem(itemView, crop, isHarvested = true)
-            harvestedCropContainer.addView(itemView)
-        }
-    }
-
-    private fun bindCropItem(itemView: View, crop: CropEntity, isHarvested: Boolean) {
-        val tvCropName = itemView.findViewById<TextView>(R.id.tvCropName)
-        val tvStatus = itemView.findViewById<TextView>(R.id.tvStatus)
-        val imgCrop = itemView.findViewById<ImageView>(R.id.imgCrop)
-
-        imgCrop.setImageResource(CropImageHelper.getImageRes(crop.cropName))
-        imgCrop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.moss_green))
-        tvCropName.text = crop.cropName
-
-        if (isHarvested) {
-            val dateStr = crop.harvestedDate?.let { dateFormat.format(it) } ?: "N/A"
-            tvStatus.text = "Harvested: $dateStr"
-        } else {
-            val today = System.currentTimeMillis()
-            val planted = crop.date
-            val minHarvest = crop.mindate ?: 0L
-
-            val status = when {
-                today < planted -> "Scheduled"
-                today >= minHarvest -> "Ready to Harvest"
-                else -> "Growing"
-            }
-            tvStatus.text = "Status: $status"
-        }
-
-        itemView.setOnClickListener {
-            controller.onCropClicked(crop)
-        }
-    }
-
+    // --- Navigation ---
     override fun selectCropForGrowth(crop: CropEntity) {
         cropViewModel.viewCropDetails(crop)
         cropViewModel.lastSourceId = R.id.nav_garden
     }
-
     override fun navigateToGrowth() {
-        (requireActivity() as? MainActivity)
-            ?.controller
-            ?.onNavigationItemClicked(MainActivity.NAV_CROP_DETAILS)
+        (requireActivity() as? MainActivity)?.controller?.onNavigationItemClicked(MainActivity.NAV_CROP_DETAILS)
     }
-
     override fun navigateToCalc() {
-        (requireActivity() as? MainActivity)
-            ?.controller
-            ?.onNavigationItemClicked(R.id.nav_calc)
+        (requireActivity() as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
     }
-
     override fun onDestroy() {
         controller.onDestroy()
         super.onDestroy()
     }
-
     override fun getFragmentContext(): Context = requireContext()
     override fun getScope(): LifecycleCoroutineScope = lifecycleScope
 }

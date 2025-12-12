@@ -92,7 +92,7 @@
             android:minHeight="50dp"
             android:paddingHorizontal="16dp"
             android:textColor="@color/kombuGreen"
-            android:textColorHint="@color/nav_unselected"
+            android:textColorHint="@color/light_moss"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/user_name_text"
@@ -134,7 +134,7 @@
                 android:minHeight="50dp"
                 android:paddingHorizontal="16dp"
                 android:textColor="@color/kombuGreen"
-                android:textColorHint="@color/nav_unselected"/>
+                android:textColorHint="@color/light_moss"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView

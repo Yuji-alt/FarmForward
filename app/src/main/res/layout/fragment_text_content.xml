@@ -1,57 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bone"
-    android:fillViewport="true">
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/header_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="@color/bone"
+        android:elevation="4dp">
+
+        <ImageButton
+            android:id="@+id/btn_back_text"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:padding="12dp"
+            android:layout_marginStart="-12dp"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="@color/kombuGreen" />
+
+        <TextView
+            android:id="@+id/tv_page_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Title Here"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/kombuGreen"
+            android:paddingStart="8dp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/kombuGreen"
+        android:alpha="0.2"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingBottom="16dp">
-
-            <ImageButton
-                android:id="@+id/btn_back_text"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
-                android:padding="12dp"
-                android:layout_marginStart="-12dp"
-                android:src="@android:drawable/ic_menu_revert"
-                app:tint="@color/kombuGreen" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/tv_page_title"
-                android:layout_width="0dp"
+                android:id="@+id/tv_content_body"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Title Here"
-                android:textSize="22sp"
-                android:textStyle="bold"
                 android:textColor="@color/kombuGreen"
-                android:paddingStart="8dp" />
+                android:textSize="16sp"
+                android:lineSpacingExtra="4dp"
+                android:autoLink="email|web|phone"
+                android:linksClickable="true"
+                android:text="Content goes here..." />
+
         </LinearLayout>
+    </ScrollView>
 
-        <TextView
-            android:id="@+id/tv_content_body"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/kombuGreen"
-            android:textSize="16sp"
-            android:lineSpacingExtra="4dp"
-            android:autoLink="email|web|phone"
-            android:linksClickable="true"
-            android:text="Content goes here..." />
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>
