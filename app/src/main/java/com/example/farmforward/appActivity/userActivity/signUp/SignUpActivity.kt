@@ -13,13 +13,11 @@ import android.widget.ImageButton
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.login.LoginActivity
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
-import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.example.farmforward.utils.otherUtils.hideSystemUI
+import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -47,10 +45,7 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
         super.onCreate(savedInstanceState)
         hideSystemUI()
         setContentView(R.layout.signupview)
-
         controller.bindView(this)
-
-        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         val rootLayout = findViewById<ScrollView>(R.id.rootLayout)
         rootLayout.handleKeyboardVisibility()

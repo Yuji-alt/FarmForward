@@ -30,7 +30,6 @@ import com.example.farmforward.utils.CropImageHelper
 import com.example.farmforward.utils.weatherUtils.ForecastItem
 import com.example.farmforward.utils.weatherUtils.WeatherController
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint

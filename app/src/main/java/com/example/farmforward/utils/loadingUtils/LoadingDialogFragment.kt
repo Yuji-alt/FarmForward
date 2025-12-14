@@ -12,7 +12,6 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.example.farmforward.R
-import com.example.farmforward.utils.otherUtils.hideSystemUI
 
 class LoadingDialogFragment : DialogFragment() {
     private lateinit var seekBar: SeekBar

@@ -2,7 +2,6 @@ package com.example.farmforward.appActivity.mainActivity.calc
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Rect
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
@@ -12,10 +11,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.EditText
+import android.widget.GridLayout
+import android.widget.ImageButton
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -33,19 +38,15 @@ import com.example.farmforward.utils.otherUtils.RetrofitClient
 import com.example.farmforward.utils.otherUtils.SquareButton
 import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
-import com.example.farmforward.utils.weatherUtils.WeatherResponse
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
-import kotlin.math.max
 
 @AndroidEntryPoint
 class CalcFragment : Fragment(), CalcView {

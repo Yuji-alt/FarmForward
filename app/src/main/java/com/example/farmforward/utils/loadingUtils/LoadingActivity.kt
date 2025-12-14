@@ -86,7 +86,6 @@ class LoadingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         hideSystemUI()
         setContentView(R.layout.dialog_loading)
-        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
         seekBar = findViewById(R.id.loadingSeekBar)
         statusText = findViewById(R.id.tvStatus)
 

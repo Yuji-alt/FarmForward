@@ -1,6 +1,5 @@
 package com.example.farmforward.appActivity.mainActivity.otherFragment.GardenTools
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +18,7 @@ import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.utils.CropImageHelper
 import com.example.farmforward.utils.weatherUtils.ForecastItem
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
-import com.github.mikephil.charting.charts.LineChart // MPAndroidChart Import
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData

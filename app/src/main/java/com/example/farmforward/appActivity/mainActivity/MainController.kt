@@ -14,8 +14,6 @@ import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.viewModel.CropViewModel
-import com.example.farmforward.utils.notificationsUtils.DailyCheckWorker
-import com.example.farmforward.utils.notificationsUtils.WeatherWorker
 import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -163,8 +161,6 @@ class MainController @Inject constructor(
             }
         )
     }
-
-    // ... (Helpers & Navigation) ...
 
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(

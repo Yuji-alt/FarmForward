@@ -25,7 +25,6 @@ class FirebaseSyncManager @Inject constructor(
     }
 
     suspend fun syncUsers() = withContext(Dispatchers.IO) {
-        // ... (Keep existing syncUsers logic) ...
         try {
             val userDocId = session.getUserName()?.lowercase() ?: return@withContext
             val userDocRef = firestore.collection("users").document(userDocId)

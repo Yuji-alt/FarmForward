@@ -2,27 +2,21 @@ package com.example.farmforward.appActivity.mainActivity.home
 
 import android.content.Context
 import android.location.Geocoder
-import android.provider.SyncStateContract.Helpers.update
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.example.farmforward.BuildConfig
-import com.example.farmforward.R
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.example.farmforward.utils.otherUtils.RetrofitClient
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
-import com.example.farmforward.utils.weatherUtils.WeatherResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

@@ -27,7 +27,10 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.calc.CalcFragment
 import com.example.farmforward.appActivity.mainActivity.garden.GardenFragment
@@ -103,7 +106,6 @@ class MainActivity : AppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
         hideSystemUI()
         setContentView(R.layout.activity_main)
-        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         controller.bindView(this)
         if (intent.getBooleanExtra("GPS_DENIED_SESSION", false)) {
@@ -180,8 +182,10 @@ class MainActivity : AppCompatActivity(), MainView {
         }
         setupSmartNotifications()
         controller.onViewCreated()
+
         handleNotificationIntent(intent)
     }
+
 
     override fun onDestroy() {
         controller.onDestroy()
@@ -240,7 +244,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
         val weatherRequest = PeriodicWorkRequestBuilder<WeatherWorker>(3, TimeUnit.HOURS)
             .setConstraints(constraints)
-            .setInitialDelay(15, TimeUnit.MINUTES)
+            .setInitialDelay(3, TimeUnit.HOURS)
             .build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -250,7 +254,7 @@ class MainActivity : AppCompatActivity(), MainView {
         )
 
         val cropRequest = PeriodicWorkRequestBuilder<DailyCheckWorker>(24, TimeUnit.HOURS)
-            .setInitialDelay(15, TimeUnit.MINUTES)
+            .setInitialDelay(24, TimeUnit.HOURS)
             .build()
 
         workManager.enqueueUniquePeriodicWork(

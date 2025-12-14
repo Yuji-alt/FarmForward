@@ -149,6 +149,22 @@
                 android:textColor="@color/kombuGreen" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/btn_location_permission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:paddingVertical="14dp"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enable Location Access"
+                android:textSize="18sp"
+                android:textColor="@color/kombuGreen" />
+        </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

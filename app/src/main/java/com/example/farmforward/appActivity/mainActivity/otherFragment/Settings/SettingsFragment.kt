@@ -84,6 +84,13 @@ class SettingsFragment : Fragment() {
         view.findViewById<LinearLayout>(R.id.btn_delete_account).setOnClickListener {
             if (isNetworkAvailable()) showDeleteAccountDialog() else showToast("Internet connection required", isError = true)
         }
+
+        // --- NEW: LOCATION PERMISSION LOGIC ---
+        view.findViewById<LinearLayout>(R.id.btn_location_permission).setOnClickListener {
+            checkAndRequestLocation(mainActivity)
+        }
+        // --------------------------------------
+
         view.findViewById<LinearLayout>(R.id.btn_clear_data).setOnClickListener {
             showClearDataDialog()
         }
@@ -100,6 +107,18 @@ class SettingsFragment : Fragment() {
             )
             intent.putExtra("FROM_SETTINGS", true)
             startActivity(intent)
+        }
+    }
+
+    // --- NEW FUNCTION: Check and Ask ---
+    private fun checkAndRequestLocation(activity: MainActivity) {
+        if (activity.controller.hasLocationPermission()) {
+            showToast("Location access is already enabled!", isError = false)
+        } else {
+            // If denied, this triggers the system popup again.
+            // If permanently denied, your MainActivity onRequestPermissionsResult logic
+            // will handle showing the dialog to go to App Settings.
+            activity.controller.requestSystemPermission(activity)
         }
     }
 
@@ -224,7 +243,6 @@ class SettingsFragment : Fragment() {
 
             try {
                 if (newDocId != currentDocId) {
-                    // Changing Identity (e.g. Yuji -> Goku)
                     val userDoc = firestore.collection("users").document(newDocId).get().await()
                     if (userDoc.exists()) {
                         withContext(Dispatchers.Main) {
@@ -237,13 +255,11 @@ class SettingsFragment : Fragment() {
                     performFullMigration(userId, currentDocId, newName)
                 }
                 else {
-                    // Case Change Only (e.g. yuji -> Yuji) - Simple Field Update
                     updateLoading(50, "Updating display name...")
                     db.userDao().updateUsername(userId, newName)
                     val email = session.getUserDetails()["email"] ?: ""
                     session.createLoginSession(userId, newName, email)
 
-                    // No document move needed, just field update
                     firestore.collection("users").document(currentDocId)
                         .update("username", newName)
                         .await()
@@ -265,31 +281,23 @@ class SettingsFragment : Fragment() {
     }
 
     private suspend fun performFullMigration(userId: Int, currentDocId: String, newName: String) {
-        // 1. Update Local
         db.userDao().updateUsername(userId, newName)
-
-        // 2. Update Session
         val email = session.getUserDetails()["email"] ?: ""
         session.createLoginSession(userId, newName, email)
 
-        // 3. Mark crops for re-upload
         val userCrops = db.cropDao().getCropsForUserList(userId)
         for (crop in userCrops) {
             db.cropDao().updateCrop(crop.copy(isSynced = 0))
         }
-
-        // 4. Migrate Cloud
 
         val user = db.userDao().getUserById(userId)
         if (user != null) {
             firebaseUserRepo.updateUsername(currentDocId, user, newName)
         }
 
-        // 5. Trigger Sync
         val explicitNewId = newName.lowercase()
         updateLoading(80, "Moving crops to new ID...")
 
-        // Wait a moment for Firestore transaction to propagate
         delay(1000)
         syncManager.syncCrops(explicitNewId)
 

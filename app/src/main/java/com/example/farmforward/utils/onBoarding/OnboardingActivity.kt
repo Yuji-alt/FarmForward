@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
-import com.example.farmforward.appActivity.userActivity.login.LoginActivity
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
 
 class OnboardingActivity : AppCompatActivity() {
@@ -69,12 +68,20 @@ class OnboardingActivity : AppCompatActivity() {
                 "Pin your crops to real-world locations to get localized weather and soil insights.",
                 R.drawable.map_onboard
             ),
-            // 6. SETTINGS
+            // 6. Menu
+            OnboardingItem(
+                "Navigation Menu",
+                "Manage your account, access garden tools,access support, sync your data, and Log out.",
+                R.drawable.menu_onboard
+
+            ),
+            // 7. Settings
             OnboardingItem(
                 "Settings & Data",
                 "Manage your account, toggle offline mode, and sync your data securely to the cloud.",
                 R.drawable.settings_onboard
             )
+
         )
 
         adapter = OnboardingAdapter(slides)

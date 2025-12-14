@@ -22,6 +22,7 @@ class WeatherRepository @Inject constructor(
     private val KEY_LON = "cached_lon"
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val KEY_TIMESTAMP = "cached_timestamp_millis"
     private val gson = Gson()
 
     var cachedForecasts: List<ForecastItem>? = null
@@ -38,6 +39,7 @@ class WeatherRepository @Inject constructor(
         editor.putString(KEY_FORECAST, jsonForecasts)
         editor.putString(KEY_LOCATION, location)
         editor.putString(KEY_DATE, dateText)
+        editor.putLong(KEY_TIMESTAMP, System.currentTimeMillis())
 
         // Save Coordinates if provided
         if (lat != null && lon != null) {
@@ -61,7 +63,6 @@ class WeatherRepository @Inject constructor(
         }
     }
 
-    // NEW: Function to get saved coordinates
     fun getSavedCoordinates(): Pair<Double, Double>? {
         val latStr = prefs.getString(KEY_LAT, null)
         val lonStr = prefs.getString(KEY_LON, null)
@@ -77,5 +78,8 @@ class WeatherRepository @Inject constructor(
         val items = cachedForecasts
         if (items.isNullOrEmpty()) return "Unknown"
         return items[0].weather.firstOrNull()?.main ?: "Unknown"
+    }
+    fun getLastUpdateTimestamp(): Long {
+        return prefs.getLong(KEY_TIMESTAMP, 0L)
     }
 }

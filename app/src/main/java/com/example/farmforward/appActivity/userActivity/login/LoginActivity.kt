@@ -21,8 +21,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.farmforward.BuildConfig
 import com.example.farmforward.R
@@ -33,8 +31,8 @@ import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
 import com.example.farmforward.utils.otherUtils.NetworkUtils
 import com.example.farmforward.utils.otherUtils.RetrofitClient
-import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.example.farmforward.utils.otherUtils.hideSystemUI
+import com.example.farmforward.utils.otherUtils.handleKeyboardVisibility
 import com.example.farmforward.utils.weatherUtils.WeatherRepository
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -126,7 +124,6 @@ class LoginActivity : AppCompatActivity(), LoginView {
     private fun setupUI() {
         setContentView(R.layout.loginview)
         hideSystemUI()
-        window.statusBarColor = ContextCompat.getColor(this, R.color.white)
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         controller.bindView(this)
 

@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.farmforward.R
 import com.example.farmforward.appActivity.mainActivity.MainActivity
+import java.util.concurrent.TimeUnit
 
 object NotificationHelper {
 
@@ -21,14 +22,12 @@ object NotificationHelper {
     private const val GROUP_KEY_FARM_ALERTS = "com.example.farmforward.FARM_ALERTS_GROUP"
 
     fun sendNotification(context: Context, title: String, message: String, notificationId: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                return
-            }
-        }
 
+
+        // 1. Ensure Channel Exists (Crucial)
         createNotificationChannel(context)
 
+        // 2. Prepare Click Action (Open App)
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             val targetTab = when (notificationId) {
@@ -46,12 +45,14 @@ object NotificationHelper {
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+
+        // 3. Build Notification
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.agricultwo)
+            .setSmallIcon(R.drawable.agricultwo) // Ensure this icon exists!
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH) // Changed to HIGH for heads-up alerts
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setGroup(GROUP_KEY_FARM_ALERTS)
@@ -59,11 +60,12 @@ object NotificationHelper {
         try {
             val manager = NotificationManagerCompat.from(context)
             manager.notify(notificationId, builder.build())
+
+            // 4. Group Summary (Optional but good)
             val summaryNotification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.agricultwo)
-                .setStyle(NotificationCompat.InboxStyle()
-                    .setSummaryText("Farm Updates"))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setStyle(NotificationCompat.InboxStyle().setSummaryText("Farm Updates"))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setGroup(GROUP_KEY_FARM_ALERTS)
                 .setGroupSummary(true)
                 .build()
@@ -74,12 +76,14 @@ object NotificationHelper {
             e.printStackTrace()
         }
     }
-
-    private fun createNotificationChannel(context: Context) {
+    // Made public so Worker can call it directly if needed
+    fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            // Changed to IMPORTANCE_HIGH so it makes sound and pops up
+            val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
                 description = "Notifications for Harvest, Weather, and Schedules"
+                enableVibration(true)
             }
             val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

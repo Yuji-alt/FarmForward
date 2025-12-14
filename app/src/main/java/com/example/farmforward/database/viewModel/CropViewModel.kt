@@ -6,11 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.farmforward.R
-import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.database.CropEntity
-import com.example.farmforward.utils.weatherUtils.WeatherResponse
-import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.database.dataclass.CropFormDraft
+import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
+import com.example.farmforward.database.roomDatabase.AppDatabase
+import com.example.farmforward.utils.weatherUtils.WeatherResponse
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
