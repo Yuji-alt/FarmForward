@@ -48,7 +48,7 @@ object NotificationHelper {
 
         // 3. Build Notification
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.agricultwo) // Ensure this icon exists!
+            .setSmallIcon(R.drawable.agricultwo)
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
@@ -60,8 +60,7 @@ object NotificationHelper {
         try {
             val manager = NotificationManagerCompat.from(context)
             manager.notify(notificationId, builder.build())
-
-            // 4. Group Summary (Optional but good)
+            // 4. Group Summary
             val summaryNotification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.agricultwo)
                 .setStyle(NotificationCompat.InboxStyle().setSummaryText("Farm Updates"))
@@ -69,7 +68,6 @@ object NotificationHelper {
                 .setGroup(GROUP_KEY_FARM_ALERTS)
                 .setGroupSummary(true)
                 .build()
-
             manager.notify(0, summaryNotification)
 
         } catch (e: SecurityException) {
@@ -79,7 +77,6 @@ object NotificationHelper {
     // Made public so Worker can call it directly if needed
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Changed to IMPORTANCE_HIGH so it makes sound and pops up
             val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
                 description = "Notifications for Harvest, Weather, and Schedules"

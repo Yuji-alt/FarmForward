@@ -16,8 +16,9 @@ interface RoomCropDao {
     @Query("SELECT * FROM crop_table WHERE userId = :userId AND isDeleted = 0 ORDER BY date DESC")
     fun getCropsForUser(userId: Int?): LiveData<List<CropEntity>>
 
-    @Query("SELECT * FROM crop_table")
+    @Query("SELECT * FROM crop_table WHERE isDeleted = 0")
     suspend fun getAllCrops(): List<CropEntity>
+
 
     @Query("DELETE FROM crop_table WHERE id = :id")
     suspend fun deleteCropById(id: Int)

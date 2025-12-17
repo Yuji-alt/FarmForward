@@ -22,6 +22,7 @@ class DailyCheckWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         Log.d("DailyCheckWorker", "Starting daily crop check...")
 
+        // 1. Check Notification Permission
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     applicationContext,
@@ -33,16 +34,26 @@ class DailyCheckWorker @AssistedInject constructor(
             }
         }
 
-
-
-
         return try {
-            // 1. Load Database (Using Manual instance to avoid Hilt Injection crashes)
+            // 2. Get User ID correctly from "user_session" (matches SessionManager.kt)
+            val prefs = applicationContext.getSharedPreferences("user_session", Context.MODE_PRIVATE)
+            val userId = prefs.getInt("user_id", -1)
+
+            Log.d("DailyCheckWorker", "WORKER IS RUNNING FOR USER ID: $userId")
+
+            // 3. Setup Database
             val database = AppDatabase.getDatabase(applicationContext)
             val cropDao = database.cropDao()
-            val allCrops = cropDao.getAllCrops()
-            val today = System.currentTimeMillis()
 
+            // 4. Filter Crops by User ID
+            val allCrops = if (userId != -1) {
+                cropDao.getCropsForUserList(userId)
+            } else {
+                Log.e("DailyCheckWorker", "No valid user found. Skipping.")
+                emptyList()
+            }
+
+            val today = System.currentTimeMillis()
             val readyList = mutableListOf<String>()
             val soonList = mutableListOf<String>()
             val overdueList = mutableListOf<String>()
@@ -53,20 +64,21 @@ class DailyCheckWorker @AssistedInject constructor(
 
             for (crop in allCrops) {
                 if (crop.isSynced == 0) unsyncedCount++
+
                 // HARVEST LOGIC
                 if (crop.mindate != null) {
                     val diff = crop.mindate - today
                     val daysLeft = TimeUnit.MILLISECONDS.toDays(diff)
 
-                    // Priority 1: Overdue (Max date passed OR very negative days)
+                    // Priority 1: Overdue (Max date passed)
                     if ((crop.maxdate != null && today > crop.maxdate && crop.harvestedDate == null)) {
                         overdueList.add(crop.cropName)
                     }
-                    // Priority 2: Ready Now (0 days or negative days, if not caught by overdue)
+                    // Priority 2: Ready Now (Today is past mindate)
                     else if (daysLeft <= 0L && crop.harvestedDate == null) {
                         readyList.add(crop.cropName)
                     }
-                    // Priority 3: Coming Soon (1 to 3 days)
+                    // Priority 3: Coming Soon (1 to 3 days left)
                     else if (daysLeft in 1..3 && crop.harvestedDate == null) {
                         soonList.add("${crop.cropName} (${daysLeft}d)")
                     }
@@ -82,7 +94,7 @@ class DailyCheckWorker @AssistedInject constructor(
                 }
             }
 
-            // 2. Send Notifications
+            // 5. Send Notifications
             if (readyList.isNotEmpty()) {
                 val title = "Ready to Harvest! 🌾"
                 val message = "Harvest now: ${readyList.joinToString(", ")}"
@@ -97,6 +109,11 @@ class DailyCheckWorker @AssistedInject constructor(
                 val title = "Urgent: Crops Overdue ⚠️"
                 val message = "Action needed for: ${overdueList.joinToString(", ")}"
                 NotificationHelper.sendNotification(applicationContext, title, message, 1003)
+            }
+            if (plantingList.isNotEmpty()) {
+                val title = "Planting Reminder 🌱"
+                val message = "Tomorrow is planting day for: ${plantingList.joinToString(", ")}"
+                NotificationHelper.sendNotification(applicationContext, title, message, 1004)
             }
             if (unsyncedCount > 0) {
                 NotificationHelper.sendNotification(

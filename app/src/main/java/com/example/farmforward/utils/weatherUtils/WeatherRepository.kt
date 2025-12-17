@@ -77,7 +77,9 @@ class WeatherRepository @Inject constructor(
         loadCachedData()
         val items = cachedForecasts
         if (items.isNullOrEmpty()) return "Unknown"
-        return items[0].weather.firstOrNull()?.main ?: "Unknown"
+        val currentTimeSeconds = System.currentTimeMillis() / 1000
+        val currentItem = items.minByOrNull { kotlin.math.abs(it.dt - currentTimeSeconds) }
+        return currentItem?.weather?.firstOrNull()?.main ?: "Unknown"
     }
     fun getLastUpdateTimestamp(): Long {
         return prefs.getLong(KEY_TIMESTAMP, 0L)
