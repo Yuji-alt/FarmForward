@@ -183,10 +183,10 @@ class MainActivity : AppCompatActivity(), MainView {
         }
         setupSmartNotifications() //function for notifications
         //For notif testing
-//        val testRequest = androidx.work.OneTimeWorkRequestBuilder<com.example.farmforward.utils.notificationsUtils.DailyCheckWorker>().build()
-//        androidx.work.WorkManager.getInstance(this).enqueue(testRequest)
-//        val weatherTest = androidx.work.OneTimeWorkRequestBuilder<com.example.farmforward.utils.notificationsUtils.WeatherWorker>().build()
-//        androidx.work.WorkManager.getInstance(this).enqueue(weatherTest)
+        //val testRequest = androidx.work.OneTimeWorkRequestBuilder<com.example.farmforward.utils.notificationsUtils.DailyCheckWorker>().build()
+        //androidx.work.WorkManager.getInstance(this).enqueue(testRequest)
+        //val weatherTest = androidx.work.OneTimeWorkRequestBuilder<com.example.farmforward.utils.notificationsUtils.WeatherWorker>().build()
+        //androidx.work.WorkManager.getInstance(this).enqueue(weatherTest)
         controller.onViewCreated() //establish a connection for its controller
 
         handleNotificationIntent(intent)

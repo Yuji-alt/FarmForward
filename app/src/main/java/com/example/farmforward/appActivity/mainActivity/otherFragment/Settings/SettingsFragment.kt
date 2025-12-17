@@ -24,7 +24,9 @@ import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager
 import com.example.farmforward.database.firebaseDatabase.FirebaseUserRepository
 import com.example.farmforward.database.roomDatabase.AppDatabase
 import com.example.farmforward.utils.loadingUtils.LoadingDialogFragment
+import com.example.farmforward.utils.otherUtils.HashUtils
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -220,6 +222,7 @@ class SettingsFragment : Fragment() {
         }
         loadingDialog = null
     }
+
     private fun updateUsername(newName: String) {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
@@ -231,6 +234,7 @@ class SettingsFragment : Fragment() {
             val newDocId = newName.lowercase()
 
             try {
+                // Check if new username is different
                 if (newDocId != currentDocId) {
                     val userDoc = firestore.collection("users").document(newDocId).get().await()
                     if (userDoc.exists()) {
@@ -245,12 +249,19 @@ class SettingsFragment : Fragment() {
                 }
                 else {
                     updateLoading(50, "Updating display name...")
+                    // Update Local
                     db.userDao().updateUsername(userId, newName)
                     val email = session.getUserDetails()["email"] ?: ""
                     session.createLoginSession(userId, newName, email)
 
+                    // Update Cloud (MATCHING SIGNUP LOGIC: Include lastUpdated)
+                    val updates = mapOf(
+                        "username" to newName,
+                        "lastUpdated" to System.currentTimeMillis()
+                    )
+
                     firestore.collection("users").document(currentDocId)
-                        .update("username", newName)
+                        .update(updates)
                         .await()
 
                     updateLoading(100, "Done!")
@@ -270,20 +281,31 @@ class SettingsFragment : Fragment() {
     }
 
     private suspend fun performFullMigration(userId: Int, currentDocId: String, newName: String) {
+        // 1. Update Local Data first (UI responsiveness)
         db.userDao().updateUsername(userId, newName)
         val email = session.getUserDetails()["email"] ?: ""
         session.createLoginSession(userId, newName, email)
 
+        // Mark crops as unsynced locally so they get pushed to the new ID later
         val userCrops = db.cropDao().getCropsForUserList(userId)
         for (crop in userCrops) {
             db.cropDao().updateCrop(crop.copy(isSynced = 0))
         }
 
-        val user = db.userDao().getUserById(userId)
-        if (user != null) {
-            firebaseUserRepo.updateUsername(currentDocId, user, newName)
+        // 2. Perform Cloud Migration via Repository (SAFER)
+        try {
+            val user = db.userDao().getUserById(userId)
+            if (user != null) {
+                // This uses the Transaction logic in your FirebaseUserRepository
+                firebaseUserRepo.updateUsername(currentDocId, user, newName)
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                showToast("Cloud migration warning: ${e.message}", isError = true)
+            }
         }
 
+        // 3. Sync Crops to new ID
         val explicitNewId = newName.lowercase()
         updateLoading(80, "Moving crops to new ID...")
 
@@ -297,13 +319,17 @@ class SettingsFragment : Fragment() {
     }
 
     private fun verifyAndUpdatePassword(oldPass: String, newPass: String) {
+        if (oldPass == newPass) {
+            showToast("New password cannot be the same as old password", isError = true)
+            return
+        }
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
-            updateLoading(20, "Verifying with Cloud...")
+            updateLoading(10, "Verifying credentials...")
             val email = session.getUserDetails()["email"] ?: ""
             val userId = session.getUserId() ?: -1
 
-            if (userId == -1) {
+            if (userId == -1 || email.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     hideLoading()
                     showToast("Error: Invalid Session. Relogin required.", isError = true)
@@ -312,25 +338,32 @@ class SettingsFragment : Fragment() {
             }
 
             try {
-                // 1. Update Cloud (Authentication Source)
-                firebaseUserRepo.updatePassword(email, oldPass, newPass)
+                // 1. Authenticate with Firebase
+                val user = FirebaseAuth.getInstance().currentUser
+                val credential = com.google.firebase.auth.EmailAuthProvider.getCredential(email, oldPass)
+                if (user == null) throw Exception("No user logged in.")
+                // Re-auth forces check of old password
+                user.reauthenticate(credential).await()
+                updateLoading(40, "Credential valid. Updating Cloud...")
+                user.updatePassword(newPass).await()
+                updateLoading(70, "Hashing & Saving locally...")
 
-                updateLoading(60, "Cloud verified. Syncing local data...")
-                // 2. Update Local Room DB manually for immediate effect
-                db.userDao().updatePassword(userId, newPass)
-
+                // 3. Update Local Database
+                val hashedNewPass = HashUtils.hashPassword(newPass)
+                db.userDao().updatePassword(userId, hashedNewPass)
+                // 4. Sync
                 syncManager.syncUsers()
-
                 updateLoading(100, "Success!")
                 delay(300)
                 withContext(Dispatchers.Main) {
                     hideLoading()
-                    showToast("Password changed and synced to device!", isError = false)
+                    showToast("Password updated successfully!", isError = false)
                 }
+
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     hideLoading()
-                    showToast("Verification Failed: ${e.message}", isError = true)
+                    showToast("Failed: ${e.message}", isError = true)
                 }
             }
         }
