@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FarmForward</string>
     <string name="email">Email: </string>
@@ -67,64 +68,165 @@
     <string name="profile">Profile</string>
     <string name="calculator">Calculator</string>
     <string name="harvest_history">Harvest History</string>
-    <string name="terms_conditions">Terms &amp; Conditions</string> <string name="title_terms">Terms &amp; Conditions</string>
-    <string name="content_terms"><![CDATA[<b>Last Updated: December 2, 2025</b><br/><br/>
+    <string name="terms_conditions">Terms &amp; Conditions</string>
+    <string name="title_terms">Terms &amp; Conditions</string>
+
+    <string name="content_terms"><![CDATA[
+<b>Last Updated: December 17, 2025</b><br/><br/>
+
 <b>1. Introduction</b><br/>
-Welcome to FarmForward. By downloading, accessing, or using this mobile application, you agree to be bound by these Terms & Conditions.<br/>
-If you do not agree with any part of these Terms, please stop using the app immediately.<br/><br/>
-FarmForward is a crop management system designed to help users monitor farm activities, track crop stages, and estimate yields.<br/><br/>
+Welcome to FarmForward. By downloading, accessing, or using this mobile application, you agree to be bound by these Terms &amp; Conditions. If you do not agree with any part of these Terms, please stop using the app immediately.<br/><br/>
+
+FarmForward is a crop management system designed to help users monitor farm activities, track crop stages, and estimate yields. The app may require certain user information, including name, email, and location, to provide a personalized and secure experience.<br/><br/>
+
 <b>2. Definitions</b><br/>
 For clarity in these Terms, the following words have the meanings given:<br/>
-• <b>“App”</b> — FarmForward mobile application.<br/>
-• <b>“User”</b> — any person who installs, accesses, or uses the app.<br/>
-• <b>“Personal Information”</b> — data such as name, email, location, or any identifying information.<br/>
-• <b>“Farm Data”</b> — crop information such as soil type, planting date, irrigation level, and farm characteristics.<br/><br/>
+<b>App</b> — FarmForward mobile application.<br/>
+<b>User</b> — any person who installs, accesses, or uses the app.<br/>
+<b>Personal Information</b> — data such as name, email, location, or any identifying information.<br/>
+<b>Farm Data</b> — crop information such as soil type, planting date, irrigation level, and farm characteristics.<br/>
+<b>Developers</b> — the team or organization responsible for creating and maintaining FarmForward.<br/><br/>
+
 <b>3. Eligibility</b><br/>
-To use this app, you must be at least 13 years old, provide accurate information, and use the app for lawful purposes.<br/><br/>
-<b>4. User Account</b><br/>
-Certain features require name, email, and location. You are responsible for maintaining the confidentiality of your account.<br/><br/>
+To use this app, you must:<br/>
+\ta. Be at least 13 years old.<br/>
+\tb. Provide accurate and truthful information.<br/>
+\tc. Use the app for lawful and appropriate purposes.<br/><br/>
+
+<b>4. User Account &amp; Personal Information</b><br/>
+Certain features may require users to provide:<br/>
+\ta. Full name<br/>
+\tb. Email address<br/>
+\tc. Location data<br/><br/>
+You agree to provide accurate and updated information and are responsible for maintaining the confidentiality of your account (if applicable).<br/><br/>
+
 <b>5. Permissions Required</b><br/>
-FarmForward may request access to Location (for region identification), Storage, and Internet Access.<br/><br/>
+FarmForward may request access to:<br/>
+\ta. Location — to identify your farm\'s region and improve prediction accuracy.<br/>
+\tb. Storage — to save farm data or profile information.<br/>
+\tc. Internet Access — for updates or cloud features (if included).<br/><br/>
+Granting these permissions is necessary for full functionality.<br/><br/>
+
 <b>6. Use of the Application</b><br/>
-You agree to use the app only for agricultural purposes and input accurate data. You must not reverse-engineer or misuse the app.<br/><br/>
+You agree to:<br/>
+\ta. Use the app only for its intended agricultural and productivity purposes.<br/>
+\tb. Input accurate farm data for more reliable outputs.<br/>
+\tc. Refrain from reverse-engineering, hacking, modifying, or disrupting the app.<br/>
+\td. Not use the app for fraudulent or harmful activities.<br/><br/>
+
 <b>7. No Professional Guarantee</b><br/>
-The app does NOT guarantee actual crop yields and does NOT replace professional agronomists. It is a supplementary decision tool only.<br/><br/>
+FarmForward provides estimates based on general agricultural principles and user-provided data.<br/>
+The app:<br/>
+\ta. Does NOT guarantee actual crop yields<br/>
+\tb. Does NOT replace professional agronomists or agricultural experts<br/>
+\tc. Should be used as a supplementary decision tool only<br/><br/>
+
 <b>8. Intellectual Property</b><br/>
-All components (name, logo, algorithms) are the exclusive property of the Developers.<br/><br/>
-<b>9. Data Handling & Privacy</b><br/>
-Your use is governed by our Privacy Policy. Personal data may be collected and stored locally or in the cloud.<br/><br/>
+All components of the app—including the name, logo, branding, design, user interface, texts, illustrations, and algorithms—are the exclusive property of the Developers. Users may not reproduce, distribute, modify, sell, or claim ownership of any part of the app.<br/><br/>
+
+<b>9. Data Handling &amp; Privacy</b><br/>
+Your use of the app is also governed by our Privacy Policy. Personal data and farm data may be collected, processed, and stored locally or in the cloud. Security measures are applied but cannot guarantee absolute safety.<br/><br/>
+
 <b>10. Limitation of Liability</b><br/>
-The Developers are not liable for inaccurate predictions, data loss, or technical issues. You use the app at your own risk.<br/><br/>
-<b>11. Modifications</b><br/>
-We reserve the right to modify features or these Terms at any time.<br/><br/>
-<b>12. Governing Law</b><br/>
-These Terms shall be governed by the laws of the Philippines.<br/><br/>
-<b>13. Contact Information</b><br/>
-For inquiries, please go to the contact section.]]></string>
+To the maximum extent permitted by law, the Developers are not liable for inaccurate predictions, losses, data loss, unauthorized access due to user negligence, or technical issues. You use the app at your own risk.<br/><br/>
+
+<b>11. Modifications &amp; Updates</b><br/>
+We reserve the right to modify features, update system components, and revise these Terms at any time. Continued use indicates acceptance of updated Terms.<br/><br/>
+
+<b>12. Termination of Use</b><br/>
+We may suspend or terminate access if these Terms are violated or the app is misused. You may discontinue use at any time by uninstalling the app.<br/><br/>
+
+<b>13. Governing Law</b><br/>
+These Terms shall be governed by and interpreted according to the laws of the Philippines.<br/><br/>
+
+<b>14. Contact Information</b><br/>
+For inquiries, concerns, or feedback, please refer to the Contact section of the app.
+]]></string>
 
     <string name="title_privacy">Privacy Policy</string>
-    <string name="content_privacy"><![CDATA[<b>Last Updated: December 2, 2025</b><br/><br/>
+    <string name="content_privacy"><![CDATA[
+<b>Last Updated: December 2, 2025</b><br/><br/>
+
 <b>1. Introduction</b><br/>
-FarmForward is committed to protecting your personal information. This Privacy Policy explains what data we collect and how we use it.<br/><br/>
+FarmForward is committed to protecting your personal information. This Privacy Policy explains what data we collect, how we use it, and the rights you have regarding your information. By using the FarmForward app, you agree to the practices described in this Privacy Policy.<br/><br/>
+
 <b>2. Information We Collect</b><br/>
-<b>Personal Information:</b> Full Name, Email Address, Location Information.<br/>
-<b>Farm Data:</b> Crop type, Soil type, Planting date, Irrigation level, Farm characteristics.<br/><br/>
+We collect two types of data:<br/>
+<b>a. Personal Information:</b> Information you voluntarily provide or that is required for account setup or app functionality, including:<br/>
+\t1. Full Name<br/>
+\t2. Email Address<br/>
+\t3. Location Information<br/><br/>
+
+<b>b. Farm and App Usage Data:</b> Non-personal agricultural and usage data, including:<br/>
+\t1. Crop type<br/>
+\t2. Soil type<br/>
+\t3. Planting date<br/>
+\t4. Planting density<br/>
+\t5. Irrigation level<br/>
+\t6. Farm characteristics<br/><br/>
+
 <b>3. How We Use Your Information</b><br/>
-We use data to create your profile, calculate yield predictions, determine growth stages, and improve app accuracy.<br/><br/>
+<b>a. Personal Data:</b><br/>
+\t1. To create and manage your FarmForward profile<br/>
+\t2. To contact you for account verification, app updates, or support<br/>
+\t3. To improve location-specific recommendations and estimates<br/>
+\t4. To secure your account and prevent fraudulent activity<br/><br/>
+
+<b>b. Farm Data:</b><br/>
+\t1. To calculate yield predictions<br/>
+\t2. To determine growth stages<br/>
+\t3. To display farm summaries and insights<br/>
+\t4. To enhance user experience and app accuracy<br/><br/>
+
+<b>c. General Use:</b><br/>
+\t1. To improve app performance and fix technical issues<br/>
+\t2. To provide customer support<br/>
+\t3. To analyze usage trends for future updates<br/><br/>
+
 <b>4. How We Store Your Information</b><br/>
-Personal info may be stored in the app’s secure database. Farm data is stored locally or in the cloud (if syncing is enabled).<br/><br/>
-<b>5. Data Sharing</b><br/>
-We do NOT sell, rent, or trade personal information. We only share if required by law or with your explicit permission.<br/><br/>
-<b>6. Location Data</b><br/>
-Used to identify your farm’s region and improve yield prediction accuracy.<br/><br/>
+\ta. Personal info (name, email, location) may be stored in the app\'s secure database or cloud service.<br/>
+\tb. Farm data is stored either locally or in the cloud. If cloud syncing is enabled, your data may be stored in secure hosting services like Firebase, Google Cloud, or equivalent.<br/>
+\tc. Passwords are never stored in plain text.<br/><br/>
+
+<b>5. Data Sharing and Disclosure</b><br/>
+\ta. We do NOT sell, rent, or trade personal information.<br/>
+\tb. We may only share your information when:<br/>
+\t\t1. Required by law, subpoena, or court order<br/>
+\t\t2. Necessary to ensure app security or prevent fraud<br/>
+\t\t3. You give explicit permission (e.g., account transfer or linking services)<br/>
+\tc. No third-party advertising services are used.<br/><br/>
+
+<b>6. Location Data Usage</b><br/>
+\ta. Used to identify your farm\'s general region<br/>
+\tb. Improve accuracy in yield prediction<br/>
+\tc. Provide environmental or region-based insights (if available)<br/>
+\td. Location data will not be shared with third parties or used for tracking outside app use.<br/><br/>
+
 <b>7. Data Security</b><br/>
-We implement safeguards including encrypted communication and secure database handling.<br/><br/>
+We implement reasonable administrative, technical, and physical safeguards, including:<br/>
+\ta. Encrypted communication<br/>
+\tb. Secure database handling<br/>
+\tc. Limited access to personal data within the development team<br/>
+However, no digital system is 100% secure. Users should secure their device and account.<br/><br/>
+
 <b>8. Children\'s Privacy</b><br/>
-FarmForward is not intended for children under 13.<br/><br/>
+\ta. FarmForward is not intended for children under 13.<br/>
+\tb. We do not knowingly collect personal information from children. If such data is discovered, it will be deleted immediately upon request.<br/><br/>
+
 <b>9. Your Rights</b><br/>
-You have the right to access, update, or delete your data, and withdraw location permissions.<br/><br/>
-<b>10. Changes</b><br/>
-We may update this policy from time to time.]]></string>
+You have the right to:<br/>
+\ta. Access your personal data<br/>
+\tb. Update or correct your information<br/>
+\tc. Request deletion of your account and data<br/>
+\td. Withdraw location permissions anytime through device settings<br/>
+Note: Some features may not work correctly without location access or profile data.<br/><br/>
+
+<b>10. Changes to This Privacy Policy</b><br/>
+We may update this Privacy Policy from time to time. Updates will be reflected by the "Last Updated" date and communicated through app notifications or release notes. Continued use after changes means acceptance of the updated Privacy Policy.<br/><br/>
+
+<b>11. Contact Information</b><br/>
+For questions, concerns, or data-related requests, go to the contacts section of the app.
+]]></string>
 
     <string name="title_help">Help &amp; Support</string>
     <string name="content_help"><![CDATA[<b>FREQUENTLY ASKED QUESTIONS</b><br/><br/>
@@ -153,8 +255,8 @@ Contact: +63 993 684 6485<br/><br/>
 <b>System Analyst:</b> Ms. Genevieve Y. Gamay<br/>
 Email: genevieve.gamay@cvsu.edu.ph<br/>
 Contact: +63 927 225 8451<br/><br/>
-<b>Developer:</b> Mr. Carl Lowell B. Dela Peña<br/>
-Email: carllowell.delapeña@cvsu.edu.ph<br/>
+<b>Developer:</b> Mr. Carl Lowell B. Dela Pe\u00f1a<br/>
+Email: carllowell.delapena@cvsu.edu.ph<br/>
 Contact: +63 991 215 5367<br/><br/>
 <b>Assistant Dev:</b> Mr. Alcris S. Amulong<br/>
 Email: alcris.amulong@cvsu.edu.ph<br/>
