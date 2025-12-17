@@ -58,12 +58,14 @@ class SettingsFragment : Fragment() {
         }
 
         val switchOffline = view.findViewById<MaterialSwitch>(R.id.switch_keep_offline)
-        val prefs = requireContext().getSharedPreferences("FarmForwardPrefs", Context.MODE_PRIVATE)
-
-        switchOffline.isChecked = prefs.getBoolean("keep_data_offline", true)
+        val userId = session.getUserId() ?: -1
+        val prefKey = "keep_data_offline_$userId"
+        val prefs = requireContext().getSharedPreferences("FarmForwardConfig", Context.MODE_PRIVATE)
+        switchOffline.isChecked = prefs.getBoolean(prefKey, true)
 
         switchOffline.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit { putBoolean("keep_data_offline", isChecked) }
+            prefs.edit { putBoolean(prefKey, isChecked) }
+
             if (isChecked) showToast("Data will be kept on device after logout.")
             else showToast("Data will be cleared on logout.")
         }
@@ -84,13 +86,9 @@ class SettingsFragment : Fragment() {
         view.findViewById<LinearLayout>(R.id.btn_delete_account).setOnClickListener {
             if (isNetworkAvailable()) showDeleteAccountDialog() else showToast("Internet connection required", isError = true)
         }
-
-        // --- NEW: LOCATION PERMISSION LOGIC ---
         view.findViewById<LinearLayout>(R.id.btn_location_permission).setOnClickListener {
             checkAndRequestLocation(mainActivity)
         }
-        // --------------------------------------
-
         view.findViewById<LinearLayout>(R.id.btn_clear_data).setOnClickListener {
             showClearDataDialog()
         }

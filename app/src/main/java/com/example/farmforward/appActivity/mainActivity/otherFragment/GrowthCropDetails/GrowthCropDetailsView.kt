@@ -18,6 +18,6 @@ interface GrowthCropDetailsView {
 
     fun navigateBack(destinationId: Int)
     fun navigateToMap(crop: CropEntity)
-    fun navigateToGarden()
+    fun navigateToGrowth()
     fun showHarvestConfirmation(message: String, onConfirm: () -> Unit)
 }

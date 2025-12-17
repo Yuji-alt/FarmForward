@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -62,12 +64,16 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
 
     // State Variables
     private var googleMap: GoogleMap? = null
+    private var pendingCropToFocus: CropEntity? = null
     private var isSearchOpen = false
     private var selectedLatLng: LatLng? = null
+    private var isInitialLoad = true
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    private val markerMap = mutableMapOf<Int, Marker>()
     private var searchResults: List<CropEntity> = emptyList()
     private var currentSearchIndex = 0
-    private   val philippinesBounds = com.google.android.gms.maps.model.LatLngBounds(
+    private var focusedCropId: Int? = null // *** ADDED: New state variable for focusing ***
+    private val philippinesBounds = com.google.android.gms.maps.model.LatLngBounds(
         LatLng(4.215806, 116.809228),
         LatLng(21.321798, 126.605335)
     )
@@ -98,6 +104,19 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
 
         // 5. Initial Network Check
         checkNetworkAndLoad()
+
+        // --- CROP TO FOCUS OBSERVER ---
+        cropViewModel.cropToFocus.observe(viewLifecycleOwner) { crop ->
+            Log.d("MapDebug", "Crop to focus: $crop")
+            if (crop != null) {
+                if (googleMap != null) {
+                    focusOnCrop(crop)
+                } else {
+                    pendingCropToFocus = crop // wait for map
+                }
+            }
+        }
+        // ------------------------------
 
         return view
     }
@@ -173,8 +192,12 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
                 }
             }
         }
-
-        refreshMapState()
+        if (pendingCropToFocus != null) {
+            focusOnCrop(pendingCropToFocus!!)
+            pendingCropToFocus = null // Consume the pending action
+        } else {
+            refreshMapState() // Only do standard refresh if no specific focus is requested
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -195,7 +218,10 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
     }
 
     private fun setupListeners() {
-        menuButton.setOnClickListener { (activity as? MainActivity)?.openDrawer() }
+        menuButton.setOnClickListener {
+            focusedCropId = null // Clear focus when menu is opened/used
+            (activity as? MainActivity)?.openDrawer()
+        }
 
         btnRetryMap.setOnClickListener { checkNetworkAndLoad() }
 
@@ -215,27 +241,15 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
         }
         btnPrevResult.setOnClickListener {
             if (searchResults.isNotEmpty()) {
-                if (currentSearchIndex > 0) {
-                    currentSearchIndex--
-                    focusOnCurrentResult()
-                } else {
-
-                    currentSearchIndex = searchResults.lastIndex
-                    focusOnCurrentResult()
-                }
+                currentSearchIndex = if (currentSearchIndex > 0) currentSearchIndex - 1 else searchResults.lastIndex
+                focusOnCurrentResult()
             }
         }
 
         btnNextResult.setOnClickListener {
             if (searchResults.isNotEmpty()) {
-                if (currentSearchIndex < searchResults.lastIndex) {
-                    currentSearchIndex++
-                    focusOnCurrentResult()
-                } else {
-                    // Optional: Loop back to start?
-                    currentSearchIndex = 0
-                    focusOnCurrentResult()
-                }
+                currentSearchIndex = (currentSearchIndex + 1) % searchResults.size
+                focusOnCurrentResult()
             }
         }
     }
@@ -243,12 +257,15 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
     private fun setupSearchLogic() {
         searchButton.setOnClickListener {
             if (isSearchOpen) closeSearch() else openSearch()
+            focusedCropId = null // *** IMPORTANT: Clear focus when search is initiated/closed ***
         }
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                focusedCropId = null // *** IMPORTANT: Clear focus when search query changes ***
                 controller.onSearchQueryChanged(s.toString())
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
     }
@@ -277,8 +294,10 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
             searchButton.visibility = View.GONE
             searchInput.visibility = View.GONE
             btnConfirm.visibility = View.GONE
+            layoutSearchNav.visibility = View.GONE
             map.clear()
             selectedLatLng = null
+            focusedCropId = null // Ensure focus is cleared in picker mode
 
             showToast("Tap on the map to select location")
             moveToUserLocation()
@@ -288,29 +307,37 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
             appLogo.visibility = View.VISIBLE
             searchButton.visibility = View.VISIBLE
             btnConfirm.visibility = View.GONE
-
             controller.forceRefreshCrops()
-            controller.onSearchQueryChanged("")
-
-            val targetCrop = cropViewModel.cropToFocus
-            if (targetCrop != null && targetCrop.latitude != 0.0) {
-                val location = LatLng(targetCrop.latitude, targetCrop.longitude)
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
-                cropViewModel.cropToFocus = null
+            // If search is open, re-trigger the search query to re-filter
+            if (isSearchOpen) {
+                controller.onSearchQueryChanged(searchInput.text.toString())
             } else {
-                moveToUserLocation()
+                // If not open, ensure controller knows query is empty
+                controller.onSearchQueryChanged("")
             }
         }
     }
 
+    // *** MODIFIED: Logic to show only focused crop is implemented here ***
     override fun displayCropsOnMap(crops: List<CropEntity>) {
         val map = googleMap ?: return
         if (cropViewModel.isMapPickerMode) return
 
         map.clear()
-        val markerMap = mutableMapOf<Int, com.google.android.gms.maps.model.Marker>()
+        markerMap.clear()
 
-        for (crop in crops) {
+        // 1. Logic to filter crops based on Focus or Search
+        val cropsToDisplay = if (focusedCropId != null) {
+            crops.filter { it.id == focusedCropId }
+        } else if (searchInput.text.toString().trim().isNotEmpty()) {
+            val query = searchInput.text.toString().trim()
+            crops.filter { it.cropName.contains(query, ignoreCase = true) && it.latitude != 0.0 }
+        } else {
+            crops
+        }
+
+        // 2. Add Markers
+        for (crop in cropsToDisplay) {
             if (crop.latitude != 0.0 && crop.longitude != 0.0) {
                 val position = LatLng(crop.latitude, crop.longitude)
                 val hue = when {
@@ -328,30 +355,76 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
                         .icon(BitmapDescriptorFactory.defaultMarker(hue))
                 )
                 marker?.tag = crop
-                if (marker != null) {
-                    markerMap[crop.id] = marker
+                if (marker != null) markerMap[crop.id] = marker
+            }
+        }
+
+        // 3. --- NEW: AUTO-FOCUS LOGIC (Run only once) ---
+        if (isInitialLoad) {
+            isInitialLoad = false // Ensure this doesn't run again when searching/filtering
+
+            if (cropsToDisplay.isNotEmpty()) {
+                // A. Focus on the Most Recent Crop (by lastUpdated or date planted)
+                val recentCrop = cropsToDisplay.maxByOrNull { it.lastUpdated }
+
+                if (recentCrop != null && recentCrop.latitude != 0.0) {
+                    val target = LatLng(recentCrop.latitude, recentCrop.longitude)
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
+
+                    // Optional: Open the info window for the recent crop
+                    markerMap[recentCrop.id]?.showInfoWindow()
+                } else {
+                    // B. If crops exist but have no valid location, go to User/Philippines
+                    moveToUserLocation()
                 }
+            } else {
+                // C. No crops at all? Go to User/Philippines
+                moveToUserLocation()
             }
         }
-        val query = searchInput.text.toString().trim()
-        if (query.isNotEmpty()) {
-            searchResults = crops.filter {
-                it.cropName.contains(query, ignoreCase = true) && it.latitude != 0.0
-            }
-        } else {
+
+        // 4. Existing Search Navigation Logic...
+        if (focusedCropId != null || !isSearchOpen) {
             searchResults = emptyList()
+            layoutSearchNav.visibility = View.GONE
+            if (focusedCropId != null) {
+                markerMap[focusedCropId]?.showInfoWindow()
+            }
+            return
         }
+
+        val query = searchInput.text.toString().trim()
+        searchResults = if (query.isNotEmpty()) cropsToDisplay else emptyList()
+
         if (searchResults.isNotEmpty()) {
             currentSearchIndex = 0
             layoutSearchNav.visibility = View.VISIBLE
-            updateNavText()
-            focusOnCurrentResult(markerMap)
+            focusOnCurrentResult()
         } else {
             layoutSearchNav.visibility = View.GONE
         }
     }
 
+    // *** MODIFIED: Updated focusOnCrop to use the state variable and call displayCropsOnMap ***
+    private fun focusOnCrop(crop: CropEntity) {
+        Log.d("MapDebug", "focusOnCrop called: $crop, map = $googleMap")
+        val map = googleMap ?: return
+
+        // 1. Set the state
+        focusedCropId = crop.id
+        cropViewModel.setCropToFocus(null) // Reset ViewModel trigger
+
+        // 2. Clear Search UI and trigger map refresh to show only this crop
+        if (isSearchOpen) closeSearch()
+        displayCropsOnMap(listOf(crop)) // Force the map to refresh with only this crop
+
+        // 3. Animate Camera
+        val target = LatLng(crop.latitude, crop.longitude)
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
+    }
+
     private fun moveToUserLocation() {
+        // ... (No changes here, original logic is fine) ...
         val philippines = LatLng(12.8797, 121.7740)
         val defaultZoom = 6f
 
@@ -381,6 +454,7 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
     // -------------------------------------------------------------------------
     private fun openSearch() {
         isSearchOpen = true
+        focusedCropId = null // Clear focus when search is opened
         appLogo.visibility = View.GONE
         searchInput.visibility = View.VISIBLE
         searchButton.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
@@ -399,6 +473,7 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
         controller.onSearchQueryChanged("")
+        focusedCropId = null // Clear focus when search is closed
     }
 
     private fun getCropStatusString(crop: CropEntity): String {
@@ -421,18 +496,23 @@ class MapFragment : Fragment(), MapView, OnMapReadyCallback {
         tvResultCount.text = "$current / $count"
     }
 
-    private fun focusOnCurrentResult(existingMarkers: Map<Int, com.google.android.gms.maps.model.Marker>? = null) {
+    // *** MODIFIED: focusOnCurrentResult now just navigates the search results, but still shows all filtered results ***
+    private fun focusOnCurrentResult() {
         if (searchResults.isEmpty()) return
 
         val crop = searchResults[currentSearchIndex]
         val target = LatLng(crop.latitude, crop.longitude)
-        googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
+        val map = googleMap ?: return
+
+        // Animate the camera to the selected result
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(target, 15f))
+
+        // Show the info window for the selected marker
+        markerMap[crop.id]?.showInfoWindow()
 
         updateNavText()
-        if (existingMarkers != null) {
-            existingMarkers[crop.id]?.showInfoWindow()
-        }
     }
+
 
     private fun isScheduled(crop: CropEntity): Boolean = System.currentTimeMillis() < crop.date
 

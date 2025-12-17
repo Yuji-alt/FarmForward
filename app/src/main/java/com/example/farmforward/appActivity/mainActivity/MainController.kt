@@ -55,10 +55,9 @@ class MainController @Inject constructor(
             view?.setSignOutButtonEnabled(!isInProgress)
         }
     }
-    // ---------------------------------------------------------
 
 
-    // --- CHECK GPS SETTINGS (Helper) ---
+    //check if gps is on if not there will be dialog to on it
     fun ensureLocationSettings(activity: AppCompatActivity, onSuccess: () -> Unit, onFailure: () -> Unit) {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val isGpsOn = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -123,19 +122,19 @@ class MainController @Inject constructor(
         }
     }
 
-    // --- FETCH LOCATION (Now checks GPS too) ---
+    // getting the current location if the access in location is granted and the gps is on
     fun fetchCurrentLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
-        // 1. Check Permissions
+        // will check if the app has a permission to access the location
         if (!hasLocationPermission()) {
             view?.showToast("Location permission required", isError = true)
             onLocation(0.0, 0.0)
             return
         }
 
-        // 2. Check GPS Settings (ensureLocationSettings)
+        // calling the function in the MainActivity to check if GPS is on
         ensureLocationSettings(activity,
             onSuccess = {
-                // 3. Get Coordinates
+                // will try get the current location
                 try {
                     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
                     fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
@@ -161,14 +160,14 @@ class MainController @Inject constructor(
             }
         )
     }
-
+    //make the app known it have the permission to access the location
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
-
+    //request the permission to access the location
     fun requestSystemPermission(activity: AppCompatActivity) {
         ActivityCompat.requestPermissions(
             activity,
@@ -176,27 +175,7 @@ class MainController @Inject constructor(
             LOCATION_PERMISSION_REQUEST_CODE
         )
     }
-    fun fetchLastKnownLocation(activity: AppCompatActivity, onLocation: (lat: Double, lon: Double) -> Unit) {
-        if (!hasLocationPermission()) {
-            onLocation(0.0, 0.0)
-            return
-        }
-        try {
-            val client = LocationServices.getFusedLocationProviderClient(activity)
-            client.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    onLocation(location.latitude, location.longitude)
-                } else {
-                    fetchCurrentLocation(activity, onLocation)
-                }
-            }.addOnFailureListener {
-                onLocation(0.0, 0.0)
-            }
-        } catch (e: SecurityException) {
-            onLocation(0.0, 0.0)
-        }
-    }
-
+    //check if the permission is granted or not
     fun handlePermissionResult(
         activity: AppCompatActivity,
         onPermanentlyDenied: () -> Unit,
@@ -209,7 +188,7 @@ class MainController @Inject constructor(
             onDenied()
         }
     }
-
+    //open the settings app
     fun openAppSettings(activity: AppCompatActivity) {
         val intent = android.content.Intent(
             android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -218,6 +197,7 @@ class MainController @Inject constructor(
         intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         activity.startActivity(intent)
     }
+    //making sure when the app is open  the user will go to the correct banner
 
     fun onViewCreated() {
         if (FirebaseApp.getApps(context).isEmpty()) {
@@ -235,13 +215,14 @@ class MainController @Inject constructor(
         currentMenuId = menuId
         view?.switchFragment(menuId)
     }
-
+    //just normal back button in app
     fun onBackClicked(viewModel: CropViewModel) {
         val targetId = if (viewModel.lastSourceId != 0) viewModel.lastSourceId else R.id.nav_home
         onNavigationItemClicked(targetId)
     }
 
-    // --- UPDATED: Saved & Sync Clicked ---
+    //will be use mostly when user is from offline mode then it got internet connection so when user
+    // click this or trigger this it will sync the local and cloud
     fun onSavedAndSyncClicked() {
         if (isSyncInProgress) {
             view?.showToast("Synchronization is already running.", isError = false)
@@ -293,7 +274,7 @@ class MainController @Inject constructor(
             }
         }
     }
-
+    //just normal function when user is signing out
     fun onSignOutClicked() {
         view?.closeDrawer()
         scope?.launch(Dispatchers.IO) {
@@ -313,13 +294,21 @@ class MainController @Inject constructor(
     fun onSignOutConfirmed() {
         scope?.launch(Dispatchers.IO) {
             val prefs = context.getSharedPreferences("FarmForwardConfig", Context.MODE_PRIVATE)
-            val keepData = prefs.getBoolean("keep_data_offline", true)
+            val userId = session.getUserId() ?: -1
+            val prefKey = "keep_data_offline_$userId"
+
+            val keepData = prefs.getBoolean(prefKey, true)
+
             if (keepData) {
                 withContext(Dispatchers.Main) {
                     view?.showToast("Offline Data Kept on Device", isError = false)
                 }
             } else {
-                db.clearAllTables()
+                if (userId != -1) {
+                    db.cropDao().deleteAllCropsForUser(userId)
+                    val user = db.userDao().getUserById(userId)
+                    if (user != null) db.userDao().delete(user)
+                }
             }
             session.clearSession()
             withContext(Dispatchers.Main) {

@@ -118,7 +118,7 @@ class GrowthFragment : Fragment(), GrowthView {
     override fun navigateToCropDetails(crop: CropEntity) {
         cropViewModel.viewCropDetails(crop)
         cropViewModel.lastSourceId = R.id.nav_growth
-        (activity as? MainActivity)?.switchFragment(MainActivity.NAV_GROWTH_CROP_DETAILS)
+        (requireActivity() as? MainActivity)?.controller?.onNavigationItemClicked(MainActivity.NAV_GROWTH_CROP_DETAILS)
     }
 
     private fun setupSearchLogic() {

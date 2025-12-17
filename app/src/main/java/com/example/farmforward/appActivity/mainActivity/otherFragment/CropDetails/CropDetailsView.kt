@@ -14,6 +14,7 @@ interface CropDetailsView {
     fun setIrrigation(irrigation: String)
     fun setDensity(density: String)
     fun setFertilizer(fertilizer: String)
+    fun setSavedWeatherFactor(weatherFactor: String)
     fun setCropImage(resourceId: Int)
     fun setWeather(weather: String)
 

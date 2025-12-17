@@ -48,7 +48,6 @@ class SignUpController @Inject constructor(
         val trimmedConfirm = confirm.trim()
         val usernameId = trimmedUsername.lowercase()
 
-        // 1. Basic Empty Checks
         if (trimmedEmail.isEmpty() || trimmedUsername.isEmpty() || trimmedPassword.isEmpty() || trimmedConfirm.isEmpty()) {
             view?.showToast("Please fill in all fields", isError = true)
             return
@@ -76,8 +75,7 @@ class SignUpController @Inject constructor(
             fun update(progress: Int, message: String) {
                 view?.updateLoading(progress, message)
             }
-
-            update(10, "Checking email availability...")
+            update(10, "Checking availability...")
             delay(300)
 
             try {
@@ -93,40 +91,7 @@ class SignUpController @Inject constructor(
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     view?.hideLoading()
-                    view?.showToast("Network error checking email: ${e.message}", isError = true)
-                    view?.setSignUpButtonEnabled(true)
-                }
-                return@launch
-            }
-
-            update(30, "Checking username availability...")
-
-            // Local Check
-            val localExists = userDao.checkUserExists(trimmedUsername)
-            if (localExists > 0) {
-                withContext(Dispatchers.Main) {
-                    view?.hideLoading()
-                    view?.showToast("Username exists on this device!", isError = true)
-                    view?.setSignUpButtonEnabled(true)
-                }
-                return@launch
-            }
-
-            // Cloud Check
-            try {
-                val userDoc = firestore.collection("users").document(usernameId).get().await()
-                if (userDoc.exists()) {
-                    withContext(Dispatchers.Main) {
-                        view?.hideLoading()
-                        view?.showToast("Username '$trimmedUsername' is already taken.", isError = true)
-                        view?.setSignUpButtonEnabled(true)
-                    }
-                    return@launch
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    view?.hideLoading()
-                    view?.showToast("Network check failed: ${e.message}", isError = true)
+                    view?.showToast("Network error checking availability: ${e.message}", isError = true)
                     view?.setSignUpButtonEnabled(true)
                 }
                 return@launch
@@ -135,6 +100,7 @@ class SignUpController @Inject constructor(
             update(50, "Creating secure account...")
 
             val hashedPassword = HashUtils.hashPassword(trimmedPassword)
+
             val newUser = User(
                 username = trimmedUsername,
                 password = hashedPassword,
@@ -143,17 +109,17 @@ class SignUpController @Inject constructor(
             )
 
             try {
+                // 3. Create Firebase Auth User
                 val authResult = auth.createUserWithEmailAndPassword(trimmedEmail, trimmedPassword).await()
                 val firebaseUid = authResult.user?.uid ?: throw Exception("Auth failed")
 
+                // 4. Send Verification Email
                 authResult.user?.sendEmailVerification()
 
                 update(80, "Saving profile data...")
 
-                userDao.registerUser(newUser)
-
                 val publicProfileMap = hashMapOf(
-                    "id" to newUser.id,
+                    "id" to 0,
                     "firebaseUid" to firebaseUid,
                     "username" to trimmedUsername,
                     "email" to newUser.email,
@@ -171,6 +137,7 @@ class SignUpController @Inject constructor(
                 }
 
             } catch (e: Exception) {
+                // Cleanup if auth created but firestore failed
                 if (auth.currentUser != null) {
                     try { auth.currentUser?.delete() } catch (delEx: Exception) { }
                 }

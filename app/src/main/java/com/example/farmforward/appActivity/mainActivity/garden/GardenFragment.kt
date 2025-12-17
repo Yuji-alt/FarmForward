@@ -72,7 +72,7 @@ class GardenFragment : Fragment(), GardenView {
 
         return view
     }
-
+    //developer team is improving we use a function to separate the initiation of view
     private fun initViews(view: View) {
         listContainer = view.findViewById(R.id.listContainer)
         tabLayout = view.findViewById(R.id.tabLayout)
@@ -82,12 +82,13 @@ class GardenFragment : Fragment(), GardenView {
         menuButton = view.findViewById(R.id.menu_button)
         appLogo = view.findViewById(R.id.app_logo_text)
     }
+    //same with but this for Listener
 
     private fun setupListeners() {
         btnAdd.setOnClickListener { controller.onAddClicked() }
         menuButton.setOnClickListener { (activity as? MainActivity)?.openDrawer() }
     }
-
+    //used in tabs for the seperation of active ,ready and harvested
     private fun setupTabs() {
         tabLayout.addTab(tabLayout.newTab().setText("Active"))
         tabLayout.addTab(tabLayout.newTab().setText("Ready"))
@@ -102,7 +103,7 @@ class GardenFragment : Fragment(), GardenView {
         })
     }
 
-    // --- Data Update from Controller ---
+    //data Update from Controller
     override fun updateCropLists(
         growing: List<CropEntity>,
         ready: List<CropEntity>,
@@ -113,7 +114,7 @@ class GardenFragment : Fragment(), GardenView {
         this.harvestedList = harvested
         refreshList()
     }
-
+    //when the tan is empty this will be display
     private fun refreshList() {
         listContainer.removeAllViews()
         val currentTab = tabLayout.selectedTabPosition
@@ -124,7 +125,7 @@ class GardenFragment : Fragment(), GardenView {
             2 -> displayList(harvestedList, "No harvests yet.\nHarvested crops will appear here.", isHarvested = true)
         }
     }
-
+    //used to display the respective crops in tabs
     private fun displayList(crops: List<CropEntity>, emptyMessage: String, isHarvested: Boolean) {
         if (crops.isEmpty()) {
             showEmptyState(listContainer, emptyMessage)
@@ -140,26 +141,31 @@ class GardenFragment : Fragment(), GardenView {
             listContainer.addView(itemView)
         }
     }
-
+    // this is the setter of rectangle thins or the crops holder in the tabs
     private fun bindCropItem(itemView: View, crop: CropEntity, isHarvested: Boolean) {
         val tvCropName = itemView.findViewById<TextView>(R.id.tvCropName)
         val tvStatus = itemView.findViewById<TextView>(R.id.tvStatus)
         val imgCrop = itemView.findViewById<ImageView>(R.id.imgCrop)
+        val tvDays = itemView.findViewById<TextView>(R.id.tvDays)
 
         imgCrop.setImageResource(CropImageHelper.getImageRes(crop.cropName))
         imgCrop.setColorFilter(ContextCompat.getColor(requireContext(), R.color.moss_green))
         tvCropName.text = crop.cropName
 
+        val today = System.currentTimeMillis()
+
         if (isHarvested) {
-            // Logic for Harvested Layout (garden_frame.xml)
             val dateStr = crop.harvestedDate?.let { dateFormat.format(it) } ?: "N/A"
             tvStatus.text = "Harvested: $dateStr"
+        } else if (crop.date > today) {
+            // Scheduled to Plant
+            val diff = crop.date - today
+            val daysLeft = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diff)
+            tvStatus.text = "Scheduled to Plant"
+            tvDays.text = "$daysLeft DAYS"
         } else {
-            // Logic for Active/Ready Layout (active_status.xml)
-            val today = System.currentTimeMillis()
-            val planted = crop.date
+            // Already planted, active crops
             val minHarvest = crop.mindate ?: 0L
-            val tvDays = itemView.findViewById<TextView>(R.id.tvDays)
 
             if (today >= minHarvest) {
                 tvStatus.text = "HARVEST NOW"
@@ -178,6 +184,7 @@ class GardenFragment : Fragment(), GardenView {
         }
     }
 
+    // when the list is empty this will be display
     private fun showEmptyState(container: LinearLayout, message: String) {
         container.gravity = Gravity.CENTER
         val emptyTextView = TextView(requireContext())
@@ -197,8 +204,7 @@ class GardenFragment : Fragment(), GardenView {
         emptyTextView.layoutParams = params
         container.addView(emptyTextView)
     }
-
-    // --- Search Logic (Unchanged) ---
+    //general search logic
     private fun setupSearchLogic() {
         searchButton.setOnClickListener { if (isSearchOpen) closeSearch() else openSearch() }
         searchInput.addTextChangedListener(object : TextWatcher {
@@ -209,7 +215,7 @@ class GardenFragment : Fragment(), GardenView {
             override fun afterTextChanged(s: Editable?) {}
         })
     }
-
+    //search -----------------------------
     private fun openSearch() {
         isSearchOpen = true
         appLogo.visibility = View.GONE
@@ -229,8 +235,8 @@ class GardenFragment : Fragment(), GardenView {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
     }
-
-    // --- Navigation ---
+    //-----------------------
+    //when user click any botton this will handle where they will go
     override fun selectCropForGrowth(crop: CropEntity) {
         cropViewModel.viewCropDetails(crop)
         cropViewModel.lastSourceId = R.id.nav_garden
@@ -241,10 +247,13 @@ class GardenFragment : Fragment(), GardenView {
     override fun navigateToCalc() {
         (requireActivity() as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_calc)
     }
+    //prevent data leaks
     override fun onDestroy() {
         controller.onDestroy()
         super.onDestroy()
     }
+    //helper -------------------
     override fun getFragmentContext(): Context = requireContext()
     override fun getScope(): LifecycleCoroutineScope = lifecycleScope
+    //------------------
 }

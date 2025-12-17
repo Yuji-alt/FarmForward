@@ -2,6 +2,7 @@ package com.example.farmforward.appActivity.mainActivity.otherFragment.GrowthCro
 
 import androidx.lifecycle.LifecycleOwner
 import com.example.farmforward.R
+import com.example.farmforward.database.CropEntity
 import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.CropImageHelper
 import java.text.SimpleDateFormat
@@ -79,20 +80,20 @@ class GrowthCropDetailsController @Inject constructor() {
         }
     }
 
-    fun onViewOnMapClicked(viewModel: CropViewModel) {
-        val currentCrop = viewModel.cropData.value
-        if (currentCrop != null && currentCrop.latitude != 0.0) {
-            viewModel.cropToFocus = currentCrop
+    fun onViewOnMapClicked(viewModel: CropViewModel, crop: CropEntity) {
+        if (crop.latitude != 0.0 && crop.longitude != 0.0) {
+            viewModel.setCropToFocus(crop)
             viewModel.isMapPickerMode = false
-            view?.navigateToMap(currentCrop)
+            view?.navigateToMap(crop)
         }
     }
+
 
     fun onHarvestClicked(viewModel: CropViewModel) {
         val currentCrop = viewModel.cropData.value ?: return
         view?.showHarvestConfirmation("Harvest ${currentCrop.cropName} now?") {
             viewModel.harvestCrop(currentCrop, System.currentTimeMillis())
-            view?.navigateToGarden()
+            view?.navigateToGrowth()
         }
     }
 

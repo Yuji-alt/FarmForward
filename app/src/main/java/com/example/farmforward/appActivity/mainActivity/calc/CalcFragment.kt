@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -74,6 +75,11 @@ class CalcFragment : Fragment(), CalcView {
     private var selectedLng: Double = 0.0
     private var selectedDateMillis: Long = System.currentTimeMillis()
 
+    // Class level variable
+    private var loadingDialog: LoadingDialogFragment? = null
+
+    private var rawWeatherCondition: String = "Normal"
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -101,9 +107,8 @@ class CalcFragment : Fragment(), CalcView {
         val btnPrev = view.findViewById<ImageButton>(R.id.btnPrevMonth)
         val btnNext = view.findViewById<ImageButton>(R.id.btnNextMonth)
         val rootScroll = view.findViewById<ScrollView>(R.id.rootLayout)
+        rootScroll?.handleKeyboardVisibility()
 
-        rootScroll?.handleKeyboardVisibility()
-        rootScroll?.handleKeyboardVisibility()
         setupInputFields()
         setupKeyboardLogic()
         inputRegion.setOnClickListener {
@@ -117,15 +122,14 @@ class CalcFragment : Fragment(), CalcView {
         if (cropViewModel.tempDate != null) {
             selectedDateMillis = cropViewModel.tempDate!!
         }
+
         cropViewModel.pickedLocation.observe(viewLifecycleOwner) { latLng ->
             if (latLng != null) {
                 if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
                     selectedLat = latLng.latitude
                     selectedLng = latLng.longitude
-
                     val address = getAddressName(selectedLat, selectedLng)
                     inputRegion.setText(address)
-
                     fetchSpecificWeather(selectedLat, selectedLng)
                     saveFormState()
                 }
@@ -141,6 +145,8 @@ class CalcFragment : Fragment(), CalcView {
         }
 
         btnCalculate.setOnClickListener {
+            val weatherOption = mapWeatherToOption(rawWeatherCondition)
+
             controller.onCalculateClicked(
                 cropName = inputCrop.text.toString().trim(),
                 areaStr = inputArea.text.toString().trim(),
@@ -148,33 +154,17 @@ class CalcFragment : Fragment(), CalcView {
                 irrSel = inputIrrigation.text.toString().trim(),
                 denSel = inputPlantDensity.text.toString().trim(),
                 fertSel = inputFertilizer.text.toString().trim(),
+                weatherSel = weatherOption,
                 selectedDateMillis = selectedDateMillis
             )
         }
+
         menuButton.setOnClickListener {
             (activity as? MainActivity)?.openDrawer()
         }
 
         val calendar = Calendar.getInstance()
         updateCalendar(calendar, calendarGrid, tvMonthYear, requireContext())
-
-        cropViewModel.pickedLocation.observe(viewLifecycleOwner) { latLng ->
-            if (latLng != null) {
-                if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
-                    selectedLat = latLng.latitude
-                    selectedLng = latLng.longitude
-                    val address = getAddressName(selectedLat, selectedLng)
-                    inputRegion.setText(address)
-                    fetchSpecificWeather(selectedLat, selectedLng)
-                    saveFormState()
-                }
-                cropViewModel.clearPickedLocation()
-            } else {
-                if (selectedLat == 0.0) {
-                    loadEnvironmentData()
-                }
-            }
-        }
 
         btnPrev.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
@@ -192,7 +182,20 @@ class CalcFragment : Fragment(), CalcView {
         return view
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    private fun mapWeatherToOption(condition: String): String {
+        return when {
+            condition.contains("Rain", ignoreCase = true) ||
+                    condition.contains("Drizzle", ignoreCase = true) ||
+                    condition.contains("Thunderstorm", ignoreCase = true) -> "Wet/Excess"
+
+            condition.contains("Ash", ignoreCase = true) ||
+                    condition.contains("Dust", ignoreCase = true) ||
+                    condition.contains("Drought", ignoreCase = true) -> "Dry/Drought"
+
+            else -> "Normal"
+        }
+    }
+
     private fun setupUI(view: View) {
         if (view !is EditText) {
             view.setOnTouchListener { v, event ->
@@ -208,25 +211,6 @@ class CalcFragment : Fragment(), CalcView {
                 val innerView = view.getChildAt(i)
                 setupUI(innerView)
             }
-        }
-    }
-
-    override fun getCurrentLocation(onLocationFound: (Double, Double) -> Unit) {
-        if (selectedLat != 0.0 && selectedLng != 0.0) {
-            onLocationFound(selectedLat, selectedLng)
-            return
-        }
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            onLocationFound(0.0, 0.0)
-            return
-        }
-        val mainActivity = requireActivity() as MainActivity
-        if (mainActivity.controller.hasLocationPermission()) {
-            mainActivity.controller.fetchCurrentLocation(mainActivity) { lat, lng ->
-                onLocationFound(lat, lng)
-            }
-        } else {
-            onLocationFound(0.0, 0.0)
         }
     }
 
@@ -252,16 +236,10 @@ class CalcFragment : Fragment(), CalcView {
         }
     }
 
-    private fun loadEnvironmentData() {
-        if (selectedLat == 0.0) {
-            inputRegion.hint = "Tap to select location"
-        }
-        inputWeather.hint = "Weather Condition"
-        inputWeather.text = null
-    }
     private fun fetchSpecificWeather(lat: Double, lng: Double) {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             inputWeather.setText("Offline / Unavailable")
+            rawWeatherCondition = "Normal"
             return
         }
         inputWeather.setText("Loading...")
@@ -276,20 +254,26 @@ class CalcFragment : Fragment(), CalcView {
                         val forecast = response.body()!!.list.firstOrNull()
                         if (forecast != null) {
                             val condition = forecast.weather.firstOrNull()?.main ?: "Clear"
+                            rawWeatherCondition = condition
                             val tempVal = forecast.main.temp
                             val temp = String.format("%.1f°C", tempVal)
                             inputWeather.setText("$condition, $temp")
                         } else {
                             inputWeather.setText("No data")
+                            rawWeatherCondition = "Normal"
                         }
                     } else {
                         inputWeather.setText("Weather Error")
+                        rawWeatherCondition = "Normal"
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    if (isAdded) inputWeather.setText("Network Error")
+                    if (isAdded) {
+                        inputWeather.setText("Network Error")
+                        rawWeatherCondition = "Normal"
+                    }
                 }
             }
         }
@@ -302,6 +286,10 @@ class CalcFragment : Fragment(), CalcView {
         inputIrrigation.setText(crop.irrigationLevel, false)
         inputPlantDensity.setText(crop.plantDensity, false)
         inputFertilizer.setText(crop.fertilizerUsed, false)
+        if (crop.weatherCondition != null) {
+            rawWeatherCondition = crop.weatherCondition
+            inputWeather.setText(crop.weatherCondition)
+        }
 
         if (selectedLat == 0.0 && selectedLng == 0.0) {
             selectedLat = crop.latitude
@@ -386,7 +374,6 @@ class CalcFragment : Fragment(), CalcView {
             }
         }
     }
-
     private fun openMapPicker() {
         saveFormState()
         cropViewModel.isMapPickerMode = true
@@ -407,15 +394,16 @@ class CalcFragment : Fragment(), CalcView {
             "Selected Location"
         }
     }
+
     override fun clearFactorInputs() {
         inputSoilType.setText("", false)
         inputIrrigation.setText("", false)
         inputPlantDensity.setText("", false)
         inputFertilizer.setText("", false)
     }
+
     override fun clearAllInputs() {
         inputCrop.setText("", false)
-
         val adapter = inputCrop.adapter as? ArrayAdapter<String>
         adapter?.filter?.filter(null)
         inputArea.setText("")
@@ -427,6 +415,7 @@ class CalcFragment : Fragment(), CalcView {
         cropViewModel.clearDraft()
         cropViewModel.tempDate = null
         selectedDateMillis = System.currentTimeMillis()
+        rawWeatherCondition = "Normal"
     }
 
     private fun hideKeyboard(view: View) {
@@ -499,7 +488,6 @@ class CalcFragment : Fragment(), CalcView {
     override fun showToast(message: String, isError: Boolean) {
         (activity as? MainActivity)?.showToast(message, isError)
     }
-
     @SuppressLint("ClickableViewAccessibility")
     override fun setCropAdapter(cropNames: List<String>) {
         validCropNames = cropNames
@@ -533,6 +521,48 @@ class CalcFragment : Fragment(), CalcView {
         inputIrrigation.setAdapter(irrigationAdapter)
         inputPlantDensity.setAdapter(densityAdapter)
         inputFertilizer.setAdapter(fertilizerAdapter)
+    }
+
+    override fun getCurrentLocation(onLocationFound: (Double, Double) -> Unit) {
+        if (selectedLat != 0.0 && selectedLng != 0.0) {
+            onLocationFound(selectedLat, selectedLng)
+            return
+        }
+        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            onLocationFound(0.0, 0.0)
+            return
+        }
+        val mainActivity = requireActivity() as MainActivity
+        if (mainActivity.controller.hasLocationPermission()) {
+            mainActivity.controller.fetchCurrentLocation(mainActivity) { lat, lng ->
+                onLocationFound(lat, lng)
+            }
+        } else {
+            onLocationFound(0.0, 0.0)
+        }
+    }
+
+    // 1. UPDATED: No 'val', uses class property. No Coroutine.
+    override fun navigateToLoading(isOnline: Boolean) {
+        loadingDialog = LoadingDialogFragment()
+        loadingDialog?.isCancelable = false
+        loadingDialog?.show(parentFragmentManager, "LoadingDialog")
+    }
+
+    // 2. UPDATED: Allows controller to update text
+    override fun updateLoading(progress: Int, message: String) {
+        if (loadingDialog?.isAdded == true) {
+            loadingDialog?.updateProgress(progress, message)
+        }
+    }
+
+    // 3. UPDATED: Dismisses the dialog
+    override fun onCalculationSuccess() {
+        if (loadingDialog?.isAdded == true) {
+            loadingDialog?.dismiss()
+        }
+        clearAllInputs()
+        (requireActivity() as MainActivity).navigateToGrowthResult()
     }
 
     private fun saveFormState() {
@@ -574,46 +604,6 @@ class CalcFragment : Fragment(), CalcView {
                 updateCalendar(calendar, calendarGrid, tvMonthYear, requireContext())
             }
             cropViewModel.tempDate = null
-        }
-    }
-
-    override fun navigateToLoading(isOnline: Boolean) {
-        val loadingDialog = LoadingDialogFragment()
-        loadingDialog.isCancelable = false
-        loadingDialog.show(parentFragmentManager, "LoadingDialog")
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            fun updateUi(progress: Int, msg: String) {
-                launch(Dispatchers.Main) {
-                    if (loadingDialog.isAdded) loadingDialog.updateProgress(progress, msg)
-                }
-            }
-            try {
-                updateUi(10, "Saving Calculation...")
-                delay(500)
-                if (isOnline) {
-                    try {
-                        updateUi(40, "Syncing Profile...")
-                        syncManager.syncUsers()
-                        updateUi(70, "Syncing Crop Data...")
-                        syncManager.syncCrops()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                } else {
-                    updateUi(50, "Offline Mode: Saved Locally")
-                    delay(800)
-                }
-                updateUi(90, "Finalizing...")
-                delay(400)
-            } catch (e: Exception) { e.printStackTrace() }
-            finally {
-                withContext(Dispatchers.Main) {
-                    if (loadingDialog.isAdded) loadingDialog.dismiss()
-                    clearAllInputs()
-                    (requireActivity() as MainActivity).navigateToGrowthResult()
-                }
-            }
         }
     }
 }

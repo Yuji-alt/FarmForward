@@ -10,10 +10,10 @@
       </SelectionState>
       <SelectionState runConfigName="FarmForward">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-12-14T07:41:31.223833400Z">
+        <DropdownSelection timestamp="2025-12-16T09:46:54.256909100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=b9d8a52f" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Carl Lowell\.android\avd\Small_Phone.avd" />
             </handle>
           </Target>
         </DropdownSelection>

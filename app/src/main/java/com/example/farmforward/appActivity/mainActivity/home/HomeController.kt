@@ -66,7 +66,7 @@ class HomeController @Inject constructor(
         displayCachedData()
         checkLocationAndRefreshIfNeeded()
     }
-
+    //displaying if theres cached data of weather to ensure there no api call wasted`
     private fun displayCachedData() {
         if (!weatherRepository.cachedForecasts.isNullOrEmpty()) {
             view?.showWeatherContainer(true)
@@ -75,7 +75,8 @@ class HomeController @Inject constructor(
             view?.displayForecast(weatherRepository.cachedForecasts!!)
         }
     }
-
+    //will check if theres location then if theres location it will check if the location
+    // is has beed change from the cached if its change its will call new api request
     private fun checkLocationAndRefreshIfNeeded() {
         val activity = view?.getMainActivity() ?: return
         val mainController = activity.controller
@@ -129,6 +130,7 @@ class HomeController @Inject constructor(
             }
         }
     }
+    //helper ------------------------
 
     fun onSearchQueryChanged(query: String) {
         currentSearchQuery = query
@@ -147,7 +149,9 @@ class HomeController @Inject constructor(
             displayCachedData()
         }
     }
+    //----------------------------
 
+    //used in search function to filter out the searched crops
     private fun filterAndDisplayCrops(query: String) {
         val filteredCrops = if (query.isEmpty()) {
             allCrops
@@ -156,7 +160,7 @@ class HomeController @Inject constructor(
         }
         view?.displayCrops(filteredCrops)
     }
-
+    //api call to get the weather forecast
     private fun fetchWeatherForecast(lat: Double, lon: Double, locationName: String) {
         lastWeatherFetchTime = System.currentTimeMillis()
         val apiKey = BuildConfig.WEATHER_API_KEY
@@ -197,7 +201,7 @@ class HomeController @Inject constructor(
             }
         }
     }
-
+    //using the build it tracker it will determine on what locality if failed it will used the provincial name
     private fun getLocationName(lat: Double, lon: Double): String {
         return try {
             val geocoder = Geocoder(context, Locale.getDefault())
@@ -214,10 +218,12 @@ class HomeController @Inject constructor(
             "Unknown Location"
         }
     }
+    //current day or what day the weather is
     private fun getWeatherDay(): String {
         val format = SimpleDateFormat("EEEE, MMMM dd", Locale.getDefault())
         return format.format(Date())
     }
+    //ensure no data leaks when destroying the view
 
     fun onDestroy() {
         if (sessionManager.getUserId() != -1) {

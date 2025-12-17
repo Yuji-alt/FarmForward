@@ -13,9 +13,12 @@ interface CalcView {
         fertOptions: List<String>
     )
     fun clearFactorInputs()
+    fun onCalculationSuccess()
     fun clearAllInputs()
 
     fun navigateToLoading(isOnline: Boolean)
+    fun updateLoading(progress: Int, message: String)
+
     fun getCurrentLocation(onLocationFound: (Double, Double) -> Unit)
     fun preFillForm(crop: CropEntity)
     fun setButtonText(text: String)

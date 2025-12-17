@@ -74,6 +74,8 @@ class MainActivity : AppCompatActivity(), MainView {
     )
     private var onLocationSettingsSuccess: (() -> Unit)? = null
     private var onLocationSettingsFailure: (() -> Unit)? = null
+
+    //giving the fragment a number to use it transition
     companion object {
         const val NAV_CROP_DETAILS = 10001
         const val NAV_GROWTH_CROP_DETAILS = 10002
@@ -85,7 +87,6 @@ class MainActivity : AppCompatActivity(), MainView {
         const val NAV_CONTACT = 10008
         const val NAV_TERMS = 10009
         const val NAV_PRIVACY = 10010
-
     }
 
     private var currentMenuId: Int = -1
@@ -104,14 +105,14 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hideSystemUI()
+        hideSystemUI() //a function  in otherUtils package that will hide the navigation of the phone
         setContentView(R.layout.activity_main)
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         controller.bindView(this)
         if (intent.getBooleanExtra("GPS_DENIED_SESSION", false)) {
             controller.setGpsDeniedInSession()
         }
-
+        //all variable needed for this view
         drawerLayout = findViewById(R.id.drawer_layout)
         home = findViewById(R.id.nav_home)
         garden = findViewById(R.id.nav_garden)
@@ -123,7 +124,6 @@ class MainActivity : AppCompatActivity(), MainView {
         cropViewModel = ViewModelProvider(this)[CropViewModel::class.java]
         val btnCloseNav = findViewById<ImageButton>(R.id.btn_close_nav)
         val btnProfileContainer = findViewById<LinearLayout>(R.id.btn_profile_container)
-
         menuItems = listOf(home, garden, map, calc, growth)
         home.setOnClickListener { controller.onNavigationItemClicked(R.id.nav_home) }
         garden.setOnClickListener { controller.onNavigationItemClicked(R.id.nav_garden) }
@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity(), MainView {
         btnSaved.setOnClickListener { controller.onSavedAndSyncClicked() }
         btnSignOut.setOnClickListener { controller.onSignOutClicked() }
 
+        //check for notifications permission
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
@@ -180,31 +181,31 @@ class MainActivity : AppCompatActivity(), MainView {
             controller.onNavigationItemClicked(NAV_CONTACT)
             closeDrawer()
         }
-        setupSmartNotifications()
-        controller.onViewCreated()
+        setupSmartNotifications() //function for notifications
+        controller.onViewCreated() //establish a connection for its controller
 
         handleNotificationIntent(intent)
     }
 
-
+    //ensure no dataleaks when the view is destroyed
     override fun onDestroy() {
         controller.onDestroy()
         super.onDestroy()
     }
-
+    //support
     override fun getAppActivity(): AppCompatActivity = this
 
     override fun getFragManager(): FragmentManager = supportFragmentManager
 
     override fun getScope(): LifecycleCoroutineScope = lifecycleScope
-
+    //going back to log in
     override fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
     }
-
+    //customization on toast api
     override fun showToast(message: String, isError: Boolean) {
         val context = this
         val rootView = window.decorView.findViewById<android.view.View>(android.R.id.content)
@@ -235,11 +236,12 @@ class MainActivity : AppCompatActivity(), MainView {
         snackbar.show()
     }
 
+    //setting up for Notifications rules and timeframe
     private fun setupSmartNotifications() {
         val workManager = androidx.work.WorkManager.getInstance(this)
 
         val constraints = androidx.work.Constraints.Builder()
-            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+            .setRequiredNetworkType(androidx.work.NetworkType.NOT_REQUIRED)
             .build()
 
         val weatherRequest = PeriodicWorkRequestBuilder<WeatherWorker>(3, TimeUnit.HOURS)
@@ -263,6 +265,7 @@ class MainActivity : AppCompatActivity(), MainView {
             cropRequest
         )
     }
+    //when user click the notification it will go to its fragment or view
     private fun handleNotificationIntent(intent: Intent?) {
         val targetTab = intent?.getIntExtra("DESTINATION_TAB", -1) ?: -1
         if (targetTab != -1) {
@@ -271,6 +274,7 @@ class MainActivity : AppCompatActivity(), MainView {
             }
         }
     }
+    //for location permission
     override fun launchLocationSettings(
         exception: ResolvableApiException,
         onSuccess: () -> Unit,
@@ -285,15 +289,16 @@ class MainActivity : AppCompatActivity(), MainView {
             onFailure()
         }
     }
-
+    //using in calculation of size of screen to determine the size of object in screen
     private fun Int.dpToPx(context: Context): Float {
         return this * context.resources.displayMetrics.density
     }
     private fun Float.dpToPx(context: Context): Float {
         return this * context.resources.displayMetrics.density
     }
-
+    //used in highlighting the the button in bottom nav
     override fun highlightNavigation(menuId: Int) {
+        //all button in the bottom nav
         val selected = when (menuId) {
             R.id.nav_home -> home
             R.id.nav_garden -> garden
@@ -306,6 +311,7 @@ class MainActivity : AppCompatActivity(), MainView {
         for (item in menuItems) {
             val icon = item.getChildAt(0) as ImageView
 
+            //logic on who or what is selected in the bottom nav
             if (item == selected) {
                 icon.setColorFilter(ContextCompat.getColor(this, R.color.nav_unselected))
                 icon.setBackgroundResource(R.drawable.nav_selected_bg)
@@ -315,6 +321,7 @@ class MainActivity : AppCompatActivity(), MainView {
             }
         }
     }
+    //setting a delay in sync and sign out to ensure user have a smooth sync and sign out interaction
     override fun setSignOutButtonEnabled(isEnabled: Boolean) {
         btnSignOut.isEnabled = isEnabled
         btnSignOut.alpha = if (isEnabled) 1.0f else 0.5f
@@ -326,10 +333,13 @@ class MainActivity : AppCompatActivity(), MainView {
             drawerLayout.closeDrawer(GravityCompat.END)
         }
     }
+
+    //to show a dialog in signout with a logic of checking if the keep data in settings in turn on
     override fun showSignOutDialog() {
         val prefs = getSharedPreferences("FarmForwardConfig", Context.MODE_PRIVATE)
-        val keepData = prefs.getBoolean("keep_data_offline", true)
-
+        val userId = session.getUserId() ?: -1
+        val prefKey = "keep_data_offline_$userId"
+        val keepData = prefs.getBoolean(prefKey, true)
         val title: String
         val message: String
         val positiveButtonText: String
@@ -340,9 +350,10 @@ class MainActivity : AppCompatActivity(), MainView {
             positiveButtonText = "Log Out"
         } else {
             title = "Log Out and Clear Data"
-            message = "Warning: 'Keep Data Offline' is OFF. This will PERMANENTLY DELETE all locally saved crops."
+            message = "Warning: 'Keep Data Offline' is OFF. This will PERMANENTLY DELETE all locally saved crops for this account."
             positiveButtonText = "Clear All"
         }
+
         val builder = AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
@@ -363,13 +374,13 @@ class MainActivity : AppCompatActivity(), MainView {
     fun navigateToGrowthResult() {
         controller.onNavigationItemClicked(R.id.nav_growth)
     }
-
+    //all view screen
     private val detailFragments = setOf(
         NAV_CROP_DETAILS, NAV_GROWTH_CROP_DETAILS, NAV_PROFILE,
         NAV_HARVEST, NAV_WEATHER, NAV_SETTINGS, NAV_TERMS,
         NAV_PRIVACY, NAV_HELP, NAV_CONTACT
     )
-
+    //logic on how an imation when switch the fragment also will saved the recent view so when user back it will go to the previous view
     override fun switchFragment(newMenuId: Int) {
         // 1. Optimization: Don't do anything if clicking the same tab
         if (currentMenuId == newMenuId) return
@@ -433,7 +444,7 @@ class MainActivity : AppCompatActivity(), MainView {
         currentMenuId = newMenuId
         highlightNavigation(newMenuId)
     }
-
+    //Its logic for the what fragment/view will show to the screen
     private fun getFragmentInstance(menuId: Int): Fragment {
         return when (menuId) {
             R.id.nav_home -> HomeFragment()
@@ -470,7 +481,8 @@ class MainActivity : AppCompatActivity(), MainView {
             else -> HomeFragment()
         }
     }
-
+    //when user is from offline session and will try to log out with out saving the data via internet it this will be shown
+    //to ensure no data is lose but the app will save the crop locally as protection to the data
     override fun showUnsyncedDataWarning(count: Int) {
         val builder = AlertDialog.Builder(this)
             .setTitle("Unsynced Data Found")
@@ -484,6 +496,7 @@ class MainActivity : AppCompatActivity(), MainView {
         dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
     }
+    //Used to shown what result in Request permission from the user and helping the user on what permission to granted when user accidentally click no
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

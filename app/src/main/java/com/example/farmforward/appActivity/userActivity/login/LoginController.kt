@@ -33,10 +33,17 @@ class LoginController @Inject constructor(
     }
 
     fun onViewCreated() {
-        if (!NetworkUtils.isNetworkAvailable(context)) {
+        updateNetworkState(NetworkUtils.isNetworkAvailable(context))
+    }
+
+    fun onNetworkChanged(isAvailable: Boolean) {
+        updateNetworkState(isAvailable)
+    }
+
+    private fun updateNetworkState(isAvailable: Boolean) {
+        if (!isAvailable) {
             view?.setOfflineSwitch(true)
             view?.enableSignUpButton(false)
-            view?.showToast("No network. Offline mode is ON.", isError = true)
         } else {
             view?.setOfflineSwitch(false)
             view?.enableSignUpButton(true)
@@ -47,6 +54,7 @@ class LoginController @Inject constructor(
         ioScope.cancel()
         view = null
     }
+
 
     fun onSignUpClicked() {
         view?.navigateToSignUp()
@@ -65,7 +73,6 @@ class LoginController @Inject constructor(
     }
 
     private fun handleLogin(identifier: String, password: String, isOfflineMode: Boolean) {
-        // Capture isOfflineMode to a local val to help compiler
         val useOffline = isOfflineMode
 
         ioScope.launch {
@@ -74,13 +81,10 @@ class LoginController @Inject constructor(
                 return@launch
             }
 
-            // Use immutable var for the user object to help smart casting
             var currentUser: User? = null
-
             var emailToUse: String? = null
             val isInputEmail = identifier.contains("@")
 
-            // 1. Check Local DB
             if (isInputEmail) {
                 currentUser = userDao.getUserByEmail(identifier)
                 emailToUse = identifier
@@ -89,7 +93,6 @@ class LoginController @Inject constructor(
                 emailToUse = currentUser?.email
             }
 
-            // 2. If not local, check Firestore
             if (currentUser == null) {
                 try {
                     val usersRef = firestore.collection("users")
@@ -104,8 +107,6 @@ class LoginController @Inject constructor(
                         emailToUse = doc.getString("email")
                         val prettyName = doc.getString("username") ?: doc.id
 
-                        // We found a user in cloud, so we create a temp object
-                        // If localUser was null, we create it here
                         currentUser = User(
                             id = 0,
                             username = prettyName,
@@ -115,10 +116,8 @@ class LoginController @Inject constructor(
                     }
                 } catch (e: Exception) { e.printStackTrace() }
             } else {
-                // If local user exists, we might still want to update the pretty name from cloud
                 try {
                     val usersRef = firestore.collection("users")
-                    // We need to query by email or username to get the doc
                     val query = if (isInputEmail)
                         usersRef.whereEqualTo("email", identifier)
                     else
@@ -128,7 +127,6 @@ class LoginController @Inject constructor(
                     if (!snapshot.isEmpty) {
                         val doc = snapshot.documents[0]
                         val prettyName = doc.getString("username") ?: doc.id
-                        // Safe update using .copy()
                         if (currentUser?.username != prettyName) {
                             currentUser = currentUser?.copy(username = prettyName)
                         }
@@ -154,7 +152,6 @@ class LoginController @Inject constructor(
                     }
 
                     ioScope.launch {
-                        // Fallback: If currentUser is STILL null (rare auth edge case)
                         if (currentUser == null && firebaseUser != null) {
                             currentUser = User(
                                 id = 0,
@@ -164,7 +161,6 @@ class LoginController @Inject constructor(
                             )
                         }
 
-                        // Safely unwrap using let
                         currentUser?.let { userToSave ->
                             val hashedPassword = HashUtils.hashPassword(password)
                             val updatedUser = userToSave.copy(password = hashedPassword)

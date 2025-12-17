@@ -1,5 +1,6 @@
 package com.example.farmforward.appActivity.mainActivity.otherFragment.CropDetails
 
+// ... imports remain the same ...
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
@@ -39,11 +40,12 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     private lateinit var tvDensity: TextView
     private lateinit var tvFertilizer: TextView
     private lateinit var tvWeather: TextView
+    private lateinit var tvSavedWeather: TextView
     private lateinit var tvRegion: TextView
     private lateinit var btnViewOnMap: Button
     private lateinit var btnHarvest: Button
 
-    // Cache State
+    // ... Cache State variables ...
     private var cachedRegion: String = ""
     private var cachedLocality: String = ""
     private var isLocationPinned: Boolean = false
@@ -61,6 +63,7 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         val tvEdit = view.findViewById<TextView>(R.id.tvEdit)
         val tvDelete = view.findViewById<TextView>(R.id.tvDelete)
         val btnCloseNav = view.findViewById<ImageButton>(R.id.btn_close_nav)
+
         tvCropName = view.findViewById(R.id.tvCropName)
         tvArea = view.findViewById(R.id.tvArea)
         plantedDate = view.findViewById(R.id.plantedDate)
@@ -74,6 +77,12 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         tvRegion = view.findViewById(R.id.tvRegion)
         btnViewOnMap = view.findViewById(R.id.btnViewOnMap)
         btnHarvest = view.findViewById(R.id.btnHarvest)
+
+        // --- IMPORTANT: Ensure you add this ID to your XML layout file ---
+        // For now, if you don't have it, create it in fragment_crop_details.xml
+        // id: tvSavedWeatherFactor
+        tvSavedWeather = view.findViewById(R.id.tvSavedWeatherFactor)
+        // ---------------------------------------------------------------
 
         btnCloseNav.setOnClickListener {
             (activity as? MainActivity)?.controller?.onBackClicked(cropViewModel)
@@ -90,9 +99,7 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         controller.bindView(this)
-
         controller.setupObserver(viewLifecycleOwner, cropViewModel)
-
         cropViewModel.cropData.observe(viewLifecycleOwner) { crop ->
             if (crop != null) {
                 if (crop.latitude != 0.0 && crop.longitude != 0.0) {
@@ -116,7 +123,10 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         if (isVisible) {
             btnViewOnMap.text = "Show Location on Map"
             btnViewOnMap.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.kombuGreen)
-            btnViewOnMap.setOnClickListener { controller.onViewOnMapClicked(cropViewModel) }
+            btnViewOnMap.setOnClickListener {
+                val crop = cropViewModel.cropData.value
+                if (crop != null) controller.onViewOnMapClicked(cropViewModel, crop)
+            }
         } else {
             btnViewOnMap.text = "Add Location"
             btnViewOnMap.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.kombuGreen)
@@ -143,32 +153,8 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
         }
     }
 
-    // --- Standard Methods ---
-    override fun showHarvestDatePicker(minHarvestDate: Long, onDateSelected: (Long) -> Unit) {
-        val calendar = Calendar.getInstance()
-        val datePickerDialog = DatePickerDialog(
-            requireContext(),
-            { _, year, month, dayOfMonth ->
-                val selectedCalendar = Calendar.getInstance()
-                selectedCalendar.set(year, month, dayOfMonth)
-                if (selectedCalendar.timeInMillis < minHarvestDate) {
-                    showError("Cannot harvest before estimated date.")
-                } else {
-                    onDateSelected(selectedCalendar.timeInMillis)
-                }
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        datePickerDialog.datePicker.minDate = minHarvestDate
-        datePickerDialog.show()
-    }
 
-    override fun showError(message: String) {
-        (activity as? MainActivity)?.showToast(message, isError = true)
-    }
-
+    // --- Setters ---
     override fun setCropName(name: String) { tvCropName.text = name }
     override fun setArea(area: String) { tvArea.text = area }
     override fun setPlantedDate(date: String) { plantedDate.text = date }
@@ -178,8 +164,15 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
     override fun setDensity(density: String) { tvDensity.text = density }
     override fun setFertilizer(fertilizer: String) { tvFertilizer.text = fertilizer }
 
+    // Live Weather (e.g., Clear, 30C)
     override fun setWeather(weather: String) { tvWeather.text = weather }
 
+    // NEW: Saved Factor (e.g., Dry/Drought)
+    override fun setSavedWeatherFactor(weatherFactor: String) {
+        tvSavedWeather.text = weatherFactor
+    }
+
+    // ... (rest of methods: setCropImage, navigateToEdit, etc. remain the same) ...
     override fun setCropImage(resourceId: Int) { imgCrop.setImageResource(resourceId) }
 
     override fun navigateToEdit(crop: CropEntity) {
@@ -219,6 +212,31 @@ class CropDetailsFragment : Fragment(), CropDetailsView {
 
     override fun showHarvestButton(isVisible: Boolean) {
         btnHarvest.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    override fun showHarvestDatePicker(minHarvestDate: Long, onDateSelected: (Long) -> Unit) {
+        val calendar = Calendar.getInstance()
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val selectedCalendar = Calendar.getInstance()
+                selectedCalendar.set(year, month, dayOfMonth)
+                if (selectedCalendar.timeInMillis < minHarvestDate) {
+                    showError("Cannot harvest before estimated date.")
+                } else {
+                    onDateSelected(selectedCalendar.timeInMillis)
+                }
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.datePicker.minDate = minHarvestDate
+        datePickerDialog.show()
+    }
+
+    override fun showError(message: String) {
+        (activity as? MainActivity)?.showToast(message, isError = true)
     }
 
     override fun navigateToGarden() {

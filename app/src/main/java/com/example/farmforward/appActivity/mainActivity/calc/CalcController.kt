@@ -5,6 +5,7 @@ import android.location.Geocoder
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.farmforward.appActivity.userActivity.session.SessionManager
+import com.example.farmforward.database.firebaseDatabase.FirebaseSyncManager // ADDED IMPORT
 import com.example.farmforward.database.staticData.CropRepository
 import com.example.farmforward.database.viewModel.CropViewModel
 import com.example.farmforward.utils.otherUtils.NetworkUtils
@@ -21,7 +22,8 @@ import kotlin.math.roundToLong
 class CalcController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val cropRepository: CropRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val syncManager: FirebaseSyncManager // 1. INJECTED SYNC MANAGER
 ) {
 
     private var view: CalcView? = null
@@ -94,11 +96,12 @@ class CalcController @Inject constructor(
         irrSel: String,
         denSel: String,
         fertSel: String,
+        weatherSel: String,
         selectedDateMillis: Long
     ) {
         if (cropName.isEmpty() || areaStr.isEmpty() ||
             soilSel.isEmpty() || irrSel.isEmpty() ||
-            denSel.isEmpty() || fertSel.isEmpty()
+            denSel.isEmpty() || fertSel.isEmpty() || weatherSel.isEmpty()
         ) {
             view?.showToast("Please fill all fields.", isError = true)
             return
@@ -110,19 +113,21 @@ class CalcController @Inject constructor(
         }
         val area = areaStr.toDoubleOrNull() ?: 0.0
         val category = cropData.category
+
         val soilEffect = cropRepository.getFactorEffect(category, "Soil Type", soilSel)
         val irrigationEffect = cropRepository.getFactorEffect(category, "Irrigation Level", irrSel)
         val densityEffect = cropRepository.getFactorEffect(category, "Planting Density", denSel)
         val fertilizerEffect = cropRepository.getFactorEffect(category, "Fertilizer Used", fertSel)
-
-        val weatherEffect = 0.0
+        val weatherEffect = cropRepository.getFactorEffect(category, "Weather Condition", weatherSel)
 
         val baseYieldPerSqm = cropData.baseYield / 10000.0
         val totalEffectPercent =
             soilEffect + irrigationEffect + densityEffect + fertilizerEffect + weatherEffect
+
         val adjustedYieldPerSqm = baseYieldPerSqm * (1 + (totalEffectPercent / 100.0))
         val totalYield = adjustedYieldPerSqm * area
         val roundedYield = (totalYield * 100.0).roundToLong() / 100.0
+
         val plantedDate = Date(selectedDateMillis)
         val cal = Calendar.getInstance()
         cal.time = plantedDate
@@ -132,18 +137,26 @@ class CalcController @Inject constructor(
         cal.time = plantedDate
         cal.add(Calendar.DAY_OF_YEAR, cropData.maxDays)
         val maxHarvestDate = cal.time
+
         val userId = sessionManager.getUserId() ?: -1
         if (userId == -1) {
             view?.showToast("Error: User session not found.", isError = false)
             return
         }
         val isOnline = NetworkUtils.isNetworkAvailable(context)
-        val syncStatus = 0
+
+        // 2. SHOW DIALOG FIRST (Logic removed from Fragment)
+        view?.navigateToLoading(isOnline)
+
         view?.getCurrentLocation { lat, lng ->
             scope?.launch(Dispatchers.IO) {
 
+                // UPDATE PROGRESS
+                withContext(Dispatchers.Main) { view?.updateLoading(10, "Getting Location...") }
+
                 var regionName = ""
                 var localityName = ""
+
                 try {
                     if (lat != 0.0 && lng != 0.0) {
                         val geocoder = Geocoder(context, Locale.getDefault())
@@ -151,13 +164,18 @@ class CalcController @Inject constructor(
                         val addresses = geocoder.getFromLocation(lat, lng, 1)
                         if (!addresses.isNullOrEmpty()) {
                             val address = addresses[0]
-                            regionName = address.adminArea ?: ""
-                            localityName = address.locality ?: ""
+                            regionName = address.adminArea.orEmpty()
+                            localityName = address.locality.orEmpty()
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("CalcController", "Geocoding failed: ${e.message}")
                 }
+
+                // UPDATE PROGRESS
+                withContext(Dispatchers.Main) { view?.updateLoading(30, "Saving to Database...") }
+
+                // 3. PERFORM SAVE
                 if (viewModel?.cropToEdit != null) {
                     viewModel?.updateCrop(
                         originalCrop = viewModel!!.cropToEdit!!,
@@ -170,14 +188,14 @@ class CalcController @Inject constructor(
                         irrigationLevel = irrSel,
                         plantDensity = denSel,
                         fertilizerUsed = fertSel,
-                        isSynced = syncStatus,
+                        weatherCondition = weatherSel,
+                        isSynced = 0,
                         latitude = lat,
                         longitude = lng,
                         region = regionName,
                         locality = localityName
                     )
                     viewModel?.cropToEdit = null
-
                 } else {
                     viewModel?.saveNewCrop(
                         userId = userId,
@@ -191,17 +209,31 @@ class CalcController @Inject constructor(
                         irrigationLevel = irrSel,
                         plantDensity = denSel,
                         fertilizerUsed = fertSel,
-                        isSynced = syncStatus,
+                        weatherCondition = weatherSel,
+                        isSynced = 0,
                         latitude = lat,
                         longitude = lng,
                         region = regionName,
                         locality = localityName
                     )
                 }
-                kotlinx.coroutines.delay(200)
+
+                // 4. SYNC LOGIC
+                if (isOnline) {
+                    try {
+                        withContext(Dispatchers.Main) { view?.updateLoading(60, "Syncing with Cloud...") }
+                        syncManager.syncUsers()
+                        syncManager.syncCrops()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) { view?.updateLoading(100, "Offline: Saved Locally") }
+                }
+
                 withContext(Dispatchers.Main) {
                     view?.clearAllInputs()
-                    view?.navigateToLoading(isOnline)
+                    view?.onCalculationSuccess()
                 }
             }
         }

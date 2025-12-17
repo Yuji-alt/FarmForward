@@ -25,7 +25,7 @@ class WeatherWorker @AssistedInject constructor(
     private val PREFS_NAME = "weather_notifications"
     private val KEY_LAST_CONDITION = "last_condition"
     private val KEY_LAST_NOTIFY_TIME = "last_notify_time"
-    private val NOTIFY_COOLDOWN_HOURS = 6
+    private val NOTIFY_COOLDOWN_HOURS = 3
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "Starting Weather Worker...")

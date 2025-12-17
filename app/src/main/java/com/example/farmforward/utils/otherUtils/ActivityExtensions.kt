@@ -7,7 +7,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
-fun AppCompatActivity.hideSystemUI() {
+fun AppCompatActivity.hideSystemUI(
+
+) {
     WindowCompat.setDecorFitsSystemWindows(window, false)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         val attrib = window.attributes

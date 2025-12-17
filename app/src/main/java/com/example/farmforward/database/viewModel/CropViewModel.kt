@@ -38,7 +38,16 @@ class CropViewModel @Inject constructor(
     var tempDate: Long? = null
     private val weatherCache = mutableMapOf<String, WeatherCacheItem>()
     data class WeatherCacheItem(val response: WeatherResponse, val timestamp: Long)
-    var cropToFocus: CropEntity? = null
+    private val _cropToFocus = MutableLiveData<CropEntity?>()  // make private
+    val cropToFocus: LiveData<CropEntity?> get() = _cropToFocus
+
+    fun setCropToFocus(crop: CropEntity?) {
+        _cropToFocus.value = crop
+    }
+
+    fun clearCropToFocus() {
+        _cropToFocus.value = null
+    }
 
     fun getCachedWeather(lat: Double, lng: Double): WeatherResponse? {
         val key = "${lat}_${lng}"
@@ -73,7 +82,7 @@ class CropViewModel @Inject constructor(
     fun saveNewCrop(
         userId: Int, cropName: String, area: Double, roundedYield: Double, dateToPlant: Long,
         minDateMillis: Long?, maxDateMillis: Long?, soilType: String?, irrigationLevel: String?,
-        plantDensity: String?, fertilizerUsed: String?, isSynced: Int,
+        plantDensity: String?, fertilizerUsed: String?, isSynced: Int, weatherCondition: String?,
         latitude: Double = 0.0,
         longitude: Double = 0.0,
         region: String = "",
@@ -91,6 +100,7 @@ class CropViewModel @Inject constructor(
             irrigationLevel = irrigationLevel,
             plantDensity = plantDensity,
             fertilizerUsed = fertilizerUsed,
+            weatherCondition = weatherCondition,
             lastUpdated = System.currentTimeMillis(),
             isSynced = isSynced,
             latitude = latitude,
@@ -116,6 +126,7 @@ class CropViewModel @Inject constructor(
         irrigationLevel: String?,
         plantDensity: String?,
         fertilizerUsed: String?,
+        weatherCondition: String?,
         isSynced: Int,
         latitude: Double,
         longitude: Double,
@@ -132,6 +143,7 @@ class CropViewModel @Inject constructor(
             irrigationLevel = irrigationLevel,
             plantDensity = plantDensity,
             fertilizerUsed = fertilizerUsed,
+            weatherCondition = weatherCondition,
             lastUpdated = System.currentTimeMillis(),
             isSynced = isSynced,
             latitude = latitude,

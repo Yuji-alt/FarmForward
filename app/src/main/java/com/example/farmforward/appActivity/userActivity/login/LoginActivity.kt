@@ -6,6 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.GradientDrawable
 import android.location.Geocoder
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -74,6 +78,10 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
     private var locationContinuation: kotlinx.coroutines.CancellableContinuation<Boolean>? = null
 
+    // NEW: Connectivity Manager variables
+    private lateinit var connectivityManager: ConnectivityManager
+    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+
     // ---------------------------------------------------------------------------------------------
     // Permission Launchers
     // ---------------------------------------------------------------------------------------------
@@ -110,12 +118,48 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
         setupUI()
         checkPermissions()
+        setupNetworkMonitoring() // Start monitoring network
         controller.onViewCreated()
     }
 
     override fun onDestroy() {
+        // Stop monitoring network to prevent leaks
+        try {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         controller.onDestroy()
         super.onDestroy()
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Network Monitoring
+    // ---------------------------------------------------------------------------------------------
+    private fun setupNetworkMonitoring() {
+        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                // Internet is available, update UI on Main Thread
+                runOnUiThread {
+                    controller.onNetworkChanged(true)
+                }
+            }
+
+            override fun onLost(network: Network) {
+                // Internet lost
+                runOnUiThread {
+                    controller.onNetworkChanged(false)
+                }
+            }
+        }
+
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -379,7 +423,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
         dialog.show()
     }
 
-    // --- NEW: SHOW UNVERIFIED EMAIL DIALOG ---
+    // --- SHOW UNVERIFIED EMAIL DIALOG ---
     override fun showUnverifiedAccountDialog(email: String, password: String) {
         val builder = AlertDialog.Builder(this)
             .setTitle("Email Not Verified")
@@ -390,7 +434,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
             .setNegativeButton("Cancel", null)
 
         val dialog = builder.create()
-        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog) // Make sure this drawable exists or use android.R.color.white
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
         dialog.show()
     }
 

@@ -29,7 +29,6 @@ class CropDetailsController @Inject constructor() {
         this.view = view
     }
 
-
     fun onEditClicked(viewModel: CropViewModel) {
         val currentCrop = viewModel.cropData.value
         if (currentCrop != null) {
@@ -38,12 +37,11 @@ class CropDetailsController @Inject constructor() {
         }
     }
 
-    fun onViewOnMapClicked(viewModel: CropViewModel) {
-        val currentCrop = viewModel.cropData.value
-        if (currentCrop != null && currentCrop.latitude != 0.0) {
-            viewModel.cropToFocus = currentCrop
+    fun onViewOnMapClicked(viewModel: CropViewModel, crop: CropEntity) {
+        if (crop.latitude != 0.0 && crop.longitude != 0.0) {
+            viewModel.setCropToFocus(crop)
             viewModel.isMapPickerMode = false
-            view?.navigateToMap(currentCrop)
+            view?.navigateToMap(crop)
         }
     }
 
@@ -63,10 +61,15 @@ class CropDetailsController @Inject constructor() {
                 view?.setCropImage(CropImageHelper.getImageRes(crop.cropName))
                 view?.setCropImageTint(R.color.moss_green)
                 view?.setYield("${crop.expectedYield} kg")
+
+                // Display Factors
                 view?.setSoil(crop.soilType ?: "N/A")
                 view?.setIrrigation(crop.irrigationLevel ?: "N/A")
                 view?.setDensity(crop.plantDensity ?: "N/A")
                 view?.setFertilizer(crop.fertilizerUsed ?: "N/A")
+                view?.setSavedWeatherFactor(crop.weatherCondition ?: "Normal")
+                // --------------------------------------------------
+
                 view?.setLocation(crop.region, crop.locality)
 
                 if (crop.latitude != 0.0 && crop.longitude != 0.0) {
@@ -84,8 +87,10 @@ class CropDetailsController @Inject constructor() {
         val minDate = currentCrop.mindate ?: 0L
         val today = System.currentTimeMillis()
         if (today >= minDate) {
-            viewModel.harvestCrop(currentCrop, today)
-            view?.navigateToGarden()
+            view?.showHarvestDatePicker(minDate) { selectedDate ->
+                viewModel.harvestCrop(currentCrop, selectedDate)
+                view?.navigateToGarden()
+            }
         } else {
             val dateStr = dateFormat.format(Date(minDate))
             view?.showError("Crop not ready. Estimated harvest date: $dateStr")

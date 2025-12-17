@@ -2,10 +2,9 @@ package com.example.farmforward.appActivity.mainActivity.home
 import com.example.farmforward.appActivity.mainActivity.MainActivity
 import com.example.farmforward.database.CropEntity
 import com.example.farmforward.utils.weatherUtils.ForecastItem
-
+//whats function needed in Home fragments
 interface HomeView {
     fun displayCrops(crops: List<CropEntity>)
-    fun displayActiveStatus(crops: List<CropEntity>)
     fun setLocationText(text: String)
     fun setWeatherDateText(text: String)
     fun displayForecast(forecasts: List<ForecastItem>)

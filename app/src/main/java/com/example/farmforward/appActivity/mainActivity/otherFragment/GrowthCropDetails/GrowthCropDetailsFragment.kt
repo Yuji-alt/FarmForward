@@ -65,7 +65,11 @@ class GrowthCropDetailsFragment : Fragment(), GrowthCropDetailsView {
 
         btnCloseNav.setOnClickListener { controller.onBackClicked(cropViewModel) }
         btnHarvest.setOnClickListener { controller.onHarvestClicked(cropViewModel) }
-        btnViewOnMap.setOnClickListener { controller.onViewOnMapClicked(cropViewModel) }
+        btnViewOnMap.setOnClickListener {
+            val crop = cropViewModel.cropData.value
+            if (crop != null) controller.onViewOnMapClicked(cropViewModel, crop)
+        }
+
 
         return view
     }
@@ -117,17 +121,20 @@ class GrowthCropDetailsFragment : Fragment(), GrowthCropDetailsView {
         (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_map)
     }
 
-    override fun navigateToGarden() {
-        (activity as? MainActivity)?.controller?.onNavigationItemClicked(R.id.nav_garden)
+    override fun navigateToGrowth() {
+        (activity as? MainActivity)?.switchFragment(R.id.nav_growth)
     }
 
     override fun showHarvestConfirmation(message: String, onConfirm: () -> Unit) {
-        AlertDialog.Builder(requireContext())
+        val builder = AlertDialog.Builder(requireContext())
             .setTitle("Harvest")
             .setMessage(message)
             .setPositiveButton("Yes") { _, _ -> onConfirm() }
             .setNegativeButton("Cancel", null)
-            .show()
+        val dialog = builder.create()
+
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog)
+        dialog.show()
     }
 
     override fun getFragmentContext(): Context = requireContext()

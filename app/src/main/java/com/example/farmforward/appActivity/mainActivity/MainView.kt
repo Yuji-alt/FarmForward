@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.android.gms.common.api.ResolvableApiException
-
+//Its a contract on Activity file on what function it needs in the MAIN VIEW
 interface MainView {
     fun getAppActivity(): AppCompatActivity
 

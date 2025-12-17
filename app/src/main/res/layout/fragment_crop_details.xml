@@ -126,12 +126,16 @@
                     <TextView android:id="@+id/tvFertilizer" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
                 </TableRow>
                 <TableRow android:padding="0dp">
-                    <TextView style="@style/LabelText" android:text="Weather" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView style="@style/LabelText" android:text="Weather Factor" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvSavedWeatherFactor" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                </TableRow>
+                <TableRow android:padding="0dp">
+                    <TextView style="@style/LabelText" android:text="Weather Forecast" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
                     <TextView android:id="@+id/tvWeather" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
                 </TableRow>
                 <TableRow android:padding="0dp">
                     <TextView style="@style/LabelText" android:text="Region" android:background="@drawable/border" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
-                    <TextView android:id="@+id/tvRegion" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" android:textSize="16sp" android:padding="8dp"/>
+                    <TextView android:id="@+id/tvRegion" android:layout_height="match_parent" style="@style/ValueText" android:background="@drawable/border" android:textColor="@color/kombuGreen" android:fontFamily="@font/noto_sans" app:autoSizeTextType="uniform" app:autoSizeMinTextSize="8sp" app:autoSizeMaxTextSize="16sp" app:autoSizeStepGranularity="1sp" android:padding="8dp" android:lines="1"/>
                 </TableRow>
 
             </TableLayout>

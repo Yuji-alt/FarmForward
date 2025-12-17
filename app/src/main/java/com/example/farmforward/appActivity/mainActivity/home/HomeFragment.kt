@@ -35,9 +35,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment(), HomeView {
 
-    // -------------------------------------------------------------------------
-    // Dependencies & Variables
-    // -------------------------------------------------------------------------
     @Inject lateinit var controller: HomeController
     private lateinit var weatherController: WeatherController
     private lateinit var cropViewModel: CropViewModel
@@ -53,19 +50,16 @@ class HomeFragment : Fragment(), HomeView {
     private lateinit var weatherText: TextView
 
     private var isSearchOpen = false
-
+    //variable for gps location
     private val gpsReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (LocationManager.PROVIDERS_CHANGED_ACTION == intent?.action) {
-                // GPS state changed! Force a refresh.
                 controller.onViewResumed()
             }
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Lifecycle Methods
-    // -------------------------------------------------------------------------
+    //will check if its have instance or not if not it will het the layout from fragment_home
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -167,13 +161,7 @@ class HomeFragment : Fragment(), HomeView {
         itemContainer.addView(addView)
     }
 
-    override fun displayActiveStatus(crops: List<CropEntity>) {
-        // Logic removed as per request to remove Active Crops section
-    }
-
-    // -------------------------------------------------------------------------
-    // Search Logic
-    // -------------------------------------------------------------------------
+    //search logic
     private fun setupSearchLogic() {
         searchButton.setOnClickListener {
             if (isSearchOpen) closeSearch() else openSearch()
@@ -186,7 +174,6 @@ class HomeFragment : Fragment(), HomeView {
             override fun afterTextChanged(s: Editable?) {}
         })
     }
-
     private fun openSearch() {
         isSearchOpen = true
         appLogo.visibility = View.GONE
@@ -196,7 +183,6 @@ class HomeFragment : Fragment(), HomeView {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(searchInput, InputMethodManager.SHOW_IMPLICIT)
     }
-
     private fun closeSearch() {
         isSearchOpen = false
         searchInput.setText("")

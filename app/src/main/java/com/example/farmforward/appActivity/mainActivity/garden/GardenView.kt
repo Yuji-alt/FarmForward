@@ -3,7 +3,7 @@ package com.example.farmforward.appActivity.mainActivity.garden
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.example.farmforward.database.CropEntity
-
+//contract on what function in garden fragment
 interface GardenView {
     fun getFragmentContext(): Context
     fun getScope(): LifecycleCoroutineScope
