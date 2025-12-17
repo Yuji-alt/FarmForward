@@ -107,20 +107,13 @@ class SettingsFragment : Fragment() {
             startActivity(intent)
         }
     }
-
-    // --- NEW FUNCTION: Check and Ask ---
     private fun checkAndRequestLocation(activity: MainActivity) {
         if (activity.controller.hasLocationPermission()) {
             showToast("Location access is already enabled!", isError = false)
         } else {
-            // If denied, this triggers the system popup again.
-            // If permanently denied, your MainActivity onRequestPermissionsResult logic
-            // will handle showing the dialog to go to App Settings.
             activity.controller.requestSystemPermission(activity)
         }
     }
-
-    // --- DIALOGS ---
     private fun showEditUsernameDialog() {
         val currentName = session.getUserDetails()["name"] ?: ""
         val input = EditText(context).apply {
@@ -227,8 +220,6 @@ class SettingsFragment : Fragment() {
         }
         loadingDialog = null
     }
-
-    // --- UPDATED USERNAME LOGIC ---
     private fun updateUsername(newName: String) {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
@@ -308,36 +299,43 @@ class SettingsFragment : Fragment() {
     private fun verifyAndUpdatePassword(oldPass: String, newPass: String) {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
-            updateLoading(20, "Verifying credentials...")
-            val userId = session.getUserId() ?: -1
-            val user = db.userDao().getUserById(userId)
+            updateLoading(20, "Verifying with Cloud...")
             val email = session.getUserDetails()["email"] ?: ""
-            if (user != null && user.password == oldPass) {
-                try {
-                    updateLoading(50, "Updating secure cloud...")
-                    firebaseUserRepo.updatePassword(email, oldPass, newPass)
-                    updateLoading(80, "Updating local database...")
-                    db.userDao().updatePassword(userId, newPass)
-                    updateLoading(100, "Success!")
-                    delay(300)
-                    withContext(Dispatchers.Main) {
-                        hideLoading()
-                        showToast("Password changed securely!", isError = false)
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        hideLoading()
-                        showToast("Failed: ${e.message}", isError = true)
-                    }
-                }
-            } else {
+            val userId = session.getUserId() ?: -1
+
+            if (userId == -1) {
                 withContext(Dispatchers.Main) {
                     hideLoading()
-                    showToast("Incorrect old password", isError = true)
+                    showToast("Error: Invalid Session. Relogin required.", isError = true)
+                }
+                return@launch
+            }
+
+            try {
+                // 1. Update Cloud (Authentication Source)
+                firebaseUserRepo.updatePassword(email, oldPass, newPass)
+
+                updateLoading(60, "Cloud verified. Syncing local data...")
+                // 2. Update Local Room DB manually for immediate effect
+                db.userDao().updatePassword(userId, newPass)
+
+                syncManager.syncUsers()
+
+                updateLoading(100, "Success!")
+                delay(300)
+                withContext(Dispatchers.Main) {
+                    hideLoading()
+                    showToast("Password changed and synced to device!", isError = false)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    hideLoading()
+                    showToast("Verification Failed: ${e.message}", isError = true)
                 }
             }
         }
     }
+
     private fun performDeleteAccount() {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {

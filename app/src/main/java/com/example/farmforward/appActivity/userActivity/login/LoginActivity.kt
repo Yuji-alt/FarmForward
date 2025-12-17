@@ -427,7 +427,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
     override fun showUnverifiedAccountDialog(email: String, password: String) {
         val builder = AlertDialog.Builder(this)
             .setTitle("Email Not Verified")
-            .setMessage("Your account is not verified yet. Please check your inbox for the verification link.\n\nDidn't receive it?")
+            .setMessage("Your account is not verified yet. Please check your inbox or spam for the verification link.\n\nDidn't receive it?")
             .setPositiveButton("Resend Email") { _, _ ->
                 controller.resendVerificationEmail(email, password)
             }

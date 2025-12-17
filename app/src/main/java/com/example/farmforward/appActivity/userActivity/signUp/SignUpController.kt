@@ -128,7 +128,7 @@ class SignUpController @Inject constructor(
 
                 firestore.collection("users").document(usernameId).set(publicProfileMap).await()
 
-                update(100, "Success! Please check email to verify.")
+                update(100, "Success! Please check email inbox or spam to verify.")
                 delay(2000)
 
                 withContext(Dispatchers.Main) {

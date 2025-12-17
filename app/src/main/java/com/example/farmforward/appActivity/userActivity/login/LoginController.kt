@@ -221,7 +221,7 @@ class LoginController @Inject constructor(
             .addOnSuccessListener { result ->
                 result.user?.sendEmailVerification()
                     ?.addOnSuccessListener {
-                        view?.showToast("Verification email sent! Check your inbox.", isError = false)
+                        view?.showToast("Verification email sent! Check your inbox or Spam.", isError = false)
                         auth.signOut()
                     }
                     ?.addOnFailureListener { e ->
