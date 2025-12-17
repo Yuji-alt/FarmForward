@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity(), MainView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hideSystemUI() //a function  in otherUtils package that will hide the navigation of the phone
+        window.hideSystemUI()//a function  in otherUtils package that will hide the navigation of the phone
         setContentView(R.layout.activity_main)
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         controller.bindView(this)
@@ -182,6 +182,11 @@ class MainActivity : AppCompatActivity(), MainView {
             closeDrawer()
         }
         setupSmartNotifications() //function for notifications
+        //For notif testing
+//        val testRequest = androidx.work.OneTimeWorkRequestBuilder<com.example.farmforward.utils.notificationsUtils.DailyCheckWorker>().build()
+//        androidx.work.WorkManager.getInstance(this).enqueue(testRequest)
+//        val weatherTest = androidx.work.OneTimeWorkRequestBuilder<com.example.farmforward.utils.notificationsUtils.WeatherWorker>().build()
+//        androidx.work.WorkManager.getInstance(this).enqueue(weatherTest)
         controller.onViewCreated() //establish a connection for its controller
 
         handleNotificationIntent(intent)

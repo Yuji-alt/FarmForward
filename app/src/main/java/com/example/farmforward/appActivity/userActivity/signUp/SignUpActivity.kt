@@ -43,7 +43,7 @@ class SignUpActivity : AppCompatActivity(), SignUpView {
     // ---------------------------------------------------------------------------------------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hideSystemUI()
+        window.hideSystemUI()
         setContentView(R.layout.signupview)
         controller.bindView(this)
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true

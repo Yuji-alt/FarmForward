@@ -84,7 +84,7 @@ class LoadingActivity : AppCompatActivity() {
     // ---------------------------------------------------------------------------------------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hideSystemUI()
+        window.hideSystemUI()
         setContentView(R.layout.dialog_loading)
         seekBar = findViewById(R.id.loadingSeekBar)
         statusText = findViewById(R.id.tvStatus)

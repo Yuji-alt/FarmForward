@@ -12,6 +12,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.example.farmforward.R
+import com.example.farmforward.utils.otherUtils.hideSystemUI
 
 class LoadingDialogFragment : DialogFragment() {
     private lateinit var seekBar: SeekBar
@@ -36,7 +37,6 @@ class LoadingDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         return dialog
     }
@@ -48,6 +48,7 @@ class LoadingDialogFragment : DialogFragment() {
             val width = ViewGroup.LayoutParams.MATCH_PARENT
             val height = ViewGroup.LayoutParams.MATCH_PARENT
             dialog.window?.setLayout(width, height)
+            dialog.window?.hideSystemUI()
         }
     }
 

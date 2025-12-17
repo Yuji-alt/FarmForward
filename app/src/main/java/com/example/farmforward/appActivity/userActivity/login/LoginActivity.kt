@@ -167,7 +167,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
     // ---------------------------------------------------------------------------------------------
     private fun setupUI() {
         setContentView(R.layout.loginview)
-        hideSystemUI()
+        window.hideSystemUI()
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
         controller.bindView(this)
 
